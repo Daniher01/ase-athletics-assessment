@@ -18,7 +18,7 @@
 - [x] Implementar sistema de autenticación JWT
 - [x] Crear rutas de registro y login
 - [x] Configurar manejo de errores global
-- [x] Probar endpoints con Thunderclient
+- [x] Probar endpoints con Postman
 
 ### Entorno de Desarrollo
 - [x] Variables de entorno (.env)
@@ -67,6 +67,12 @@
 - [ ] Verificar validaciones de entrada
 - [ ] Confirmar manejo de errores
 - [ ] Documentar respuestas de API
+
+### Refactorización y Arquitectura
+- [ ] Organizar auth en capas (services, controllers, utils)
+- [ ] Separar lógica de negocio de rutas
+- [ ] Crear servicios reutilizables
+- [ ] Limpiar y optimizar código backend
 
 ---
 
