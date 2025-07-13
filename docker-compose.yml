@@ -1,0 +1,47 @@
+# Docker Compose para ASE Athletics - Desarrollo Local
+version: '3.8'
+
+services:
+  # Base de datos PostgreSQL
+  postgres:
+    image: postgres:15-alpine
+    container_name: ase_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ase_athletics
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin123
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/migrations:/docker-entrypoint-initdb.d
+    networks:
+      - ase_network
+
+  # PgAdmin para administración de BD
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: ase_pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@ase-athletics.com
+      PGADMIN_DEFAULT_PASSWORD: admin123
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "8080:80"
+    depends_on:
+      - postgres
+    networks:
+      - ase_network
+
+# Volúmenes para persistencia de datos
+volumes:
+  postgres_data:
+    driver: local
+
+# Red personalizada para comunicación entre contenedores
+networks:
+  ase_network:
+    driver: bridge

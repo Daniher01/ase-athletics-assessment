@@ -1,0 +1,136 @@
+// Prisma schema para ASE Athletics
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Modelo de Usuario para autenticación
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  name      String
+  role      String   @default("user") // user, scout, admin
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relación con reportes de scouting
+  scoutReports ScoutReport[]
+
+  @@map("users")
+}
+
+// Modelo principal de Jugador
+model Player {
+  id              Int     @id @default(autoincrement())
+  name            String
+  position        String
+  age             Int
+  team            String
+  nationality     String
+  height          Int     // en cm
+  weight          Int     // en kg
+  preferredFoot   String  @map("preferred_foot")
+  jerseyNumber    Int?    @map("jersey_number")
+  
+  // Estadísticas básicas
+  appearances     Int     @default(0)
+  goals           Int     @default(0)
+  assists         Int     @default(0)
+  yellowCards     Int     @default(0) @map("yellow_cards")
+  redCards        Int     @default(0) @map("red_cards")
+  minutesPlayed   Int     @default(0) @map("minutes_played")
+  
+  // Estadísticas específicas para porteros
+  saves           Int?
+  cleanSheets     Int?    @map("clean_sheets")
+  goalsConceded   Int?    @map("goals_conceded")
+  
+  // Estadísticas generales
+  shotsOnTarget   Int?    @map("shots_on_target")
+  totalShots      Int?    @map("total_shots")
+  passAccuracy    Float?  @map("pass_accuracy")
+  dribblesCompleted Int?  @map("dribbles_completed")
+  tacklesWon      Int?    @map("tackles_won")
+  aerialDuelsWon  Int?    @map("aerial_duels_won")
+  
+  // Información de contrato
+  salary          Int?    // salario semanal
+  contractEnd     String? @map("contract_end")
+  marketValue     Int?    @map("market_value")
+  
+  // URL de imagen
+  imageUrl        String? @map("image_url")
+  
+  // Timestamps
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  // Relaciones
+  attributes      PlayerAttributes?
+  scoutReports    ScoutReport[]
+
+  @@map("players")
+}
+
+// Atributos/Habilidades del jugador (separado para normalización)
+model PlayerAttributes {
+  id          Int @id @default(autoincrement())
+  playerId    Int @unique @map("player_id")
+  
+  // Atributos básicos (1-100)
+  pace        Int @default(50)
+  shooting    Int @default(50)
+  passing     Int @default(50)
+  dribbling   Int @default(50)
+  defending   Int @default(50)
+  physical    Int @default(50)
+  
+  // Atributos específicos
+  finishing   Int? @default(50)
+  crossing    Int? @default(50)
+  longShots   Int? @default(50)
+  positioning Int? @default(50)
+  
+  // Atributos específicos de portero
+  diving      Int?
+  handling    Int?
+  kicking     Int?
+  reflexes    Int?
+  
+  // Relación con jugador
+  player      Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  
+  @@map("player_attributes")
+}
+
+// Reportes de Scouting
+model ScoutReport {
+  id              Int      @id @default(autoincrement())
+  playerId        Int      @map("player_id")
+  scoutId         Int      @map("scout_id")
+  matchDate       DateTime @map("match_date")
+  competition     String?
+  opponent        String?
+  
+  // Evaluación
+  overallRating   Float    @map("overall_rating") // 1-10
+  strengths       String[]
+  weaknesses      String[]
+  recommendation  String   // "fichar", "monitorear", "pasar"
+  notes           String?
+  
+  // Timestamps
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+  
+  // Relaciones
+  player          Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  scout           User   @relation(fields: [scoutId], references: [id])
+  
+  @@map("scout_reports")
+}
