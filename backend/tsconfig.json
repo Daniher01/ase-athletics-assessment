@@ -16,10 +16,12 @@
     "removeComments": true,
     "moduleResolution": "node",
     "baseUrl": "./",
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "types": ["node"]
   },
   "include": [
-    "src/**/*"
+    "src/**/*",
+    "seeds/**/*",
   ],
   "exclude": [
     "node_modules",
