@@ -39,7 +39,7 @@
 ### API de Jugadores
 - [x] GET /api/players - Lista paginada con filtros
 - [x] GET /api/players/:id - Detalles de jugador específico
-- [ ] POST /api/players - Crear nuevo jugador
+- [x] POST /api/players - Crear nuevo jugador
 - [ ] PUT /api/players/:id - Actualizar jugador existente
 - [ ] DELETE /api/players/:id - Eliminar jugador
 
