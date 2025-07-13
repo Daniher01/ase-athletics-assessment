@@ -37,16 +37,16 @@
 - [ ] Optimizar consultas con índices
 
 ### API de Jugadores
-- [ ] GET /api/players - Lista paginada con filtros
-- [ ] GET /api/players/:id - Detalles de jugador específico
+- [x] GET /api/players - Lista paginada con filtros
+- [x] GET /api/players/:id - Detalles de jugador específico
 - [ ] POST /api/players - Crear nuevo jugador
 - [ ] PUT /api/players/:id - Actualizar jugador existente
 - [ ] DELETE /api/players/:id - Eliminar jugador
 
 ### Búsqueda y Filtrado
-- [x] GET /api/players/search - Búsqueda por texto
-- [x] Filtros por posición, equipo, nacionalidad
-- [x] Filtros por rango de edad, valor de mercado
+- [] GET /api/players/search - Búsqueda por texto
+- [] Filtros por posición, equipo, nacionalidad
+- [] Filtros por rango de edad, valor de mercado
 - [ ] Ordenamiento por múltiples criterios
 - [ ] Paginación eficiente
 

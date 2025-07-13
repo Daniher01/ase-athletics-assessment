@@ -353,4 +353,282 @@ router.get('/:id', authenticateToken, async (req: Request, res: Response) => {
   }
 });
 
+// POST /api/players - Crear nuevo jugador
+router.post('/', authenticateToken, async (req: Request, res: Response) => {
+  try {
+    const {
+      name,
+      position,
+      age,
+      team,
+      nationality,
+      height,
+      weight,
+      preferredFoot,
+      jerseyNumber,
+      
+      // Estadísticas básicas (opcionales)
+      appearances = 0,
+      goals = 0,
+      assists = 0,
+      yellowCards = 0,
+      redCards = 0,
+      minutesPlayed = 0,
+      
+      // Estadísticas específicas para porteros (opcionales)
+      saves,
+      cleanSheets,
+      goalsConceded,
+      
+      // Estadísticas adicionales (opcionales)
+      shotsOnTarget,
+      totalShots,
+      passAccuracy,
+      dribblesCompleted,
+      tacklesWon,
+      aerialDuelsWon,
+      
+      // Información de contrato (opcionales)
+      salary,
+      contractEnd,
+      marketValue,
+      
+      // Atributos del jugador (opcionales)
+      attributes
+    } = req.body;
+
+    // Validaciones requeridas
+    const requiredFields = { name, position, age, team, nationality, height, weight };
+    const missingFields = Object.entries(requiredFields)
+      .filter(([_, value]) => !value)
+      .map(([key, _]) => key);
+
+    if (missingFields.length > 0) {
+      return res.status(400).json({
+        success: false,
+        error: 'Campos requeridos faltantes',
+        message: `Los siguientes campos son requeridos: ${missingFields.join(', ')}`,
+        missingFields
+      });
+    }
+
+    // Validaciones de tipo y rango
+    if (typeof age !== 'number' || age < 16 || age > 45) {
+      return res.status(400).json({
+        success: false,
+        error: 'Edad inválida',
+        message: 'La edad debe ser un número entre 16 y 45 años'
+      });
+    }
+
+    if (typeof height !== 'number' || height < 150 || height > 220) {
+      return res.status(400).json({
+        success: false,
+        error: 'Altura inválida',
+        message: 'La altura debe ser un número entre 150 y 220 cm'
+      });
+    }
+
+    if (typeof weight !== 'number' || weight < 50 || weight > 120) {
+      return res.status(400).json({
+        success: false,
+        error: 'Peso inválido',
+        message: 'El peso debe ser un número entre 50 y 120 kg'
+      });
+    }
+
+    // Validar posición
+    const validPositions = ['Goalkeeper', 'Defender', 'Midfielder', 'Forward'];
+    if (!validPositions.includes(position)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Posición inválida',
+        message: `La posición debe ser una de: ${validPositions.join(', ')}`
+      });
+    }
+
+    // Validar pie preferido
+    const validFeet = ['Left', 'Right', 'Both'];
+    if (preferredFoot && !validFeet.includes(preferredFoot)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Pie preferido inválido',
+        message: `El pie preferido debe ser uno de: ${validFeet.join(', ')}`
+      });
+    }
+
+    // Validar número de camiseta único en el equipo (si se proporciona)
+    if (jerseyNumber !== null && jerseyNumber !== undefined) {
+      const existingPlayerWithJersey = await prisma.player.findFirst({
+        where: {
+          team: {
+            equals: team,
+            mode: 'insensitive'
+          },
+          jerseyNumber: jerseyNumber
+        }
+      });
+
+      if (existingPlayerWithJersey) {
+        return res.status(400).json({
+          success: false,
+          error: 'Número de camiseta duplicado',
+          message: `Ya existe un jugador con el número ${jerseyNumber} en ${team}`
+        });
+      }
+    }
+
+    // Generar ID único
+    const maxPlayer = await prisma.player.findFirst({
+      orderBy: { id: 'desc' },
+      select: { id: true }
+    });
+    const newId = (maxPlayer?.id || 0) + 1;
+
+    // Crear jugador
+    const newPlayer = await prisma.player.create({
+      data: {
+        id: newId,
+        name: name.trim(),
+        position,
+        age,
+        team: team.trim(),
+        nationality: nationality.trim(),
+        height,
+        weight,
+        preferredFoot: preferredFoot || 'Right',
+        jerseyNumber,
+        
+        // Estadísticas básicas
+        appearances,
+        goals,
+        assists,
+        yellowCards,
+        redCards,
+        minutesPlayed,
+        
+        // Estadísticas específicas para porteros
+        saves,
+        cleanSheets,
+        goalsConceded,
+        
+        // Estadísticas adicionales
+        shotsOnTarget,
+        totalShots,
+        passAccuracy,
+        dribblesCompleted,
+        tacklesWon,
+        aerialDuelsWon,
+        
+        // Información de contrato
+        salary,
+        contractEnd,
+        marketValue,
+        
+        // URL de imagen (generar desde nombre)
+        imageUrl: name.split(' ').map((n: string) => n[0]).join('').toUpperCase().substring(0, 2)
+      }
+    });
+
+    // Crear atributos del jugador si se proporcionan
+    let playerAttributes = null;
+    if (attributes) {
+      // Validar que los atributos estén en rango válido (1-100)
+      const validAttributes = ['pace', 'shooting', 'passing', 'dribbling', 'defending', 'physical'];
+      const invalidAttributes = validAttributes.filter(attr => {
+        const value = attributes[attr];
+        return value !== undefined && (typeof value !== 'number' || value < 1 || value > 100);
+      });
+
+      if (invalidAttributes.length > 0) {
+        // Eliminar el jugador creado si los atributos son inválidos
+        await prisma.player.delete({ where: { id: newId } });
+        
+        return res.status(400).json({
+          success: false,
+          error: 'Atributos inválidos',
+          message: `Los atributos deben estar entre 1 y 100: ${invalidAttributes.join(', ')}`
+        });
+      }
+
+      playerAttributes = await prisma.playerAttributes.create({
+        data: {
+          playerId: newId,
+          pace: attributes.pace || 50,
+          shooting: attributes.shooting || 50,
+          passing: attributes.passing || 50,
+          dribbling: attributes.dribbling || 50,
+          defending: attributes.defending || 50,
+          physical: attributes.physical || 50,
+          finishing: attributes.finishing,
+          crossing: attributes.crossing,
+          longShots: attributes.longShots,
+          positioning: attributes.positioning,
+          
+          // Atributos específicos de portero
+          diving: attributes.diving,
+          handling: attributes.handling,
+          kicking: attributes.kicking,
+          reflexes: attributes.reflexes
+        }
+      });
+    }
+
+    // Respuesta exitosa con jugador completo
+    res.status(201).json({
+      success: true,
+      message: 'Jugador creado exitosamente',
+      data: {
+        id: newPlayer.id,
+        name: newPlayer.name,
+        position: newPlayer.position,
+        age: newPlayer.age,
+        team: newPlayer.team,
+        nationality: newPlayer.nationality,
+        height: newPlayer.height,
+        weight: newPlayer.weight,
+        preferredFoot: newPlayer.preferredFoot,
+        jerseyNumber: newPlayer.jerseyNumber,
+        
+        stats: {
+          appearances: newPlayer.appearances,
+          goals: newPlayer.goals,
+          assists: newPlayer.assists,
+          yellowCards: newPlayer.yellowCards,
+          redCards: newPlayer.redCards,
+          minutesPlayed: newPlayer.minutesPlayed
+        },
+        
+        contract: {
+          salary: newPlayer.salary,
+          contractEnd: newPlayer.contractEnd,
+          marketValue: newPlayer.marketValue
+        },
+        
+        attributes: playerAttributes,
+        imageUrl: newPlayer.imageUrl,
+        createdAt: newPlayer.createdAt
+      }
+    });
+
+  } catch (error: any) {
+    console.error('Error creando jugador:', error);
+    
+    // Manejo específico de errores de Prisma
+    if (error.code === 'P2002') {
+      return res.status(400).json({
+        success: false,
+        error: 'Datos duplicados',
+        message: 'Ya existe un jugador con estos datos únicos'
+      });
+    }
+
+    res.status(500).json({
+      success: false,
+      error: 'Error interno del servidor',
+      message: 'No se pudo crear el jugador'
+    });
+  }
+});
+
 export default router;
