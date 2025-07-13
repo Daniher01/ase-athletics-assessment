@@ -31,9 +31,9 @@
 ##  **DÍA 2: Backend Central**
 
 ### Datos y Modelos
-- [ ] Cargar archivos JSON proporcionados (players, scout_reports, etc.)
-- [ ] Crear scripts de siembra de datos (seeds)
-- [ ] Verificar integridad de datos en PostgreSQL
+- [x] Cargar archivos JSON proporcionados (players, scout_reports, etc.)
+- [x] Crear scripts de siembra de datos (seeds)
+- [x] Verificar integridad de datos en PostgreSQL
 - [ ] Optimizar consultas con índices
 
 ### API de Jugadores
@@ -44,9 +44,9 @@
 - [ ] DELETE /api/players/:id - Eliminar jugador
 
 ### Búsqueda y Filtrado
-- [ ] GET /api/players/search - Búsqueda por texto
-- [ ] Filtros por posición, equipo, nacionalidad
-- [ ] Filtros por rango de edad, valor de mercado
+- [x] GET /api/players/search - Búsqueda por texto
+- [x] Filtros por posición, equipo, nacionalidad
+- [x] Filtros por rango de edad, valor de mercado
 - [ ] Ordenamiento por múltiples criterios
 - [ ] Paginación eficiente
 
