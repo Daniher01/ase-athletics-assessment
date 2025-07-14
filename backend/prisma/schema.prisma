@@ -74,6 +74,14 @@ model Player {
   attributes      PlayerAttributes?
   scoutReports    ScoutReport[]
 
+  @@index([position])
+  @@index([team])
+  @@index([nationality])
+  @@index([age])
+  @@index([marketValue])
+  @@index([position, team])
+  @@index([age, marketValue])
+
   @@map("players")
 }
 

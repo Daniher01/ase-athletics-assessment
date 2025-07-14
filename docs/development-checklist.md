@@ -34,7 +34,7 @@
 - [x] Cargar archivos JSON proporcionados (players, scout_reports, etc.)
 - [x] Crear scripts de siembra de datos (seeds)
 - [x] Verificar integridad de datos en PostgreSQL
-- [ ] Optimizar consultas con índices
+- [x] Optimizar consultas con índices
 
 ### API de Jugadores
 - [x] GET /api/players - Lista paginada con filtros
