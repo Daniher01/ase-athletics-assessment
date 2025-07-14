@@ -51,10 +51,10 @@
 - [ ] Paginación eficiente
 
 ### Dashboard y Estadísticas
-- [ ] GET /api/dashboard/stats - Métricas generales
-- [ ] Estadísticas por posición
-- [ ] Distribución por equipos y ligas
-- [ ] Promedios de edad, valor de mercado, etc.
+- [x] GET /api/dashboard/stats - Métricas generales
+- [x] Estadísticas por posición
+- [x] Distribución por equipos y ligas
+- [x] Promedios de edad, valor de mercado, etc.
 
 ### Middleware de Autenticación
 - [ ] Proteger todas las rutas con JWT
