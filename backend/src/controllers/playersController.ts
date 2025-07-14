@@ -145,6 +145,14 @@ export class PlayersController {
 
     } catch (error: any) {
       console.error('Error en PlayersController.createPlayer:', error);
+
+      if (error.code === 'P2002') {
+        return res.status(400).json({
+          success: false,
+          error: 'Datos duplicados',
+          message: 'Ya existe un jugador con estos datos únicos'
+        });
+      }
       
       // Errores de validación (vienen del service)
       if (error.message.includes('requerido') || 

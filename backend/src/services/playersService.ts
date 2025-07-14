@@ -100,9 +100,16 @@ export class PlayersService {
         throw new Error(validation.errors.join(', '));
       }
 
+        const maxPlayer = await this.prisma.player.findFirst({
+          orderBy: { id: 'desc' },
+          select: { id: true }
+        });
+        const newId = (maxPlayer?.id || 0) + 1;
+
       // Crear jugador con atributos
       const player = await this.prisma.player.create({
         data: {
+          id: newId,
           name: data.name.trim(),
           position: data.position,
           age: data.age,
