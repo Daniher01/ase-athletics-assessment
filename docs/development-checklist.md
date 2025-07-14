@@ -57,11 +57,11 @@
 - [x] Promedios de edad, valor de mercado, etc.
 
 ### Middleware de Autenticación
-- [ ] Proteger todas las rutas con JWT
-- [ ] Validación de permisos por endpoint
+- [x] Proteger todas las rutas con JWT
+- [x] Validación de permisos por endpoint
 
 ### Testing
-- [ ] Probar todos los endpoints con Thunderclient
+- [ ] Probar todos los endpoints con Postman
 - [ ] Verificar validaciones de entrada
 - [ ] Confirmar manejo de errores
 - [ ] Documentar respuestas de API

@@ -26,7 +26,7 @@ export class AuthService {
         throw new Error('Email, contraseña y nombre son requeridos');
       }
 
-      // Verificar si el usuario ya existe (tu lógica exacta)
+      // Verificar si el usuario ya existe 
       const existingUser = await this.prisma.user.findUnique({
         where: { email: email.toLowerCase() }
       });
@@ -81,12 +81,12 @@ export class AuthService {
     try {
       const { email, password } = data;
 
-      // Validaciones básicas (tu lógica exacta)
+      // Validaciones básicas 
       if (!email || !password) {
         throw new Error('Email y contraseña son requeridos');
       }
 
-      // Buscar usuario por email (tu lógica exacta)
+      // Buscar usuario por email 
       const user = await this.prisma.user.findUnique({
         where: { email: email.toLowerCase() }
       });
@@ -95,14 +95,14 @@ export class AuthService {
         throw new Error('Email o contraseña incorrectos');
       }
 
-      // Verificar contraseña (tu lógica exacta)
+      // Verificar contraseña 
       const isPasswordValid = await bcrypt.compare(password, user.password);
 
       if (!isPasswordValid) {
         throw new Error('Email o contraseña incorrectos');
       }
 
-      // Crear JWT token (tu lógica exacta)
+      // Crear JWT token 
       const tokenPayload: JWTPayload = {
         userId: user.id,
         email: user.email,
@@ -111,7 +111,7 @@ export class AuthService {
 
       const token = jwt.sign(tokenPayload, process.env.JWT_SECRET || 'fallback_secret');
 
-      // Respuesta sin incluir la contraseña (tu lógica exacta)
+      // Respuesta sin incluir la contraseña 
       const userResponse: UserResponse = {
         id: user.id,
         email: user.email,
