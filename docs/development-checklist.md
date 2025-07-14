@@ -45,10 +45,10 @@
 
 ### Búsqueda y Filtrado
 - [x] GET /api/players/search - Búsqueda por texto
-- [] Filtros por posición, equipo, nacionalidad
-- [] Filtros por rango de edad, valor de mercado
-- [ ] Ordenamiento por múltiples criterios
-- [ ] Paginación eficiente
+- [x] Filtros por posición, equipo, nacionalidad
+- [x] Filtros por rango de edad, valor de mercado
+- [x] Ordenamiento por múltiples criterios
+- [x] Paginación eficiente
 
 ### Dashboard y Estadísticas
 - [x] GET /api/dashboard/stats - Métricas generales
