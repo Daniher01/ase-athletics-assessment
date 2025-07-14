@@ -21,7 +21,7 @@ export class PlayersController {
   // ============= GET /api/players =============
   static async getPlayers(req: Request, res: Response) {
     try {
-      // Extraer parámetros de query (exactamente como los tenías)
+      // Extraer parámetros de query
       const {
         position,
         team,
@@ -61,7 +61,7 @@ export class PlayersController {
       // Parsear paginación
       const pagination = PlayerValidation.validatePagination(page, limit);
 
-      // Llamar al servicio (aquí está toda tu lógica actual)
+      // Llamar al servicio
       const result = await playersService.getPlayers(filters, sort, pagination);
 
       // Respuesta exitosa (mismo formato que tenías)

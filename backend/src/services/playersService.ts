@@ -35,7 +35,7 @@ export class PlayersService {
       // Calcular offset para paginación
       const skip = (pagination.page - 1) * pagination.limit;
 
-      // Ejecutar consultas en paralelo (mejor rendimiento)
+      // Ejecutar consultas en paralelo
       const [players, totalCount] = await Promise.all([
         this.prisma.player.findMany({
           where: whereClause,
