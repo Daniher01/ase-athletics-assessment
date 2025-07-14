@@ -125,7 +125,7 @@ export class PlayerValidation {
     }
 
     if (data.attributes) {
-      const attributeErrors = this.validatePlayerAttributes(data.attributes);
+      const attributeErrors = this.validatePlayerAttributes(data.attributes, true);
       errors.push(...attributeErrors);
     }
 
@@ -136,19 +136,30 @@ export class PlayerValidation {
   }
 
   // ============= VALIDAR ATRIBUTOS DE JUGADOR =============
-  private static validatePlayerAttributes(attributes: PlayerAttributes): string[] {
+  private static validatePlayerAttributes(attributes: PlayerAttributes,  isUpdate: boolean = false): string[] {
     const errors: string[] = [];
-    
-    const requiredAttributes = ['pace', 'shooting', 'passing', 'dribbling', 'defending', 'physical'];
-    
-    for (const attr of requiredAttributes) {
-      const value = (attributes as any)[attr];
-      if (value === undefined || value === null) {
-        errors.push(`El atributo ${attr} es requerido`);
-      } else if (typeof value !== 'number' || value < 1 || value > 100) {
-        errors.push(`El atributo ${attr} debe estar entre 1 y 100`);
+
+      if (isUpdate) {
+        // Para UPDATE: validar solo los que se envían
+        Object.entries(attributes).forEach(([key, value]) => {
+          if (typeof value !== 'number' || value < 1 || value > 100) {
+            errors.push(`El atributo ${key} debe estar entre 1 y 100`);
+          }
+        });
+      }else {
+        const requiredAttributes = ['pace', 'shooting', 'passing', 'dribbling', 'defending', 'physical'];
+        
+        for (const attr of requiredAttributes) {
+          const value = (attributes as any)[attr];
+          if (value === undefined || value === null) {
+            errors.push(`El atributo ${attr} es requerido`);
+          } else if (typeof value !== 'number' || value < 1 || value > 100) {
+            errors.push(`El atributo ${attr} debe estar entre 1 y 100`);
+          }
+        }
       }
-    }
+    
+
 
     return errors;
   }
