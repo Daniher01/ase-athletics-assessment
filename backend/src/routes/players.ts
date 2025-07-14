@@ -948,4 +948,98 @@ router.put('/:id', authenticateToken, async (req: Request, res: Response) => {
   }
 });
 
+// DELETE /api/players/:id - Eliminar jugador
+router.delete('/:id', authenticateToken, async (req: Request, res: Response) => {
+  try {
+    const playerId = parseInt(req.params.id);
+
+    if (isNaN(playerId)) {
+      return res.status(400).json({
+        success: false,
+        error: 'ID inválido',
+        message: 'El ID del jugador debe ser un número'
+      });
+    }
+
+    // Verificar que el jugador existe
+    const existingPlayer = await prisma.player.findUnique({
+      where: { id: playerId },
+      include: {
+        attributes: true,
+        scoutReports: {
+          select: { id: true }
+        }
+      }
+    });
+
+    if (!existingPlayer) {
+      return res.status(404).json({
+        success: false,
+        error: 'Jugador no encontrado',
+        message: `No se encontró un jugador con ID ${playerId}`
+      });
+    }
+
+    // Verificar si tiene reportes de scouting asociados
+    const hasScoutReports = existingPlayer.scoutReports.length > 0;
+
+    // Opcional: Prevenir eliminación si tiene reportes
+    if (hasScoutReports) {
+      // Eliminar todo en cascada
+      console.log(`Eliminando jugador ${existingPlayer.name} con ${existingPlayer.scoutReports.length} reportes asociados`);
+      
+    }
+
+    // Guardar información del jugador para la respuesta
+    const deletedPlayerInfo = {
+      id: existingPlayer.id,
+      name: existingPlayer.name,
+      position: existingPlayer.position,
+      team: existingPlayer.team,
+      scoutReportsCount: existingPlayer.scoutReports.length
+    };
+
+    // Eliminar jugador (esto eliminará automáticamente los atributos y reportes por la configuración de Prisma Cascade)
+    await prisma.player.delete({
+      where: { id: playerId }
+    });
+
+    // Respuesta exitosa
+    res.status(200).json({
+      success: true,
+      message: `Jugador ${deletedPlayerInfo.name} eliminado exitosamente`,
+      data: {
+        deletedPlayer: deletedPlayerInfo,
+        deletedAt: new Date().toISOString()
+      }
+    });
+
+  } catch (error: any) {
+    console.error('Error eliminando jugador:', error);
+    
+    // Manejo específico de errores de Prisma
+    if (error.code === 'P2003') {
+      return res.status(400).json({
+        success: false,
+        error: 'No se puede eliminar',
+        message: 'El jugador tiene datos relacionados que impiden su eliminación'
+      });
+    }
+
+    if (error.code === 'P2025') {
+      return res.status(404).json({
+        success: false,
+        error: 'Jugador no encontrado',
+        message: 'El jugador ya fue eliminado o no existe'
+      });
+    }
+
+    res.status(500).json({
+      success: false,
+      error: 'Error interno del servidor',
+      message: 'No se pudo eliminar el jugador'
+    });
+  }
+});
+
 export default router;
