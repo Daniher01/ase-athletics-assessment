@@ -61,10 +61,10 @@
 - [x] Validación de permisos por endpoint
 
 ### Testing
-- [ ] Probar todos los endpoints con Postman
-- [ ] Verificar validaciones de entrada
-- [ ] Confirmar manejo de errores
-- [ ] Documentar respuestas de API
+- [x] Probar todos los endpoints con Postman
+- [x] Verificar validaciones de entrada
+- [x] Confirmar manejo de errores
+- [x] Documentar respuestas de API
 
 ### Refactorización y Arquitectura
 - [x] Organizar auth en capas (services, controllers, utils)
