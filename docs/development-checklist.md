@@ -67,10 +67,10 @@
 - [ ] Documentar respuestas de API
 
 ### Refactorización y Arquitectura
-- [ ] Organizar auth en capas (services, controllers, utils)
-- [ ] Separar lógica de negocio de rutas
-- [ ] Crear servicios reutilizables
-- [ ] Limpiar y optimizar código backend
+- [x] Organizar auth en capas (services, controllers, utils)
+- [x] Separar lógica de negocio de rutas
+- [x] Crear servicios reutilizables
+- [x] Limpiar y optimizar código backend
 
 ---
 
