@@ -35,10 +35,10 @@ export class AuthService {
         throw new Error('Ya existe un usuario con este email');
       }
 
-      // Hashear la contraseña (tu lógica exacta)
+      // Hashear la contraseña
       const hashedPassword = await bcrypt.hash(password, 12);
 
-      // Crear usuario en la base de datos (tu lógica exacta)
+      // Crear usuario en la base de datos
       const newUser = await this.prisma.user.create({
         data: {
           email: email.toLowerCase(),
@@ -55,7 +55,7 @@ export class AuthService {
         }
       });
 
-      // Crear JWT token (tu lógica exacta)
+      // Crear JWT token
       const tokenPayload: JWTPayload = {
         userId: newUser.id,
         email: newUser.email,
