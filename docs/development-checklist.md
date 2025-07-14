@@ -44,7 +44,7 @@
 - [x] DELETE /api/players/:id - Eliminar jugador
 
 ### Búsqueda y Filtrado
-- [] GET /api/players/search - Búsqueda por texto
+- [x] GET /api/players/search - Búsqueda por texto
 - [] Filtros por posición, equipo, nacionalidad
 - [] Filtros por rango de edad, valor de mercado
 - [ ] Ordenamiento por múltiples criterios

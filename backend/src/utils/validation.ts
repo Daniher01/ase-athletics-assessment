@@ -24,11 +24,7 @@ export class PlayerValidation {
     }
 
     // Validar posición
-    const validPositions = [
-      'Portero', 'Defensa Central', 'Lateral Derecho', 'Lateral Izquierdo',
-      'Mediocentro Defensivo', 'Mediocentro', 'Mediocentro Ofensivo',
-      'Extremo Derecho', 'Extremo Izquierdo', 'Delantero Centro'
-    ];
+    const validPositions = ['Goalkeeper', 'Defender', 'Midfielder', 'Forward'];
     
     if (!data.position || !validPositions.includes(data.position)) {
       errors.push(`La posición debe ser una de: ${validPositions.join(', ')}`);
