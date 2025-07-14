@@ -41,7 +41,7 @@
 - [x] GET /api/players/:id - Detalles de jugador específico
 - [x] POST /api/players - Crear nuevo jugador
 - [x] PUT /api/players/:id - Actualizar jugador existente
-- [ ] DELETE /api/players/:id - Eliminar jugador
+- [x] DELETE /api/players/:id - Eliminar jugador
 
 ### Búsqueda y Filtrado
 - [] GET /api/players/search - Búsqueda por texto
@@ -58,9 +58,7 @@
 
 ### Middleware de Autenticación
 - [ ] Proteger todas las rutas con JWT
-- [ ] Implementar roles de usuario (user, scout, admin)
 - [ ] Validación de permisos por endpoint
-- [ ] Refresh token (opcional)
 
 ### Testing
 - [ ] Probar todos los endpoints con Thunderclient
