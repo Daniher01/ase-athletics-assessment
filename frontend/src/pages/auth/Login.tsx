@@ -1,0 +1,83 @@
+import { useState } from 'react'
+import { Link } from 'react-router-dom'
+
+export default function Login() {
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    console.log('Login:', { email, password })
+  }
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 to-secondary-100">
+      <div className="max-w-md w-full mx-4">
+        <div className="text-center mb-8">
+          <div className="bg-primary-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+            <span className="text-white text-2xl font-bold">ASE</span>
+          </div>
+          <h2 className="text-3xl font-bold text-secondary-800">
+            Bienvenido de vuelta
+          </h2>
+          <p className="text-secondary-600 mt-2">
+            Ingresa a tu cuenta de ASE Athletics
+          </p>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-lg p-8">
+          <form className="space-y-6" onSubmit={handleSubmit}>
+            <div>
+              <label htmlFor="email" className="block text-sm font-semibold text-secondary-700 mb-2">
+                Correo electrónico
+              </label>
+              <input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full px-4 py-3 border border-secondary-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                placeholder="tu@email.com"
+                required
+              />
+            </div>
+
+            <div>
+              <label htmlFor="password" className="block text-sm font-semibold text-secondary-700 mb-2">
+                Contraseña
+              </label>
+              <input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full px-4 py-3 border border-secondary-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                placeholder="••••••••"
+                required
+              />
+            </div>
+
+            <button
+              type="submit"
+              className="w-full bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors shadow-md hover:shadow-lg"
+            >
+              Iniciar Sesión
+            </button>
+          </form>
+
+          <div className="mt-6 text-center">
+            <p className="text-secondary-600">
+              ¿No tienes cuenta?{' '}
+              <Link 
+                to="/register" 
+                className="text-primary-600 hover:text-primary-700 font-semibold"
+              >
+                Regístrate aquí
+              </Link>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
