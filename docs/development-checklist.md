@@ -90,7 +90,7 @@
 - [x] Persistencia de token en localStorage
 
 ### Páginas Básicas
-- [ ] Layout principal con navegación
+- [x] Layout principal con navegación
 - [ ] Dashboard con métricas básicas
 - [ ] Lista de jugadores con tabla
 - [ ] Página de detalle de jugador
