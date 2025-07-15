@@ -87,7 +87,7 @@
 - [x] Páginas de login y registro
 - [x] Context para manejo de autenticación
 - [x] Protección de rutas privadas
-- [ ] Persistencia de token en localStorage
+- [x] Persistencia de token en localStorage
 
 ### Páginas Básicas
 - [ ] Layout principal con navegación
