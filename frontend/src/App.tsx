@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { ProtectedRoute } from './components/ProtectedRoute'
 import Dashboard from './pages/Dashboard'
 import Players from './pages/Players'
 import Login from './pages/auth/Login'
@@ -9,10 +10,27 @@ function App() {
     <Router>
       <div className="min-h-screen bg-gray-50">
         <Routes>
+          {/* Rutas públicas */}
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/players" element={<Players />} />
+          
+          {/* Rutas protegidas */}
+          <Route 
+            path="/" 
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/players" 
+            element={
+              <ProtectedRoute>
+                <Players />
+              </ProtectedRoute>
+            } 
+          />
         </Routes>
       </div>
     </Router>

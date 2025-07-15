@@ -84,9 +84,9 @@
 - [x] Configurar Axios para llamadas API
 
 ### Autenticación Frontend
-- [ ] Páginas de login y registro
-- [ ] Context para manejo de autenticación
-- [ ] Protección de rutas privadas
+- [x] Páginas de login y registro
+- [x] Context para manejo de autenticación
+- [x] Protección de rutas privadas
 - [ ] Persistencia de token en localStorage
 
 ### Páginas Básicas
