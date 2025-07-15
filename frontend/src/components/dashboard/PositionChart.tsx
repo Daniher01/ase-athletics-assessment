@@ -30,6 +30,7 @@ const PositionChart: React.FC<PositionChartProps> = ({ data, loading }) => {
   const totalMainPositions = mainPositions.reduce((sum, item) => sum + item.count, 0);
   const chartData = mainPositions.map(item => ({
     ...item,
+    name: item.position, // Agregar name para la leyenda
     percentage: (item.count / totalMainPositions) * 100
   }));
 
@@ -96,6 +97,7 @@ const PositionChart: React.FC<PositionChartProps> = ({ data, loading }) => {
               outerRadius={80}
               paddingAngle={2}
               dataKey="count"
+              nameKey="name"
             >
               {chartData.map((entry, index) => (
                 <Cell 
