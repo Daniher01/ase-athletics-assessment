@@ -1,0 +1,2 @@
+- voy por el frontend, especificamente por el players (punto 3 de páginas básicas del día 3)
+- me da error al traer los playres, tengo que verificar si trae los ednpoints que son y si lee correctamente la estructura del backend
