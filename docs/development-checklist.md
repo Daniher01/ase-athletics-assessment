@@ -35,6 +35,7 @@
 - [x] Crear scripts de siembra de datos (seeds)
 - [x] Verificar integridad de datos en PostgreSQL
 - [x] Optimizar consultas con índices
+- [ ] Crear relacion entre tabla users y ScoutReport mediante scout_id
 
 ### API de Jugadores
 - [x] GET /api/players - Lista paginada con filtros
@@ -80,7 +81,7 @@
 - [x] Crear proyecto React con TypeScript
 - [x] Configurar Tailwind CSS
 - [x] Configurar React Router
-- [ ] Configurar Axios para llamadas API
+- [x] Configurar Axios para llamadas API
 
 ### Autenticación Frontend
 - [ ] Páginas de login y registro
