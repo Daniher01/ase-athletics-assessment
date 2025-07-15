@@ -77,9 +77,9 @@
 ## ⏳ **DÍA 3: Frontend Básico**
 
 ### Configuración Frontend
-- [ ] Crear proyecto React con TypeScript
-- [ ] Configurar Tailwind CSS
-- [ ] Configurar React Router
+- [x] Crear proyecto React con TypeScript
+- [x] Configurar Tailwind CSS
+- [x] Configurar React Router
 - [ ] Configurar Axios para llamadas API
 
 ### Autenticación Frontend
