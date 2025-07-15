@@ -91,7 +91,7 @@
 
 ### Páginas Básicas
 - [x] Layout principal con navegación
-- [ ] Dashboard con métricas básicas
+- [x] Dashboard con métricas básicas
 - [ ] Lista de jugadores con tabla
 - [ ] Página de detalle de jugador
 - [ ] Formularios de crear/editar jugador
