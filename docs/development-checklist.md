@@ -93,11 +93,11 @@
 - [x] Layout principal con navegación
 - [x] Dashboard con métricas básicas
 - [x] Lista de jugadores con tabla
-- [ ] Página de detalle de jugador
+- [x] Página de detalle de jugador
 - [ ] Formularios de crear/editar jugador
 
 ### Integración API
-- [ ] Servicios para consumir API
+- [x] Servicios para consumir API
 - [ ] Manejo de estados de carga
 - [ ] Manejo de errores de API
 - [ ] Actualización reactiva de datos
