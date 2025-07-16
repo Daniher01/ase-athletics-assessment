@@ -4,6 +4,7 @@ import Dashboard from './pages/Dashboard'
 import Players from './pages/Players'
 import Login from './pages/auth/Login'
 import Register from './pages/auth/Register'
+import PlayerDetail from './pages/PlayerDetail';
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
               </ProtectedRoute>
             } 
           />
+          <Route path="/players/:id" element={<PlayerDetail />} />
         </Routes>
       </div>
     </Router>

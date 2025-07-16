@@ -91,15 +91,15 @@ class PlayerService {
     }
   }
 
-  async getPlayerById(id: number): Promise<Player> {
-    try {
-      const response = await api.get(`/players/${id}`);
-      return response.data;
-    } catch (error) {
-      console.error('Error fetching player:', error);
-      throw error;
-    }
+async getPlayerById(id: number): Promise<Player> {
+  try {
+    const response = await api.get(`/players/${id}`);
+    return response.data.data;
+  } catch (error) {
+    console.error('Error fetching player:', error);
+    throw error;
   }
+}
 
   async createPlayer(playerData: Omit<Player, 'id'>): Promise<Player> {
     try {

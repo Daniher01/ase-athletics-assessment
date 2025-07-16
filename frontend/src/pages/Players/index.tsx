@@ -5,6 +5,7 @@ import Layout from '../../components/common/Layout';
 import PlayersTable from '../../components/players/PlayersTable';
 import PlayersFilters from '../../components/players/PlayersFilters';
 import Pagination from '../../components/common/Pagination';
+import { useNavigate } from 'react-router-dom';
 import { 
   playerService, 
   Player, 
@@ -13,6 +14,7 @@ import {
 } from '../../services/playerService';
 
 const PlayersPage: React.FC = () => {
+  const navigate = useNavigate();
   const [players, setPlayers] = useState<Player[]>([]);
   const [pagination, setPagination] = useState({
     page: 1,
@@ -121,8 +123,7 @@ const PlayersPage: React.FC = () => {
   };
 
   const handleViewPlayer = (player: Player) => {
-    // TODO: Navegar a página de detalle del jugador
-    console.log('View player:', player);
+    navigate(`/players/${player.id}`);
   };
 
   const handleEditPlayer = (player: Player) => {
