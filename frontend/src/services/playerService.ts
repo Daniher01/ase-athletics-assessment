@@ -91,20 +91,20 @@ class PlayerService {
     }
   }
 
-async getPlayerById(id: number): Promise<Player> {
-  try {
-    const response = await api.get(`/players/${id}`);
-    return response.data.data;
-  } catch (error) {
-    console.error('Error fetching player:', error);
-    throw error;
+  async getPlayerById(id: number): Promise<Player> {
+    try {
+      const response = await api.get(`/players/${id}`);
+      return response.data.data; // Ajustar según tu estructura de API
+    } catch (error) {
+      console.error('Error fetching player:', error);
+      throw error;
+    }
   }
-}
 
-  async createPlayer(playerData: Omit<Player, 'id'>): Promise<Player> {
+  async createPlayer(playerData: Omit<Player, 'id' | 'createdAt' | 'updatedAt'>): Promise<Player> {
     try {
       const response = await api.post('/players', playerData);
-      return response.data;
+      return response.data.data; // Ajustar según tu estructura de API
     } catch (error) {
       console.error('Error creating player:', error);
       throw error;
@@ -114,7 +114,7 @@ async getPlayerById(id: number): Promise<Player> {
   async updatePlayer(id: number, playerData: Partial<Player>): Promise<Player> {
     try {
       const response = await api.put(`/players/${id}`, playerData);
-      return response.data;
+      return response.data.data; // Ajustar según tu estructura de API
     } catch (error) {
       console.error('Error updating player:', error);
       throw error;

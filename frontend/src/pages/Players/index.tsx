@@ -1,11 +1,12 @@
 // src/pages/Players/index.tsx
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { AlertCircle, Trash2 } from 'lucide-react';
 import Layout from '../../components/common/Layout';
 import PlayersTable from '../../components/players/PlayersTable';
 import PlayersFilters from '../../components/players/PlayersFilters';
+import PlayerForm from '../../components/players/PlayerForm';
 import Pagination from '../../components/common/Pagination';
-import { useNavigate } from 'react-router-dom';
 import { 
   playerService, 
   Player, 
@@ -37,6 +38,9 @@ const PlayersPage: React.FC = () => {
   // Estados para modales
   const [playerToDelete, setPlayerToDelete] = useState<Player | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [playerToEdit, setPlayerToEdit] = useState<Player | null>(null);
+  const [showPlayerForm, setShowPlayerForm] = useState(false);
+  const [formLoading, setFormLoading] = useState(false);
 
   // Cargar datos iniciales
   useEffect(() => {
@@ -79,10 +83,10 @@ const PlayersPage: React.FC = () => {
         filters
       );
       
-      setPlayers(response.data); // Cambiar de response.players a response.data
+      setPlayers(response.data);
       setPagination(prev => ({
         ...prev,
-        total: response.pagination.totalCount, // Cambiar de total a totalCount
+        total: response.pagination.totalCount,
         totalPages: response.pagination.totalPages
       }));
     } catch (err) {
@@ -127,13 +131,42 @@ const PlayersPage: React.FC = () => {
   };
 
   const handleEditPlayer = (player: Player) => {
-    // TODO: Abrir modal o navegar a página de edición
-    console.log('Edit player:', player);
+    setPlayerToEdit(player);
+    setShowPlayerForm(true);
   };
 
   const handleDeletePlayer = (player: Player) => {
     setPlayerToDelete(player);
     setShowDeleteModal(true);
+  };
+
+  const handleAddPlayer = () => {
+    setPlayerToEdit(null);
+    setShowPlayerForm(true);
+  };
+
+  const handleSavePlayer = async (playerData: any) => {
+    try {
+      setFormLoading(true);
+      
+      if (playerToEdit) {
+        // Actualizar jugador existente
+        await playerService.updatePlayer(playerToEdit.id, playerData);
+      } else {
+        // Crear nuevo jugador
+        await playerService.createPlayer(playerData);
+      }
+      
+      // Recargar lista de jugadores
+      await loadPlayers();
+      setShowPlayerForm(false);
+      setPlayerToEdit(null);
+    } catch (err) {
+      console.error('Error saving player:', err);
+      setError('Error al guardar el jugador');
+    } finally {
+      setFormLoading(false);
+    }
   };
 
   const confirmDeletePlayer = async () => {
@@ -148,11 +181,6 @@ const PlayersPage: React.FC = () => {
       console.error('Error deleting player:', err);
       setError('Error al eliminar el jugador');
     }
-  };
-
-  const handleAddPlayer = () => {
-    // TODO: Abrir modal o navegar a página de creación
-    console.log('Add new player');
   };
 
   if (error) {
@@ -221,6 +249,21 @@ const PlayersPage: React.FC = () => {
             onItemsPerPageChange={handleItemsPerPageChange}
           />
         )}
+
+        {/* Player Form Modal */}
+        <PlayerForm
+          player={playerToEdit}
+          isOpen={showPlayerForm}
+          onClose={() => {
+            setShowPlayerForm(false);
+            setPlayerToEdit(null);
+          }}
+          onSave={handleSavePlayer}
+          loading={formLoading}
+          teams={teams}
+          nationalities={nationalities}
+          positions={positions}
+        />
 
         {/* Delete Confirmation Modal */}
         {showDeleteModal && playerToDelete && (
