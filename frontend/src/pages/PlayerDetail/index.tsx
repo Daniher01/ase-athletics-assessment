@@ -15,6 +15,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import Layout from "../../components/common/Layout";
+import PlayerForm from "../../components/players/PlayerForm";
 import PlayerAttributes from "../../components/players/PlayerAttributes";
 import PlayerStats from "../../components/players/PlayerStats";
 import ContractInfo from "../../components/players/ContractInfo";
@@ -26,12 +27,34 @@ const PlayerDetail: React.FC = () => {
   const [player, setPlayer] = useState<Player | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showEditForm, setShowEditForm] = useState(false);
+  const [formLoading, setFormLoading] = useState(false);
+  const [teams, setTeams] = useState<string[]>([]);
+  const [nationalities, setNationalities] = useState<string[]>([]);
+  const [positions, setPositions] = useState<string[]>([]);
 
   useEffect(() => {
     if (id) {
       loadPlayer(parseInt(id));
+      loadFilterData();
     }
   }, [id]);
+
+  const loadFilterData = async () => {
+    try {
+      const [teamsData, nationalitiesData, positionsData] = await Promise.all([
+        playerService.getTeams().catch(() => []),
+        playerService.getNationalities().catch(() => []),
+        playerService.getPositions().catch(() => [])
+      ]);
+      
+      setTeams(teamsData);
+      setNationalities(nationalitiesData);
+      setPositions(positionsData);
+    } catch (err) {
+      console.error('Error loading filter data:', err);
+    }
+  };
 
   const loadPlayer = async (playerId: number) => {
     try {
@@ -48,8 +71,22 @@ const PlayerDetail: React.FC = () => {
   };
 
   const handleEdit = () => {
-    // TODO: Implementar navegación a página de edición
-    console.log("Edit player:", player?.id);
+    setShowEditForm(true);
+  };
+
+  const handleSavePlayer = async (playerData: any) => {
+    if (!player) return;
+    try {
+      setFormLoading(true);
+      await playerService.updatePlayer(player.id, playerData);
+      await loadPlayer(player.id);
+      setShowEditForm(false);
+    } catch (err) {
+      console.error('Error updating player:', err);
+      setError('Error al actualizar el jugador');
+    } finally {
+      setFormLoading(false);
+    }
   };
 
   const handleDelete = () => {
@@ -150,7 +187,6 @@ const PlayerDetail: React.FC = () => {
           Volver a jugadores
         </button>
 
-        {/* Player Header */}
         {/* Player Header */}
         <div className="bg-white rounded-lg shadow-sm border border-secondary-200 p-4 md:p-6 mb-6">
           <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
@@ -318,6 +354,20 @@ const PlayerDetail: React.FC = () => {
             </div>
           </div>
         </div>
+
+        {/* Player Form Modal */}
+        {player && (
+          <PlayerForm
+            player={player}
+            isOpen={showEditForm}
+            onClose={() => setShowEditForm(false)}
+            onSave={handleSavePlayer}
+            loading={formLoading}
+            teams={teams}
+            nationalities={nationalities}
+            positions={positions}
+          />
+        )}
       </div>
     </Layout>
   );
