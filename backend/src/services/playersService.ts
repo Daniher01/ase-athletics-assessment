@@ -168,7 +168,7 @@ export class PlayersService {
       if (data.goals !== undefined) updateData.goals = data.goals;
       if (data.assists !== undefined) updateData.assists = data.assists;
       if (data.appearances !== undefined) updateData.appearances = data.appearances;
-      if (data.salary !== undefined) updateData.salary = data.salary.toString();
+      if (data.salary !== undefined) updateData.salary = data.salary;
       if (data.contractEnd !== undefined) updateData.contractEnd = new Date(data.contractEnd);
       if (data.marketValue !== undefined) updateData.marketValue = data.marketValue;
       if (data.imageUrl !== undefined) updateData.imageUrl = data.imageUrl;

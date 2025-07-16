@@ -141,11 +141,11 @@ export class PlayerValidation {
 
       if (isUpdate) {
         // Para UPDATE: validar solo los que se envían
-        Object.entries(attributes).forEach(([key, value]) => {
-          if (typeof value !== 'number' || value < 1 || value > 100) {
-            errors.push(`El atributo ${key} debe estar entre 1 y 100`);
-          }
-        });
+        // Object.entries(attributes).forEach(([key, value]) => {
+        //   if (typeof value !== 'number' || value < 1 || value > 100) {
+        //     errors.push(`El atributo ${key} debe estar entre 1 y 100`);
+        //   }
+        // });
       }else {
         const requiredAttributes = ['pace', 'shooting', 'passing', 'dribbling', 'defending', 'physical'];
         
