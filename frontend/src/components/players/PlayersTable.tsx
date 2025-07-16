@@ -187,12 +187,12 @@ const PlayersTable: React.FC<PlayersTableProps> = ({
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-secondary-900">
                   <div className="flex items-center">
-                    <span className="font-medium">{player.stats.goals}</span>
-                    <span className="text-secondary-500 ml-1">({player.stats.appearances})</span>
+                    <span className="font-medium">{player.goals}</span>
+                    <span className="text-secondary-500 ml-1">({player.appearances})</span>
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-secondary-900">
-                  {player.stats.assists}
+                  {player.assists}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-secondary-900">
                   {player.marketValue ? formatCompactNumber(player.marketValue) : 'N/A'}

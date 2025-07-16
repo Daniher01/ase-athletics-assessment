@@ -10,25 +10,12 @@ export interface Player {
   nationality: string;
   height: number;
   weight: number;
-  preferredFoot: string;
-  jerseyNumber: number;
-  stats: {
-    appearances: number;
-    goals: number;
-    assists: number;
-    yellowCards: number;
-    redCards: number;
-    minutesPlayed: number;
-    shotsOnTarget?: number;
-    totalShots?: number;
-    passAccuracy: number;
-    dribblesCompleted?: number;
-    tacklesWon?: number;
-    aerialDuelsWon?: number;
-    saves?: number;
-    cleanSheets?: number;
-    goalsConceded?: number;
-  };
+  goals: number;
+  assists: number;
+  appearances: number;
+  salary: number;
+  contractEnd: string;
+  marketValue: number;
   attributes: {
     pace: number;
     shooting: number;
@@ -44,25 +31,25 @@ export interface Player {
     handling?: number;
     kicking?: number;
     reflexes?: number;
-    speed?: number;
-    positioning_gk?: number;
   };
-  contract: {
-    salary: number;
-    contractEnd: string;
-  };
-  marketValue?: number;
   imageUrl?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface PlayersResponse {
-  players: Player[];
+  success: boolean;
+  message: string;
+  data: Player[];
   pagination: {
-    page: number;
-    limit: number;
-    total: number;
+    currentPage: number;
     totalPages: number;
+    totalCount: number;
+    limit: number;
+    hasNextPage: boolean;
+    hasPrevPage: boolean;
   };
+  filters: any;
 }
 
 export interface PlayerFilters {
@@ -97,7 +84,7 @@ class PlayerService {
       });
 
       const response = await api.get(`/players?${params}`);
-      return response.data;
+      return response.data; // Ya viene en el formato correcto
     } catch (error) {
       console.error('Error fetching players:', error);
       throw error;
@@ -157,7 +144,7 @@ class PlayerService {
   async getTeams(): Promise<string[]> {
     try {
       const response = await this.getPlayers(1, 1000); // Obtener todos los jugadores
-      const teams = [...new Set(response.players.map(player => player.team))];
+      const teams = [...new Set(response.data.map(player => player.team))];
       return teams.sort();
     } catch (error) {
       console.error('Error fetching teams:', error);
@@ -168,7 +155,7 @@ class PlayerService {
   async getNationalities(): Promise<string[]> {
     try {
       const response = await this.getPlayers(1, 1000); // Obtener todos los jugadores
-      const nationalities = [...new Set(response.players.map(player => player.nationality))];
+      const nationalities = [...new Set(response.data.map(player => player.nationality))];
       return nationalities.sort();
     } catch (error) {
       console.error('Error fetching nationalities:', error);
@@ -179,7 +166,7 @@ class PlayerService {
   async getPositions(): Promise<string[]> {
     try {
       const response = await this.getPlayers(1, 1000); // Obtener todos los jugadores
-      const positions = [...new Set(response.players.map(player => player.position))];
+      const positions = [...new Set(response.data.map(player => player.position))];
       return positions.sort();
     } catch (error) {
       console.error('Error fetching positions:', error);

@@ -77,10 +77,10 @@ const PlayersPage: React.FC = () => {
         filters
       );
       
-      setPlayers(response.players);
+      setPlayers(response.data); // Cambiar de response.players a response.data
       setPagination(prev => ({
         ...prev,
-        total: response.pagination.total,
+        total: response.pagination.totalCount, // Cambiar de total a totalCount
         totalPages: response.pagination.totalPages
       }));
     } catch (err) {
