@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Filter, X, Plus } from 'lucide-react';
 import { PlayerFilters } from '../../services/playerService';
+import FavoriteFiltersDropdown from './FavoriteFiltersDropdown';
 import ExportDropdown from './ExportDropdown';
 
 interface PlayersFiltersProps {
@@ -142,15 +143,23 @@ const PlayersFilters: React.FC<PlayersFiltersProps> = ({
           {showAdvancedFilters ? 'Ocultar filtros avanzados' : 'Mostrar filtros avanzados'}
         </button>
 
-        {hasActiveFilters && (
-          <button
-            onClick={onClearFilters}
-            className="flex items-center gap-2 text-red-600 hover:text-red-700 transition-colors"
-          >
-            <X size={16} />
-            Limpiar filtros
-          </button>
-        )}
+        <div className="flex items-center gap-3">
+          <FavoriteFiltersDropdown
+            currentFilters={filters}
+            onApplyFilters={onFiltersChange}
+            disabled={loading}
+          />
+          
+          {hasActiveFilters && (
+            <button
+              onClick={onClearFilters}
+              className="flex items-center gap-2 text-red-600 hover:text-red-700 transition-colors"
+            >
+              <X size={16} />
+              Limpiar filtros
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Advanced Filters */}
