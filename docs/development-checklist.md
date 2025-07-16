@@ -94,7 +94,7 @@
 - [x] Dashboard con métricas básicas
 - [x] Lista de jugadores con tabla
 - [x] Página de detalle de jugador
-- [ ] Formularios de crear/editar jugador
+- [x] Formularios de crear/editar jugador
 
 ### Integración API
 - [x] Servicios para consumir API
