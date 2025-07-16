@@ -16,19 +16,24 @@ import {
 } from "lucide-react";
 import Layout from "../../components/common/Layout";
 import PlayerForm from "../../components/players/PlayerForm";
+import DeleteConfirmationModal from "../../components/common/DeleteConfirmationModal";
 import PlayerAttributes from "../../components/players/PlayerAttributes";
 import PlayerStats from "../../components/players/PlayerStats";
 import ContractInfo from "../../components/players/ContractInfo";
 import { playerService, Player } from "../../services/playerService";
+import { useToast } from "../../context/ToastContext";
 
 const PlayerDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const toast = useToast();
   const [player, setPlayer] = useState<Player | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showEditForm, setShowEditForm] = useState(false);
   const [formLoading, setFormLoading] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
   const [teams, setTeams] = useState<string[]>([]);
   const [nationalities, setNationalities] = useState<string[]>([]);
   const [positions, setPositions] = useState<string[]>([]);
@@ -81,17 +86,35 @@ const PlayerDetail: React.FC = () => {
       await playerService.updatePlayer(player.id, playerData);
       await loadPlayer(player.id);
       setShowEditForm(false);
+      toast.success('Jugador actualizado', `Los datos de ${player.name} se han actualizado correctamente`);
     } catch (err) {
       console.error('Error updating player:', err);
       setError('Error al actualizar el jugador');
+      toast.error('Error al actualizar', 'No se pudo actualizar la información del jugador');
     } finally {
       setFormLoading(false);
     }
   };
 
   const handleDelete = () => {
-    // TODO: Implementar modal de confirmación y eliminación
-    console.log("Delete player:", player?.id);
+    setShowDeleteModal(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!player) return;
+    
+    try {
+      setDeleteLoading(true);
+      await playerService.deletePlayer(player.id);
+      toast.success('Jugador eliminado', `${player.name} ha sido eliminado correctamente`);
+      navigate('/players');
+    } catch (err) {
+      console.error('Error deleting player:', err);
+      toast.error('Error al eliminar', 'No se pudo eliminar el jugador');
+    } finally {
+      setDeleteLoading(false);
+      setShowDeleteModal(false);
+    }
   };
 
   const formatCurrency = (amount: number): string => {
@@ -354,6 +377,20 @@ const PlayerDetail: React.FC = () => {
             </div>
           </div>
         </div>
+
+        {/* Delete Confirmation Modal */}
+        {player && (
+          <DeleteConfirmationModal
+            isOpen={showDeleteModal}
+            onClose={() => setShowDeleteModal(false)}
+            onConfirm={handleConfirmDelete}
+            loading={deleteLoading}
+            title="Eliminar Jugador"
+            message="¿Estás seguro de que quieres eliminar a este jugador?"
+            itemName={player.name}
+            type="danger"
+          />
+        )}
 
         {/* Player Form Modal */}
         {player && (
