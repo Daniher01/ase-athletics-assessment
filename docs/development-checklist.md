@@ -123,7 +123,7 @@
 - [x] Barra de búsqueda en tiempo real
 - [x] Filtros por múltiples criterios
 - [ ] Guardado de filtros favoritos
-- [ ] Exportación de resultados filtrados
+- [x] Exportación de resultados filtrados
 
 ---
 
