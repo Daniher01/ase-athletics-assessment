@@ -225,6 +225,8 @@ const PlayersPage: React.FC = () => {
           teams={teams}
           nationalities={nationalities}
           positions={positions}
+          players={players}
+          loading={loading}
         />
 
         {/* Players Table */}

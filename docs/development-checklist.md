@@ -115,7 +115,7 @@
 ### Funcionalidades CRUD
 - [x] Formulario completo de creación
 - [x] Edición inline o modal
-- [ ] Confirmación de eliminación
+- [x] Confirmación de eliminación
 - [x] Validación de formularios
 - [ ] Feedback visual de acciones
 

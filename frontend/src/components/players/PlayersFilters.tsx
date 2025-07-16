@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Filter, X, Plus } from 'lucide-react';
 import { PlayerFilters } from '../../services/playerService';
+import ExportDropdown from './ExportDropdown';
 
 interface PlayersFiltersProps {
   filters: PlayerFilters;
@@ -11,6 +12,8 @@ interface PlayersFiltersProps {
   teams: string[];
   nationalities: string[];
   positions: string[];
+  players?: any[]; // Para exportación
+  loading?: boolean;
 }
 
 const PlayersFilters: React.FC<PlayersFiltersProps> = ({
@@ -20,7 +23,9 @@ const PlayersFilters: React.FC<PlayersFiltersProps> = ({
   onAddPlayer,
   teams,
   nationalities,
-  positions
+  positions,
+  players = [],
+  loading = false
 }) => {
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const [searchValue, setSearchValue] = useState(filters.search || '');
@@ -48,13 +53,20 @@ const PlayersFilters: React.FC<PlayersFiltersProps> = ({
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-medium text-secondary-900">Filtros de Jugadores</h3>
-        <button
-          onClick={onAddPlayer}
-          className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
-        >
-          <Plus size={16} />
-          Agregar Jugador
-        </button>
+        <div className="flex items-center gap-3">
+          <ExportDropdown 
+            players={players} 
+            filters={filters} 
+            disabled={loading || players.length === 0}
+          />
+          <button
+            onClick={onAddPlayer}
+            className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+          >
+            <Plus size={16} />
+            Agregar Jugador
+          </button>
+        </div>
       </div>
 
       {/* Search Bar */}
