@@ -152,9 +152,9 @@ const PlayerDetail: React.FC = () => {
 {/* Player Header */}
 <div className="bg-white rounded-lg shadow-sm border border-secondary-200 p-4 md:p-6 mb-6">
   <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
-    <div className="flex flex-col sm:flex-row items-start gap-4 sm:gap-6 flex-1">
+    <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 flex-1 justify-center">
       {/* Player Image */}
-      <div className="flex-shrink-0 mx-auto sm:mx-0">
+      <div className="flex-shrink-0">
         {player.imageUrl ? (
           <img
             src={player.imageUrl}
@@ -169,7 +169,7 @@ const PlayerDetail: React.FC = () => {
       </div>
 
       {/* Player Info */}
-      <div className="flex-1 text-center sm:text-left">
+      <div className="flex-1 text-center sm:text-left max-w-md sm:max-w-none">
         <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-3">
           <h1 className="text-2xl sm:text-3xl font-bold text-secondary-900">{player.name}</h1>
           <span className={`px-3 py-1 text-sm font-medium rounded-full ${getPositionColor(player.position)} inline-block`}>
@@ -177,35 +177,34 @@ const PlayerDetail: React.FC = () => {
           </span>
         </div>
 
-        {/* Player Details - Stack on mobile, grid on larger screens */}
-{/* Player Details - 2 rows of 2 columns */}
-<div className="space-y-2 sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-x-4 sm:gap-y-2 text-sm mb-4">
-  <div className="flex items-center justify-center sm:justify-start gap-2">
-    <Calendar size={16} className="text-secondary-500" />
-    <span className="text-secondary-600">Edad:</span>
-    <span className="font-medium text-secondary-900">{player.age} años</span>
-  </div>
-  
-  <div className="flex items-center justify-center sm:justify-start gap-2">
-    <Users size={16} className="text-secondary-500" />
-    <span className="text-secondary-600">Equipo:</span>
-    <span className="font-medium text-secondary-900">{player.team}</span>
-  </div>
-  
-  <div className="flex items-center justify-center sm:justify-start gap-2">
-    <MapPin size={16} className="text-secondary-500" />
-    <span className="text-secondary-600">Nacionalidad:</span>
-    <span className="font-medium text-secondary-900">{player.nationality}</span>
-  </div>
-  
-  <div className="flex items-center justify-center sm:justify-start gap-2">
-    <TrendingUp size={16} className="text-secondary-500" />
-    <span className="text-secondary-600">Valor:</span>
-    <span className="font-medium text-secondary-900">
-      {formatCompactNumber(player.marketValue)}
-    </span>
-  </div>
-</div>
+        {/* Player Details - 2 rows of 2 columns */}
+        <div className="space-y-2 sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-x-4 sm:gap-y-2 text-sm mb-4">
+          <div className="flex items-center justify-center sm:justify-start gap-2">
+            <Calendar size={16} className="text-secondary-500" />
+            <span className="text-secondary-600">Edad:</span>
+            <span className="font-medium text-secondary-900">{player.age} años</span>
+          </div>
+          
+          <div className="flex items-center justify-center sm:justify-start gap-2">
+            <Users size={16} className="text-secondary-500" />
+            <span className="text-secondary-600">Equipo:</span>
+            <span className="font-medium text-secondary-900">{player.team}</span>
+          </div>
+          
+          <div className="flex items-center justify-center sm:justify-start gap-2">
+            <MapPin size={16} className="text-secondary-500" />
+            <span className="text-secondary-600">Nacionalidad:</span>
+            <span className="font-medium text-secondary-900">{player.nationality}</span>
+          </div>
+          
+          <div className="flex items-center justify-center sm:justify-start gap-2">
+            <TrendingUp size={16} className="text-secondary-500" />
+            <span className="text-secondary-600">Valor:</span>
+            <span className="font-medium text-secondary-900">
+              {formatCompactNumber(player.marketValue)}
+            </span>
+          </div>
+        </div>
 
         {/* Key Stats */}
         <div className="grid grid-cols-3 gap-4 sm:gap-6 pt-4 border-t border-secondary-200">
