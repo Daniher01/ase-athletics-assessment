@@ -148,99 +148,102 @@ const PlayerDetail: React.FC = () => {
           Volver a jugadores
         </button>
 
-        {/* Player Header */}
-        <div className="bg-white rounded-lg shadow-sm border border-secondary-200 p-6 mb-6">
-          <div className="flex items-start justify-between">
-            <div className="flex items-start gap-6">
-              {/* Player Image */}
-              <div className="flex-shrink-0">
-                {player.imageUrl ? (
-                  <img
-                    src={player.imageUrl}
-                    alt={player.name}
-                    className="w-32 h-32 rounded-full object-cover border-4 border-secondary-200"
-                  />
-                ) : (
-                  <div className="w-32 h-32 rounded-full bg-secondary-200 border-4 border-secondary-300 flex items-center justify-center">
-                    <User size={48} className="text-secondary-500" />
-                  </div>
-                )}
-              </div>
+       {/* Player Header */}
+{/* Player Header */}
+<div className="bg-white rounded-lg shadow-sm border border-secondary-200 p-4 md:p-6 mb-6">
+  <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+    <div className="flex flex-col sm:flex-row items-start gap-4 sm:gap-6 flex-1">
+      {/* Player Image */}
+      <div className="flex-shrink-0 mx-auto sm:mx-0">
+        {player.imageUrl ? (
+          <img
+            src={player.imageUrl}
+            alt={player.name}
+            className="w-24 h-24 sm:w-32 sm:h-32 rounded-full object-cover border-4 border-secondary-200"
+          />
+        ) : (
+          <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-secondary-200 border-4 border-secondary-300 flex items-center justify-center">
+            <User size={48} className="text-secondary-500" />
+          </div>
+        )}
+      </div>
 
-              {/* Player Info */}
-              <div className="flex-1">
-                <div className="flex items-center gap-3 mb-2">
-                  <h1 className="text-3xl font-bold text-secondary-900">{player.name}</h1>
-                  <span className={`px-3 py-1 text-sm font-medium rounded-full ${getPositionColor(player.position)}`}>
-                    {player.position}
-                  </span>
-                </div>
+      {/* Player Info */}
+      <div className="flex-1 text-center sm:text-left">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-3">
+          <h1 className="text-2xl sm:text-3xl font-bold text-secondary-900">{player.name}</h1>
+          <span className={`px-3 py-1 text-sm font-medium rounded-full ${getPositionColor(player.position)} inline-block`}>
+            {player.position}
+          </span>
+        </div>
 
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                  <div className="flex items-center gap-2">
-                    <Calendar size={16} className="text-secondary-500" />
-                    <span className="text-secondary-600">Edad:</span>
-                    <span className="font-medium text-secondary-900">{player.age} años</span>
-                  </div>
-                  
-                  <div className="flex items-center gap-2">
-                    <Users size={16} className="text-secondary-500" />
-                    <span className="text-secondary-600">Equipo:</span>
-                    <span className="font-medium text-secondary-900">{player.team}</span>
-                  </div>
-                  
-                  <div className="flex items-center gap-2">
-                    <MapPin size={16} className="text-secondary-500" />
-                    <span className="text-secondary-600">Nacionalidad:</span>
-                    <span className="font-medium text-secondary-900">{player.nationality}</span>
-                  </div>
-                  
-                  <div className="flex items-center gap-2">
-                    <TrendingUp size={16} className="text-secondary-500" />
-                    <span className="text-secondary-600">Valor:</span>
-                    <span className="font-medium text-secondary-900">
-                      {formatCompactNumber(player.marketValue)}
-                    </span>
-                  </div>
-                </div>
+        {/* Player Details - Stack on mobile, grid on larger screens */}
+{/* Player Details - 2 rows of 2 columns */}
+<div className="space-y-2 sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-x-4 sm:gap-y-2 text-sm mb-4">
+  <div className="flex items-center justify-center sm:justify-start gap-2">
+    <Calendar size={16} className="text-secondary-500" />
+    <span className="text-secondary-600">Edad:</span>
+    <span className="font-medium text-secondary-900">{player.age} años</span>
+  </div>
+  
+  <div className="flex items-center justify-center sm:justify-start gap-2">
+    <Users size={16} className="text-secondary-500" />
+    <span className="text-secondary-600">Equipo:</span>
+    <span className="font-medium text-secondary-900">{player.team}</span>
+  </div>
+  
+  <div className="flex items-center justify-center sm:justify-start gap-2">
+    <MapPin size={16} className="text-secondary-500" />
+    <span className="text-secondary-600">Nacionalidad:</span>
+    <span className="font-medium text-secondary-900">{player.nationality}</span>
+  </div>
+  
+  <div className="flex items-center justify-center sm:justify-start gap-2">
+    <TrendingUp size={16} className="text-secondary-500" />
+    <span className="text-secondary-600">Valor:</span>
+    <span className="font-medium text-secondary-900">
+      {formatCompactNumber(player.marketValue)}
+    </span>
+  </div>
+</div>
 
-                {/* Key Stats */}
-                <div className="grid grid-cols-3 gap-6 mt-4 pt-4 border-t border-secondary-200">
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-primary-600">{player.goals}</div>
-                    <div className="text-sm text-secondary-600">Goles</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-green-600">{player.assists}</div>
-                    <div className="text-sm text-secondary-600">Asistencias</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-secondary-600">{player.appearances}</div>
-                    <div className="text-sm text-secondary-600">Partidos</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex gap-2">
-              <button
-                onClick={handleEdit}
-                className="flex items-center gap-2 px-4 py-2 text-secondary-600 hover:text-secondary-700 hover:bg-secondary-50 rounded-lg transition-colors"
-              >
-                <Edit size={16} />
-                Editar
-              </button>
-              <button
-                onClick={handleDelete}
-                className="flex items-center gap-2 px-4 py-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
-              >
-                <Trash2 size={16} />
-                Eliminar
-              </button>
-            </div>
+        {/* Key Stats */}
+        <div className="grid grid-cols-3 gap-4 sm:gap-6 pt-4 border-t border-secondary-200">
+          <div className="text-center">
+            <div className="text-xl sm:text-2xl font-bold text-primary-600">{player.goals}</div>
+            <div className="text-xs sm:text-sm text-secondary-600">Goles</div>
+          </div>
+          <div className="text-center">
+            <div className="text-xl sm:text-2xl font-bold text-green-600">{player.assists}</div>
+            <div className="text-xs sm:text-sm text-secondary-600">Asistencias</div>
+          </div>
+          <div className="text-center">
+            <div className="text-xl sm:text-2xl font-bold text-secondary-600">{player.appearances}</div>
+            <div className="text-xs sm:text-sm text-secondary-600">Partidos</div>
           </div>
         </div>
+      </div>
+    </div>
+
+    {/* Action Buttons */}
+    <div className="flex gap-2 justify-center lg:justify-end lg:flex-col lg:gap-1">
+      <button
+        onClick={handleEdit}
+        className="flex items-center gap-2 px-3 py-2 text-secondary-600 hover:text-secondary-700 hover:bg-secondary-50 rounded-lg transition-colors"
+      >
+        <Edit size={16} />
+        <span className="hidden sm:inline">Editar</span>
+      </button>
+      <button
+        onClick={handleDelete}
+        className="flex items-center gap-2 px-3 py-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
+      >
+        <Trash2 size={16} />
+        <span className="hidden sm:inline">Eliminar</span>
+      </button>
+    </div>
+  </div>
+</div>
 
         {/* Player Details Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
