@@ -276,7 +276,7 @@ const PlayerForm: React.FC<PlayerFormProps> = ({
         </div>
 
         {/* Form Content */}
-        <form onSubmit={handleSubmit} className="overflow-y-auto max-h-[calc(90vh-140px)]">
+        <form onSubmit={handleSubmit} noValidate className="overflow-y-auto max-h-[calc(90vh-140px)]">
           <div className="p-6">
             {/* Basic Information Tab */}
             {activeTab === 'basic' && (
