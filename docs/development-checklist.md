@@ -117,12 +117,12 @@
 - [x] Edición inline o modal
 - [x] Confirmación de eliminación
 - [x] Validación de formularios
-- [ ] Feedback visual de acciones
+- [x] Feedback visual de acciones
 
 ### Búsqueda y Filtrado
 - [x] Barra de búsqueda en tiempo real
 - [x] Filtros por múltiples criterios
-- [ ] Guardado de filtros favoritos
+- [x] Guardado de filtros favoritos
 - [x] Exportación de resultados filtrados
 
 ---
