@@ -169,6 +169,7 @@
 - [ ] Favoritos de jugadores
 - [ ] Notificaciones de cambios
 - [ ] Revisar todo el responsive de la app
+- [ ] Comentarios del codigo
 
 ---
 
