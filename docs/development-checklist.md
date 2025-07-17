@@ -168,6 +168,7 @@
 - [ ] Búsqueda avanzada con múltiples filtros
 - [ ] Favoritos de jugadores
 - [ ] Notificaciones de cambios
+- [ ] Revisar todo el responsive de la app
 
 ---
 
