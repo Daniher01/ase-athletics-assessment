@@ -130,3 +130,22 @@ export interface DashboardApiResponse<T> {
   data?: T;
   error?: string;
 }
+
+// ============= INTERFACES PARA ATRIBUTOS POR POSICIÓN =============
+export interface AttributesByPositionItem {
+  position: string;
+  playerCount: number;
+  attributes: {
+    Pace: number;
+    Shooting: number;
+    Passing: number;
+    Dribbling: number;
+    Defending: number;
+    Physicality: number;
+  };
+}
+
+export interface AttributesByPositionResponse {
+  success: boolean;
+  data: AttributesByPositionItem[];
+}

@@ -11,10 +11,10 @@ export class DashboardController {
   // ============= GET /api/dashboard/stats =============
   static async getStats(req: Request, res: Response) {
     try {
-      // Llamar al servicio (toda tu lógica compleja está ahí)
+      // Llamar al servicio
       const stats = await dashboardService.getDashboardStats();
 
-      // Respuesta exitosa (mismo formato que tenías)
+      // Respuesta exitosa
       res.status(200).json({
         success: true,
         message: 'Estadísticas del dashboard obtenidas exitosamente',
@@ -32,4 +32,26 @@ export class DashboardController {
       });
     }
   }
+
+  // ============= GET /api/dashboard/attributes-by-position =============
+static async getAttributesByPosition(req: Request, res: Response) {
+  try {
+    // Llamar al servicio
+    const data = await dashboardService.getAttributesByPosition();
+
+    // Respuesta exitosa (mismo formato que tenías)
+    res.status(200).json({
+      success: true,
+      data: data
+    });
+
+  } catch (error: any) {
+    console.error('Error en DashboardController.getAttributesByPosition:', error);
+    
+    res.status(500).json({
+      success: false,
+      message: 'Error al obtener atributos por posición'
+    });
+  }
+}
 }

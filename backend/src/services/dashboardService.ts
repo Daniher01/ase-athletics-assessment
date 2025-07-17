@@ -9,7 +9,8 @@ import {
   AgeRanges,
   MarketAnalysis,
   PositionAttributes,
-  DashboardStatsResponse
+  DashboardStatsResponse,
+  AttributesByPositionItem
 } from '../types/dashboard';
 
 export class DashboardService {
@@ -305,4 +306,86 @@ export class DashboardService {
       throw new Error('No se pudieron obtener las estadísticas del dashboard');
     }
   }
+
+  // ============= OBTENER ATRIBUTOS POR POSICIÓN =============
+// ============= OBTENER ATRIBUTOS POR POSICIÓN =============
+async getAttributesByPosition(): Promise<AttributesByPositionItem[]> {
+  try {
+    // Obtener todos los jugadores con sus atributos
+    const playersWithAttributes = await this.prisma.player.findMany({
+      select: {
+        position: true,
+        attributes: {
+          select: {
+            pace: true,
+            shooting: true,
+            passing: true,
+            dribbling: true,
+            defending: true,
+            physical: true
+          }
+        }
+      },
+      where: {
+        attributes: {
+          isNot: null
+        }
+      }
+    });
+
+    // Agrupar y calcular promedios manualmente
+    const positionGroups: { [key: string]: any } = {};
+
+    playersWithAttributes.forEach((player: any) => {
+      if (!player.attributes) return;
+
+      if (!positionGroups[player.position]) {
+        positionGroups[player.position] = {
+          count: 0,
+          pace: 0,
+          shooting: 0,
+          passing: 0,
+          dribbling: 0,
+          defending: 0,
+          physical: 0
+        };
+      }
+
+      const group = positionGroups[player.position];
+      group.count++;
+      group.pace += player.attributes.pace;
+      group.shooting += player.attributes.shooting;
+      group.passing += player.attributes.passing;
+      group.dribbling += player.attributes.dribbling;
+      group.defending += player.attributes.defending;
+      group.physical += player.attributes.physical;
+    });
+
+    // Calcular promedios y formatear
+    const formattedData = Object.keys(positionGroups).map(position => {
+      const group = positionGroups[position];
+      const count = group.count;
+
+      return {
+        position,
+        playerCount: count,
+        attributes: {
+          Pace: Math.round(group.pace / count),
+          Shooting: Math.round(group.shooting / count),
+          Passing: Math.round(group.passing / count),
+          Dribbling: Math.round(group.dribbling / count),
+          Defending: Math.round(group.defending / count),
+          Physicality: Math.round(group.physical / count)
+        }
+      };
+    });
+
+    return formattedData;
+
+  } catch (error: any) {
+    console.error('Error en DashboardService.getAttributesByPosition:', error);
+    throw new Error('Error al obtener atributos por posición');
+  }
 }
+}
+
