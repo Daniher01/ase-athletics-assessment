@@ -1,4 +1,5 @@
-// src/pages/Dashboard/index.tsx
+// src/pages/Dashboard/index.tsx - Modificaciones necesarias
+
 import React, { useState, useEffect } from 'react';
 import { 
   Users, 
@@ -14,23 +15,33 @@ import Layout from '../../components/common/Layout';
 import StatCard from '../../components/dashboard/StatCard';
 import PositionChart from '../../components/dashboard/PositionChart';
 import TopScorers from '../../components/dashboard/TopScorers';
+import AttributesRadar from '../../components/dashboard/AttributesRadar'; // ✅ NUEVO IMPORT
 import { 
   dashboardService, 
   DashboardData,
-  TopPlayer
+  TopPlayer,
+  AttributesByPosition // ✅ NUEVO IMPORT
 } from '../../services/dashboardService';
 
 const Dashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
+  const [attributesData, setAttributesData] = useState<AttributesByPosition[]>([]); // ✅ NUEVO ESTADO
 
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
       setError(null);
-      const data = await dashboardService.getDashboardData();
-      setDashboardData(data);
+      
+      // ✅ OBTENER datos del dashboard Y atributos por separado
+      const [dashboard, attributes] = await Promise.all([
+        dashboardService.getDashboardData(),
+        dashboardService.getAttributesByPosition()
+      ]);
+      
+      setDashboardData(dashboard);
+      setAttributesData(attributes);
     } catch (err) {
       setError('Error al cargar los datos del dashboard');
       console.error('Dashboard error:', err);
@@ -43,6 +54,7 @@ const Dashboard: React.FC = () => {
     fetchDashboardData();
   }, []);
 
+  // ✅ FUNCIONES DE FORMATEO (que ya tenías en tu código original)
   const formatCurrency = (amount: number): string => {
     return new Intl.NumberFormat('es-ES', {
       style: 'currency',
@@ -63,6 +75,7 @@ const Dashboard: React.FC = () => {
     }).format(num);
   };
 
+  // ✅ ESTADOS DE LOADING Y ERROR (que ya tenías)
   if (loading) {
     return (
       <Layout>
@@ -127,6 +140,8 @@ const Dashboard: React.FC = () => {
     );
   }
 
+  // Estados de loading y error existentes
+
   if (!dashboardData) {
     return (
       <Layout>
@@ -150,13 +165,13 @@ const Dashboard: React.FC = () => {
   return (
     <Layout>
       <div className="p-6">
-        {/* Header */}
+        {/* Header existente */}
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-secondary-900">Dashboard</h1>
           <p className="text-secondary-600">Análisis general de jugadores</p>
         </div>
 
-        {/* Stats Cards */}
+        {/* Stats Cards existentes */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <StatCard
             title="Total Jugadores"
@@ -184,42 +199,18 @@ const Dashboard: React.FC = () => {
           />
         </div>
 
-        {/* Charts and Lists */}
+        {/* Charts principales existentes */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           <PositionChart data={positionDistribution} />
           <TopScorers data={topPlayers.topScorers.slice(0, 10)} />
         </div>
 
-        {/* Additional Stats */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-          {/* Market Analysis */}
-          <div className="bg-white rounded-lg shadow-sm border border-secondary-200 p-6">
-            <h3 className="text-lg font-semibold text-secondary-900 mb-4">
-              Análisis de Mercado
-            </h3>
-            <div className="space-y-3">
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-secondary-600">Valor Total</span>
-                <span className="font-medium text-secondary-900">
-                  {formatCompactNumber(marketAnalysis.totalMarketValue)}
-                </span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-secondary-600">Jugador Más Valioso</span>
-                <span className="font-medium text-secondary-900">
-                  {formatCompactNumber(marketAnalysis.maximumValue)}
-                </span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-secondary-600">Contratos Vencen</span>
-                <span className="font-medium text-red-600">
-                  {marketAnalysis.contractsExpiring}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Top Teams */}
+        {/* ✅ NUEVA SECCIÓN: Radar + Top Teams */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          {/* NUEVO: Gráfico de Radar */}
+          <AttributesRadar data={attributesData} />
+          
+          {/* MANTENER: Top Teams (movido aquí) */}
           <div className="bg-white rounded-lg shadow-sm border border-secondary-200 p-6">
             <h3 className="text-lg font-semibold text-secondary-900 mb-4">
               Equipos Principales
@@ -245,36 +236,11 @@ const Dashboard: React.FC = () => {
               ))}
             </div>
           </div>
-
-          {/* Quick Stats */}
-          <div className="bg-white rounded-lg shadow-sm border border-secondary-200 p-6">
-            <h3 className="text-lg font-semibold text-secondary-900 mb-4">
-              Estadísticas Rápidas
-            </h3>
-            <div className="space-y-3">
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-secondary-600">Usuarios Activos</span>
-                <span className="font-medium text-secondary-900">
-                  {basicStats.totalUsers}
-                </span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-secondary-600">Posiciones</span>
-                <span className="font-medium text-secondary-900">
-                  {positionDistribution.length}
-                </span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-secondary-600">Equipos</span>
-                <span className="font-medium text-secondary-900">
-                  {teamDistribution.length}
-                </span>
-              </div>
-            </div>
-          </div>
         </div>
 
-        {/* Contracts Expiring Soon */}
+        {/* ❌ ELIMINAR: Las 3 cards (Market Analysis, Top Teams, Quick Stats) */}
+        
+        {/* ✅ MANTENER: Contratos próximos a vencer */}
         {marketAnalysis.expiringContracts.length > 0 && (
           <div className="bg-white rounded-lg shadow-sm border border-secondary-200 p-6">
             <h3 className="text-lg font-semibold text-secondary-900 mb-4">
