@@ -199,16 +199,22 @@ const Dashboard: React.FC = () => {
           />
         </div>
 
-        {/* Charts principales existentes */}
+        {/* ✅ NUEVO LAYOUT: Distribución de tamaños mejorada */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          <PositionChart data={positionDistribution} />
-          <TopScorers data={topPlayers.topScorers.slice(0, 10)} />
+          {/* Distribución por posición - más pequeño */}
+          <div className="lg:col-span-2">
+            <PositionChart data={positionDistribution} />
+          </div>
+          
+          {/* Radar de atributos - más grande */}
+          <div className="lg:col-span-2">
+            <AttributesRadar data={attributesData} />
+          </div>
         </div>
 
-        {/* ✅ NUEVA SECCIÓN: Radar + Top Teams */}
+        {/* Segunda fila: TopScorers + TopTeams */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          {/* NUEVO: Gráfico de Radar */}
-          <AttributesRadar data={attributesData} />
+          <TopScorers data={topPlayers.topScorers.slice(0, 10)} />
           
           {/* MANTENER: Top Teams (movido aquí) */}
           <div className="bg-white rounded-lg shadow-sm border border-secondary-200 p-6">

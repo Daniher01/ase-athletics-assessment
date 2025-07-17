@@ -11,15 +11,67 @@ import {
   Tooltip
 } from 'recharts';
 import { Activity, Users, Filter } from 'lucide-react';
-import type { AttributesByPosition } from '../../services/dashboardService';
+import { AttributesByPosition } from '../../services/dashboardService';
 
 interface AttributesRadarProps {
   data: AttributesByPosition[];
 }
 
 const AttributesRadar: React.FC<AttributesRadarProps> = ({ data }) => {
+  // ✅ AGRUPAR por posiciones generales como en PositionChart
+  const groupDataByGeneralPosition = () => {
+    const generalPositions = {
+      'Forward': [] as AttributesByPosition[],
+      'Midfielder': [] as AttributesByPosition[],
+      'Defender': [] as AttributesByPosition[],
+      'Goalkeeper': [] as AttributesByPosition[]
+    };
+
+    data.forEach(item => {
+      if (['Forward', 'Midfielder', 'Defender', 'Goalkeeper'].includes(item.position)) {
+        generalPositions[item.position as keyof typeof generalPositions].push(item);
+      } else {
+        // Agrupar posiciones específicas en generales
+        if (item.position.includes('Forward') || item.position.includes('Striker') || item.position.includes('Winger')) {
+          generalPositions.Forward.push(item);
+        } else if (item.position.includes('Midfielder') || item.position.includes('Midfield')) {
+          generalPositions.Midfielder.push(item);
+        } else if (item.position.includes('Defender') || item.position.includes('Back')) {
+          generalPositions.Defender.push(item);
+        } else if (item.position.includes('Goalkeeper') || item.position.includes('Keeper')) {
+          generalPositions.Goalkeeper.push(item);
+        }
+      }
+    });
+
+    // Calcular promedios para cada posición general
+    return Object.entries(generalPositions).map(([position, players]) => {
+      if (players.length === 0) return null;
+
+      const totalPlayers = players.reduce((acc, player) => acc + player.playerCount, 0);
+      
+      const avgAttributes = {
+        Pace: Math.round(players.reduce((acc, player) => acc + (player.attributes.Pace * player.playerCount), 0) / totalPlayers),
+        Shooting: Math.round(players.reduce((acc, player) => acc + (player.attributes.Shooting * player.playerCount), 0) / totalPlayers),
+        Passing: Math.round(players.reduce((acc, player) => acc + (player.attributes.Passing * player.playerCount), 0) / totalPlayers),
+        Dribbling: Math.round(players.reduce((acc, player) => acc + (player.attributes.Dribbling * player.playerCount), 0) / totalPlayers),
+        Defending: Math.round(players.reduce((acc, player) => acc + (player.attributes.Defending * player.playerCount), 0) / totalPlayers),
+        Physicality: Math.round(players.reduce((acc, player) => acc + (player.attributes.Physicality * player.playerCount), 0) / totalPlayers)
+      };
+
+      return {
+        position,
+        playerCount: totalPlayers,
+        attributes: avgAttributes
+      };
+    }).filter(Boolean) as AttributesByPosition[];
+  };
+
+  const groupedData = groupDataByGeneralPosition();
+  
+  // ✅ VOLVER a mostrar todas las posiciones por defecto (ahora son solo 4 máximo)
   const [selectedPositions, setSelectedPositions] = useState<string[]>([]);
-  const [showAll, setShowAll] = useState(true);
+  const [showAll, setShowAll] = useState(true); // ✅ Cambiar de vuelta a true
 
   // Colores para diferentes posiciones
   const positionColors = {
@@ -32,9 +84,9 @@ const AttributesRadar: React.FC<AttributesRadarProps> = ({ data }) => {
     'Defensive Midfielder': '#06b6d4'  // Cian
   };
 
-  // Preparar datos para el radar
+  // Preparar datos para el radar usando datos agrupados
   const prepareRadarData = () => {
-    if (!data || data.length === 0) return [];
+    if (!groupedData || groupedData.length === 0) return [];
 
     // Obtener todas las métricas disponibles
     const attributes = ['Pace', 'Shooting', 'Passing', 'Dribbling', 'Defending', 'Physicality'];
@@ -45,8 +97,8 @@ const AttributesRadar: React.FC<AttributesRadarProps> = ({ data }) => {
       
       // Filtrar posiciones a mostrar
       const positionsToShow = showAll 
-        ? data 
-        : data.filter(item => selectedPositions.includes(item.position));
+        ? groupedData 
+        : groupedData.filter(item => selectedPositions.includes(item.position));
 
       positionsToShow.forEach(item => {
         attributeData[item.position] = item.attributes[attribute as keyof typeof item.attributes];
@@ -56,7 +108,7 @@ const AttributesRadar: React.FC<AttributesRadarProps> = ({ data }) => {
     });
   };
 
-  // Manejar selección de posiciones
+  // Manejar selección de posiciones usando datos agrupados
   const handlePositionToggle = (position: string) => {
     if (selectedPositions.includes(position)) {
       setSelectedPositions(selectedPositions.filter(p => p !== position));
@@ -73,8 +125,8 @@ const AttributesRadar: React.FC<AttributesRadarProps> = ({ data }) => {
 
   const radarData = prepareRadarData();
   const positionsToDisplay = showAll 
-    ? data 
-    : data.filter(item => selectedPositions.includes(item.position));
+    ? groupedData 
+    : groupedData.filter(item => selectedPositions.includes(item.position));
 
   // Tooltip personalizado
   const CustomTooltip = ({ active, payload, label }: any) => {
@@ -93,7 +145,7 @@ const AttributesRadar: React.FC<AttributesRadarProps> = ({ data }) => {
     return null;
   };
 
-  if (!data || data.length === 0) {
+  if (!data || data.length === 0 || groupedData.length === 0) {
     return (
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
         <div className="flex items-center justify-center h-64 text-gray-500">
@@ -135,7 +187,7 @@ const AttributesRadar: React.FC<AttributesRadarProps> = ({ data }) => {
           >
             Todas las posiciones
           </button>
-          {data.map((item) => (
+          {groupedData.map((item) => (
             <button
               key={item.position}
               onClick={() => handlePositionToggle(item.position)}
@@ -204,13 +256,13 @@ const AttributesRadar: React.FC<AttributesRadarProps> = ({ data }) => {
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
           <div className="text-center">
             <div className="font-medium text-gray-900">
-              {data.reduce((acc, item) => acc + item.playerCount, 0)}
+              {groupedData.reduce((acc, item) => acc + item.playerCount, 0)}
             </div>
             <div className="text-gray-500">Total Jugadores</div>
           </div>
           <div className="text-center">
             <div className="font-medium text-gray-900">
-              {data.length}
+              {groupedData.length}
             </div>
             <div className="text-gray-500">Posiciones</div>
           </div>
