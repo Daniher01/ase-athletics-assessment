@@ -42,6 +42,19 @@ const PlayersPage: React.FC = () => {
   const [showPlayerForm, setShowPlayerForm] = useState(false);
   const [formLoading, setFormLoading] = useState(false);
 
+  // Detectar móvil para ajustar paginación
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkIsMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkIsMobile();
+    window.addEventListener('resize', checkIsMobile);
+    return () => window.removeEventListener('resize', checkIsMobile);
+  }, []);
+
   // Cargar datos iniciales
   useEffect(() => {
     loadFilterData();
@@ -51,6 +64,15 @@ const PlayersPage: React.FC = () => {
   useEffect(() => {
     loadPlayers();
   }, [pagination.page, pagination.limit, filters]);
+
+  // Ajustar límite de paginación para móviles
+  useEffect(() => {
+    if (isMobile && pagination.limit > 10) {
+      setPagination(prev => ({ ...prev, limit: 10, page: 1 }));
+    } else if (!isMobile && pagination.limit < 20) {
+      setPagination(prev => ({ ...prev, limit: 20, page: 1 }));
+    }
+  }, [isMobile]);
 
   const loadFilterData = async () => {
     try {
@@ -65,7 +87,6 @@ const PlayersPage: React.FC = () => {
       setPositions(positionsData);
     } catch (err) {
       console.error('Error loading filter data:', err);
-      // Valores por defecto si falla
       setTeams([]);
       setNationalities([]);
       setPositions([]);
@@ -120,6 +141,10 @@ const PlayersPage: React.FC = () => {
 
   const handlePageChange = (page: number) => {
     setPagination(prev => ({ ...prev, page }));
+    // Scroll to top en mobile para mejor UX
+    if (isMobile) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   const handleItemsPerPageChange = (limit: number) => {
@@ -150,14 +175,11 @@ const PlayersPage: React.FC = () => {
       setFormLoading(true);
       
       if (playerToEdit) {
-        // Actualizar jugador existente
         await playerService.updatePlayer(playerToEdit.id, playerData);
       } else {
-        // Crear nuevo jugador
         await playerService.createPlayer(playerData);
       }
       
-      // Recargar lista de jugadores
       await loadPlayers();
       setShowPlayerForm(false);
       setPlayerToEdit(null);
@@ -176,7 +198,7 @@ const PlayersPage: React.FC = () => {
       await playerService.deletePlayer(playerToDelete.id);
       setShowDeleteModal(false);
       setPlayerToDelete(null);
-      loadPlayers(); // Recargar lista
+      loadPlayers();
     } catch (err) {
       console.error('Error deleting player:', err);
       setError('Error al eliminar el jugador');
@@ -186,10 +208,10 @@ const PlayersPage: React.FC = () => {
   if (error) {
     return (
       <Layout>
-        <div className="p-6">
-          <div className="bg-red-50 border border-red-200 rounded-lg p-6 flex items-center gap-3">
-            <AlertCircle className="text-red-600" size={24} />
-            <div>
+        <div className="p-4 md:p-6">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 md:p-6 flex items-start md:items-center gap-3">
+            <AlertCircle className="text-red-600 flex-shrink-0 mt-1 md:mt-0" size={24} />
+            <div className="flex-1">
               <h3 className="font-medium text-red-800">Error al cargar jugadores</h3>
               <p className="text-red-600 text-sm mt-1">{error}</p>
               <button
@@ -207,11 +229,11 @@ const PlayersPage: React.FC = () => {
 
   return (
     <Layout>
-      <div className="p-6">
+      <div className="p-4 md:p-6">
         {/* Header */}
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-secondary-900">Jugadores</h1>
-          <p className="text-secondary-600">
+        <div className="mb-4 md:mb-6">
+          <h1 className="text-xl md:text-2xl font-bold text-secondary-900">Jugadores</h1>
+          <p className="text-sm md:text-base text-secondary-600 mt-1">
             Gestiona y visualiza información de jugadores
           </p>
         </div>
@@ -229,27 +251,109 @@ const PlayersPage: React.FC = () => {
           loading={loading}
         />
 
-        {/* Players Table */}
-        <PlayersTable
-          players={players}
-          loading={loading}
-          filters={filters}
-          onSort={handleSort}
-          onEdit={handleEditPlayer}
-          onDelete={handleDeletePlayer}
-          onView={handleViewPlayer}
-        />
+        {/* Results Summary for Mobile */}
+        {isMobile && !loading && (
+          <div className="mb-4 p-3 bg-secondary-50 rounded-lg">
+            <p className="text-sm text-secondary-600">
+              Mostrando {players.length} de {pagination.total} jugadores
+              {pagination.totalPages > 1 && (
+                <span> (Página {pagination.page} de {pagination.totalPages})</span>
+              )}
+            </p>
+          </div>
+        )}
 
-        {/* Pagination */}
-        {!loading && players.length > 0 && (
-          <Pagination
-            currentPage={pagination.page}
-            totalPages={pagination.totalPages}
-            totalItems={pagination.total}
-            itemsPerPage={pagination.limit}
-            onPageChange={handlePageChange}
-            onItemsPerPageChange={handleItemsPerPageChange}
+        {/* Players Table */}
+        <div className="bg-white rounded-lg border border-secondary-200 overflow-hidden">
+          <PlayersTable
+            players={players}
+            loading={loading}
+            filters={filters}
+            onSort={handleSort}
+            onEdit={handleEditPlayer}
+            onDelete={handleDeletePlayer}
+            onView={handleViewPlayer}
           />
+        </div>
+
+        {/* Mobile Pagination - Simplified */}
+        {isMobile && !loading && players.length > 0 && (
+          <div className="mt-4 space-y-3">
+            {/* Page Navigation */}
+            <div className="flex items-center justify-between">
+              <button
+                onClick={() => handlePageChange(pagination.page - 1)}
+                disabled={pagination.page <= 1}
+                className="flex items-center gap-2 px-3 py-2 text-sm bg-white border border-secondary-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-secondary-50"
+              >
+                ← Anterior
+              </button>
+              
+              <span className="text-sm text-secondary-600 px-2">
+                {pagination.page} / {pagination.totalPages}
+              </span>
+              
+              <button
+                onClick={() => handlePageChange(pagination.page + 1)}
+                disabled={pagination.page >= pagination.totalPages}
+                className="flex items-center gap-2 px-3 py-2 text-sm bg-white border border-secondary-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-secondary-50"
+              >
+                Siguiente →
+              </button>
+            </div>
+
+            {/* Quick Page Jump for Mobile */}
+            {pagination.totalPages > 3 && (
+              <div className="flex items-center justify-center gap-2">
+                <span className="text-xs text-secondary-500">Ir a página:</span>
+                <select
+                  value={pagination.page}
+                  onChange={(e) => handlePageChange(parseInt(e.target.value))}
+                  className="text-xs border border-secondary-300 rounded px-2 py-1"
+                >
+                  {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map(page => (
+                    <option key={page} value={page}>
+                      {page}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Desktop Pagination - Full Featured */}
+        {!isMobile && !loading && players.length > 0 && (
+          <div className="mt-6">
+            <Pagination
+              currentPage={pagination.page}
+              totalPages={pagination.totalPages}
+              totalItems={pagination.total}
+              itemsPerPage={pagination.limit}
+              onPageChange={handlePageChange}
+              onItemsPerPageChange={handleItemsPerPageChange}
+            />
+          </div>
+        )}
+
+        {/* Empty State */}
+        {!loading && players.length === 0 && (
+          <div className="text-center py-8 md:py-12">
+            <p className="text-secondary-500 text-sm md:text-base">
+              {Object.keys(filters).some(key => filters[key as keyof PlayerFilters] && filters[key as keyof PlayerFilters] !== '')
+                ? 'No se encontraron jugadores con los filtros aplicados'
+                : 'No hay jugadores registrados'
+              }
+            </p>
+            {Object.keys(filters).some(key => filters[key as keyof PlayerFilters] && filters[key as keyof PlayerFilters] !== '') && (
+              <button
+                onClick={handleClearFilters}
+                className="mt-2 text-sm text-primary-600 hover:text-primary-700 underline"
+              >
+                Limpiar filtros
+              </button>
+            )}
+          </div>
         )}
 
         {/* Player Form Modal */}
@@ -269,24 +373,24 @@ const PlayersPage: React.FC = () => {
 
         {/* Delete Confirmation Modal */}
         {showDeleteModal && playerToDelete && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg p-4 md:p-6 max-w-md w-full">
               <div className="flex items-center gap-3 mb-4">
-                <Trash2 className="text-red-600" size={24} />
+                <Trash2 className="text-red-600 flex-shrink-0" size={24} />
                 <h3 className="text-lg font-semibold text-secondary-900">
                   Eliminar Jugador
                 </h3>
               </div>
               
-              <p className="text-secondary-600 mb-6">
+              <p className="text-secondary-600 mb-6 text-sm md:text-base">
                 ¿Estás seguro de que quieres eliminar a <strong>{playerToDelete.name}</strong>? 
                 Esta acción no se puede deshacer.
               </p>
 
-              <div className="flex justify-end gap-3">
+              <div className="flex flex-col-reverse md:flex-row justify-end gap-3">
                 <button
                   onClick={() => setShowDeleteModal(false)}
-                  className="px-4 py-2 text-secondary-600 hover:text-secondary-700 transition-colors"
+                  className="px-4 py-2 text-secondary-600 hover:text-secondary-700 transition-colors text-center"
                 >
                   Cancelar
                 </button>

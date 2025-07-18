@@ -57,10 +57,10 @@
 - [x] Ver detalle del reporte
 
 ### **7. Responsive**
-- [ ] Cambiar a móvil (375px) → navegación colapsa
-- [ ] Dashboard se ve bien en móvil
-- [ ] Tabla de jugadores scrolleable
-- [ ] Formularios usables en móvil
+- [x] Cambiar a móvil (375px) → navegación colapsa
+- [x] Dashboard se ve bien en móvil
+- [x] Tabla de jugadores scrolleable
+- [x] Formularios usables en móvil
 
 ---
 

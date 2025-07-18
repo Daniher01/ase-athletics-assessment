@@ -26,7 +26,7 @@ const PORT = process.env.PORT || 5000;
 // Rate limiting - limitar peticiones por IP
 const limiter = rateLimit({
   windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS || '900000'), // 15 minutos
-  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '100'), // máximo 100 requests por ventana
+  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '1000'), // máximo 100 requests por ventana
   message: {
     error: 'Demasiadas peticiones desde esta IP, intenta de nuevo más tarde.'
   }
