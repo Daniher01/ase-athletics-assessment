@@ -192,98 +192,119 @@ const PlayerComparison: React.FC = () => {
           </div>
         )}
 
-        {selectedPlayers.length >= 2 ? (
-          // Mostrar comparación usando el componente ComparisonTable
-          <div className="space-y-6">
+        {/* Mostrar comparación si hay 2 o más jugadores */}
+        {selectedPlayers.length >= 2 && (
+          <div className="space-y-6 mb-8">
             <ComparisonTable 
               players={selectedPlayers} 
               category={activeCategory} 
             />
           </div>
-        ) : (
-          // Mostrar selector de jugadores
+        )}
+
+        {/* Mostrar selector de jugadores (siempre visible si hay menos de 4 jugadores) */}
+        {selectedPlayers.length < 4 && (
           <div>
-            {/* Barra de búsqueda */}
-            <div className="mb-6">
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="Buscar jugadores por nombre, equipo o posición..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full px-4 py-3 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-                <Users className="absolute left-3 top-3.5 h-5 w-5 text-gray-400" />
+            {/* Título dinámico para la sección de selección */}
+            <div className="border-t border-gray-200 pt-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                {selectedPlayers.length === 0 
+                  ? 'Selecciona jugadores para comparar' 
+                  : `Agregar más jugadores (${selectedPlayers.length}/4 seleccionados)`
+                }
+              </h3>
+            
+              {/* Barra de búsqueda */}
+              <div className="mb-6">
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Buscar jugadores por nombre, equipo o posición..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full px-4 py-3 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                  <Users className="absolute left-3 top-3.5 h-5 w-5 text-gray-400" />
+                </div>
               </div>
-            </div>
 
-            {/* Información de debug */}
-            <div className="mb-4 p-3 bg-blue-50 rounded-lg">
-              <p className="text-sm text-blue-800">
-                Debug: {availablePlayers.length} jugadores cargados | 
-                {filteredPlayers.length} después del filtro | 
-                Búsqueda: "{searchTerm}"
-              </p>
-            </div>
 
-            {/* Lista de jugadores */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {filteredPlayers.slice(0, 20).map(player => (
-                <div
-                  key={player.id}
-                  className="bg-white rounded-lg border border-gray-200 p-4 hover:border-blue-300 hover:shadow-md transition-all cursor-pointer"
-                  onClick={() => addPlayer(player)}
-                >
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <h4 className="font-semibold text-gray-900">{player.name}</h4>
-                      <p className="text-sm text-gray-600">{player.team}</p>
-                      <p className="text-xs text-gray-500">{player.position}</p>
-                      
-                      <div className="mt-2 space-y-1">
-                        <div className="flex justify-between text-xs">
-                          <span className="text-gray-500">Edad:</span>
-                          <span>{player.age}</span>
+
+              {/* Lista de jugadores */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                {filteredPlayers.slice(0, 20).map(player => {
+                  const isSelected = selectedPlayers.find(p => p.id === player.id);
+                  
+                  return (
+                    <div
+                      key={player.id}
+                      className={`bg-white rounded-lg border p-4 transition-all cursor-pointer ${
+                        isSelected 
+                          ? 'border-blue-500 bg-blue-50 opacity-60' 
+                          : 'border-gray-200 hover:border-blue-300 hover:shadow-md'
+                      }`}
+                      onClick={() => !isSelected && addPlayer(player)}
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <h4 className={`font-semibold ${isSelected ? 'text-blue-800' : 'text-gray-900'}`}>
+                            {player.name}
+                          </h4>
+                          <p className="text-sm text-gray-600">{player.team}</p>
+                          <p className="text-xs text-gray-500">{player.position}</p>
+                          
+                          <div className="mt-2 space-y-1">
+                            <div className="flex justify-between text-xs">
+                              <span className="text-gray-500">Edad:</span>
+                              <span>{player.age}</span>
+                            </div>
+                            <div className="flex justify-between text-xs">
+                              <span className="text-gray-500">Goles:</span>
+                              <span>{player.goals}</span>
+                            </div>
+                            <div className="flex justify-between text-xs">
+                              <span className="text-gray-500">Valor:</span>
+                              <span>
+                                {new Intl.NumberFormat('es-ES', {
+                                  style: 'currency',
+                                  currency: 'EUR',
+                                  notation: 'compact',
+                                  compactDisplay: 'short'
+                                }).format(player.marketValue)}
+                              </span>
+                            </div>
+                          </div>
                         </div>
-                        <div className="flex justify-between text-xs">
-                          <span className="text-gray-500">Goles:</span>
-                          <span>{player.goals}</span>
-                        </div>
-                        <div className="flex justify-between text-xs">
-                          <span className="text-gray-500">Valor:</span>
-                          <span>
-                            {new Intl.NumberFormat('es-ES', {
-                              style: 'currency',
-                              currency: 'EUR',
-                              notation: 'compact',
-                              compactDisplay: 'short'
-                            }).format(player.marketValue)}
-                          </span>
+                        
+                        <div className="ml-2">
+                          {isSelected ? (
+                            <div className="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center">
+                              ✓
+                            </div>
+                          ) : (
+                            <button className="w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center hover:bg-blue-200 transition-colors">
+                              +
+                            </button>
+                          )}
                         </div>
                       </div>
                     </div>
-                    
-                    <div className="ml-2">
-                      <button className="w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center hover:bg-blue-200 transition-colors">
-                        +
-                      </button>
-                    </div>
-                  </div>
+                  );
+                })}
+              </div>
+
+              {filteredPlayers.length === 0 && !loading && (
+                <div className="text-center py-8 text-gray-500">
+                  No se encontraron jugadores que coincidan con la búsqueda
                 </div>
-              ))}
+              )}
+
+              {error && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4 mt-4">
+                  <div className="text-red-800">{error}</div>
+                </div>
+              )}
             </div>
-
-            {filteredPlayers.length === 0 && !loading && (
-              <div className="text-center py-8 text-gray-500">
-                No se encontraron jugadores que coincidan con la búsqueda
-              </div>
-            )}
-
-            {error && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-4 mt-4">
-                <div className="text-red-800">{error}</div>
-              </div>
-            )}
           </div>
         )}
       </div>
