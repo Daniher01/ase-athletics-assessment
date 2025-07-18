@@ -3,8 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { Users, ArrowLeft, BarChart3, Radar, TrendingUp } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Layout from '../../components/common/Layout';
-import { Player } from '../../types';
-import { playerService } from '../../services/playerService';
+import ComparisonTable from '../../components/comparison/ComparisonTable';
+import { Player, playerService } from '../../services/playerService';
 
 type MetricCategory = 'performance' | 'attributes' | 'market';
 
@@ -20,17 +20,29 @@ const PlayerComparison: React.FC = () => {
   useEffect(() => {
     const loadPlayers = async () => {
       try {
+        console.log('🔍 Iniciando carga de jugadores...');
         setLoading(true);
-        const response = await playerService.getPlayers({
-          page: 1,
-          limit: 100, // Cargar más jugadores para comparación
-          search: '',
-          filters: {}
-        });
-        setAvailablePlayers(response.players);
+        setError(null);
+        
+        // Llamada corregida al servicio - parámetros individuales
+        const response = await playerService.getPlayers(
+          1,    // page
+          100,  // limit - más jugadores para la selección
+          {}    // filters vacío
+        );
+        
+        console.log('✅ Respuesta del API:', response);
+        console.log('📊 Jugadores cargados:', response.data?.length);
+        
+        if (response && response.data) {
+          setAvailablePlayers(response.data); // Usar response.data en lugar de response.players
+        } else {
+          console.warn('⚠️ No se encontraron jugadores en la respuesta');
+          setAvailablePlayers([]);
+        }
       } catch (err) {
-        setError('Error al cargar jugadores');
-        console.error('Error loading players:', err);
+        console.error('❌ Error loading players:', err);
+        setError('Error al cargar jugadores: ' + (err as Error).message);
       } finally {
         setLoading(false);
       }
@@ -40,7 +52,7 @@ const PlayerComparison: React.FC = () => {
   }, []);
 
   // Filtrar jugadores por búsqueda
-  const filteredPlayers = (availablePlayers || []).filter(player =>
+  const filteredPlayers = availablePlayers.filter(player =>
     player.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     player.team.toLowerCase().includes(searchTerm.toLowerCase()) ||
     player.position.toLowerCase().includes(searchTerm.toLowerCase())
@@ -145,7 +157,7 @@ const PlayerComparison: React.FC = () => {
                   </div>
                   <button
                     onClick={() => removePlayer(player.id)}
-                    className="text-red-500 hover:text-red-700 ml-2"
+                    className="text-red-500 hover:text-red-700 ml-2 text-lg font-bold"
                   >
                     ×
                   </button>
@@ -181,18 +193,12 @@ const PlayerComparison: React.FC = () => {
         )}
 
         {selectedPlayers.length >= 2 ? (
-          // Mostrar comparación
+          // Mostrar comparación usando el componente ComparisonTable
           <div className="space-y-6">
-            {/* Aquí irán los componentes de comparación */}
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold mb-4">
-                Comparación - {categories.find(c => c.key === activeCategory)?.label}
-              </h3>
-              {/* TODO: Agregar componentes de comparación aquí */}
-              <div className="text-center py-8 text-gray-500">
-                Componentes de comparación se implementarán a continuación...
-              </div>
-            </div>
+            <ComparisonTable 
+              players={selectedPlayers} 
+              category={activeCategory} 
+            />
           </div>
         ) : (
           // Mostrar selector de jugadores
@@ -209,6 +215,15 @@ const PlayerComparison: React.FC = () => {
                 />
                 <Users className="absolute left-3 top-3.5 h-5 w-5 text-gray-400" />
               </div>
+            </div>
+
+            {/* Información de debug */}
+            <div className="mb-4 p-3 bg-blue-50 rounded-lg">
+              <p className="text-sm text-blue-800">
+                Debug: {availablePlayers.length} jugadores cargados | 
+                {filteredPlayers.length} después del filtro | 
+                Búsqueda: "{searchTerm}"
+              </p>
             </div>
 
             {/* Lista de jugadores */}
@@ -258,17 +273,17 @@ const PlayerComparison: React.FC = () => {
               ))}
             </div>
 
-            {filteredPlayers.length === 0 && (
+            {filteredPlayers.length === 0 && !loading && (
               <div className="text-center py-8 text-gray-500">
                 No se encontraron jugadores que coincidan con la búsqueda
               </div>
             )}
-          </div>
-        )}
 
-        {error && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-            <div className="text-red-800">{error}</div>
+            {error && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4 mt-4">
+                <div className="text-red-800">{error}</div>
+              </div>
+            )}
           </div>
         )}
       </div>
