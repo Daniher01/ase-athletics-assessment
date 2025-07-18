@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { FileText, Plus, Search, Calendar, User, Target, Star, Eye, Edit, Trash2 } from 'lucide-react';
 import Layout from '../../components/common/Layout';
+import ReportForm from '../../components/reports/ReportForm';
 import { Report, reportsService } from '../../services/reportsService';
 
 const Reports: React.FC = () => {
@@ -12,6 +13,13 @@ const Reports: React.FC = () => {
   const [totalCount, setTotalCount] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+
+  // Manejar éxito de creación
+  const handleCreateSuccess = () => {
+    loadReports(); // Recargar la lista
+    setShowCreateModal(false);
+  };
 
   // Cargar reportes
   useEffect(() => {
@@ -123,7 +131,7 @@ const Reports: React.FC = () => {
           </div>
           
           <button
-            onClick={() => {/* TODO: Abrir modal de creación */}}
+            onClick={() => setShowCreateModal(true)}
             className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
             <Plus className="h-4 w-4 mr-2" />
@@ -321,7 +329,7 @@ const Reports: React.FC = () => {
               }
             </p>
             <button
-              onClick={() => {/* TODO: Abrir modal de creación */}}
+              onClick={() => setShowCreateModal(true)}
               className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
               <Plus className="h-4 w-4 mr-2" />
@@ -377,6 +385,13 @@ const Reports: React.FC = () => {
             <div className="text-red-800">{error}</div>
           </div>
         )}
+
+        {/* Modal de creación */}
+        <ReportForm
+          isOpen={showCreateModal}
+          onClose={() => setShowCreateModal(false)}
+          onSuccess={handleCreateSuccess}
+        />
       </div>
     </Layout>
   );
