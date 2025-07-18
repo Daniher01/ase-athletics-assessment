@@ -246,81 +246,95 @@ const Reports: React.FC = () => {
         </div>
 
         {/* Reports List */}
-        <div className="space-y-4">
+<div className="space-y-4">
           {filteredReports.map((report) => (
-            <div key={report.id} className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow">
+            <div key={report.id} className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6 hover:shadow-md transition-shadow">
               <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  {/* Header */}
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center space-x-3">
-                      <h3 className="text-lg font-semibold text-gray-900">
-                        {report.player.name}
-                      </h3>
-                      <span className="text-sm text-gray-500">
-                        {report.player.position} • {report.player.team}
-                      </span>
-                    </div>
-                    
-                    <div className="flex items-center space-x-2">
-                      <button 
-                        onClick={() => handleViewReport(report.id)}
-                        className="p-1 text-gray-400 hover:text-blue-600 transition-colors"
-                        title="Ver detalle"
-                      >
-                        <Eye className="h-4 w-4" />
-                      </button>
-                      <button 
-                        className="p-1 text-gray-400 hover:text-green-600 transition-colors"
-                        title="Editar reporte"
-                        onClick={() => toast.info('Función de edición', 'La edición de reportes estará disponible pronto')}
-                      >
-                        <Edit className="h-4 w-4" />
-                      </button>
-                      <button 
-                        onClick={() => handleDelete(report)}
-                        className="p-1 text-gray-400 hover:text-red-600 transition-colors"
-                        title="Eliminar reporte"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
+                <div className="flex-1 min-w-0">
+                  {/* Header Responsivo */}
+                  <div className="flex flex-col space-y-3 mb-4">
+                    {/* Nombre y posición */}
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
+                      <div className="min-w-0">
+                        <h3 className="text-base sm:text-lg font-semibold text-gray-900 truncate">
+                          {report.player.name}
+                        </h3>
+                        <div className="flex flex-wrap gap-2 mt-1">
+                          <span className="text-xs sm:text-sm text-gray-500">
+                            {report.player.position}
+                          </span>
+                          <span className="text-xs sm:text-sm text-gray-500">
+                            • {report.player.team}
+                          </span>
+                        </div>
+                      </div>
+                      
+                      {/* Botones de acción */}
+                      <div className="flex items-center space-x-2 flex-shrink-0">
+                        <button 
+                          onClick={() => handleViewReport(report.id)}
+                          className="p-2 text-gray-400 hover:text-blue-600 transition-colors rounded-lg hover:bg-blue-50"
+                          title="Ver detalle"
+                        >
+                          <Eye className="h-4 w-4" />
+                        </button>
+                        <button 
+                          className="p-2 text-gray-400 hover:text-green-600 transition-colors rounded-lg hover:bg-green-50"
+                          title="Editar reporte"
+                          onClick={() => toast.info('Función de edición', 'La edición de reportes estará disponible pronto')}
+                        >
+                          <Edit className="h-4 w-4" />
+                        </button>
+                        <button 
+                          onClick={() => handleDelete(report)}
+                          className="p-2 text-gray-400 hover:text-red-600 transition-colors rounded-lg hover:bg-red-50"
+                          title="Eliminar reporte"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
                     </div>
                   </div>
 
-                  {/* Match Info */}
-                  <div className="flex items-center space-x-6 mb-3 text-sm text-gray-600">
+                  {/* Match Info - Responsivo */}
+                  <div className="flex flex-wrap gap-2 sm:gap-4 mb-3 text-xs sm:text-sm text-gray-600">
                     <span className="flex items-center">
-                      <Calendar className="h-4 w-4 mr-1" />
+                      <Calendar className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
                       {formatDate(report.matchDate)}
                     </span>
+                    <span className="hidden sm:inline">•</span>
                     <span>{report.competition}</span>
+                    <span className="hidden sm:inline">•</span>
                     <span>vs {report.opponent}</span>
+                    <span className="hidden sm:inline">•</span>
                     <span className="flex items-center">
-                      <User className="h-4 w-4 mr-1" />
+                      <User className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
                       {report.scout.name}
                     </span>
                   </div>
 
-                  {/* Rating */}
-                  <div className="flex items-center space-x-2 mb-3">
+                  {/* Rating - Responsivo */}
+                  <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-2 mb-3">
                     <span className="text-sm font-medium text-gray-700">Rating:</span>
                     <div className="flex items-center space-x-1">
-                      {renderRatingStars(report.overallRating)}
+                      <div className="flex items-center space-x-1">
+                        {renderRatingStars(report.overallRating)}
+                      </div>
+                      <span className="text-sm font-bold text-gray-900 ml-2">
+                        {formatRating(report.overallRating)}/10
+                      </span>
                     </div>
-                    <span className="text-sm font-bold text-gray-900">
-                      {formatRating(report.overallRating)}/10
-                    </span>
                   </div>
 
-                  {/* Strengths & Weaknesses Preview */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  {/* Strengths & Weaknesses Preview - Responsivo */}
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
                     <div>
-                      <h4 className="text-sm font-medium text-green-700 mb-1">Fortalezas</h4>
+                      <h4 className="text-sm font-medium text-green-700 mb-2">Fortalezas</h4>
                       <ul className="text-sm text-gray-600 space-y-1">
                         {report.strengths.slice(0, 2).map((strength, index) => (
                           <li key={index} className="flex items-start">
-                            <span className="text-green-500 mr-2">•</span>
-                            {strength}
+                            <span className="text-green-500 mr-2 flex-shrink-0">•</span>
+                            <span className="leading-relaxed">{strength}</span>
                           </li>
                         ))}
                         {report.strengths.length > 2 && (
@@ -332,12 +346,12 @@ const Reports: React.FC = () => {
                     </div>
                     
                     <div>
-                      <h4 className="text-sm font-medium text-red-700 mb-1">Debilidades</h4>
+                      <h4 className="text-sm font-medium text-red-700 mb-2">Debilidades</h4>
                       <ul className="text-sm text-gray-600 space-y-1">
                         {report.weaknesses.slice(0, 2).map((weakness, index) => (
                           <li key={index} className="flex items-start">
-                            <span className="text-red-500 mr-2">•</span>
-                            {weakness}
+                            <span className="text-red-500 mr-2 flex-shrink-0">•</span>
+                            <span className="leading-relaxed">{weakness}</span>
                           </li>
                         ))}
                         {report.weaknesses.length > 2 && (
@@ -349,10 +363,10 @@ const Reports: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Recomendación */}
+                  {/* Recomendación - Responsivo */}
                   <div className="bg-gray-50 rounded-lg p-3 border-l-4 border-blue-500">
                     <h4 className="text-sm font-medium text-gray-700 mb-1 flex items-center">
-                      <Target className="h-4 w-4 mr-1 text-blue-500" />
+                      <Target className="h-4 w-4 mr-1 text-blue-500 flex-shrink-0" />
                       Recomendación
                     </h4>
                     <p className="text-sm text-gray-700 leading-relaxed">
