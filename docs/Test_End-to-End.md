@@ -67,32 +67,23 @@
 ## 🚀 **TESTS DE HUMO**
 
 ### **APIs funcionan:**
-- [ ] F12 → Network → hacer cualquier acción → requests exitosos (200)
-- [ ] No errores 500 en backend
-- [ ] Datos se guardan (crear jugador y refrescar página)
+- [x] F12 → Network → hacer cualquier acción → requests exitosos (200)
+- [x] No errores 500 en backend
+- [x] Datos se guardan (crear jugador y refrescar página)
 
 ### **Performance básico:**
-- [ ] Dashboard carga en menos de 3 segundos
-- [ ] Búsquedas responden rápido
-- [ ] No se cuelga al navegar
+- [x] Dashboard carga en menos de 3 segundos
+- [x] Búsquedas responden rápido
+- [x] No se cuelga al navegar
 
 ---
 
-## ✅ **CHECKLIST FINAL**
-
-```
-Total Tests: 25
-Completados: ___/25
-Tiempo: ___minutos
-Bugs encontrados: ___
-```
-
 ### **Funcionalidades críticas:**
-- [ ] Login/Auth funciona
-- [ ] CRUD jugadores completo
-- [ ] Dashboard con métricas
-- [ ] Búsqueda y filtros
-- [ ] Responsive básico
+- [x] Login/Auth funciona
+- [x] CRUD jugadores completo
+- [x] Dashboard con métricas
+- [x] Búsqueda y filtros
+- [x] Responsive básico
 
 ### **Si algo falla:**
 - Anotar qué no funciona
@@ -108,5 +99,3 @@ Bugs encontrados: ___
 - ✅ App funciona end-to-end
 - ✅ CRUD completo operativo
 - ✅ Responsive funcional
-
-**Tiempo total: ~30 minutos**
