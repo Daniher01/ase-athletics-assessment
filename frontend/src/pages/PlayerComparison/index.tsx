@@ -1,4 +1,4 @@
-// src/pages/PlayerComparison/index.tsx
+// src/pages/PlayerComparison/index.tsx - RESPONSIVE FIX
 import React, { useState, useEffect } from 'react';
 import { Users, ArrowLeft, BarChart3, Radar, TrendingUp } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -106,7 +106,7 @@ const PlayerComparison: React.FC = () => {
   if (loading) {
     return (
       <Layout>
-        <div className="p-6">
+        <div className="p-4 sm:p-6">
           <div className="animate-pulse">
             <div className="h-8 bg-gray-200 rounded w-64 mb-4"></div>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -122,69 +122,75 @@ const PlayerComparison: React.FC = () => {
 
   return (
     <Layout>
-      <div className="p-6">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center space-x-4">
+      <div className="p-4 sm:p-6">
+        {/* Header Responsivo */}
+        <div className="flex flex-col space-y-4 mb-6">
+          {/* Navegación back */}
+          <div>
             <Link
               to="/players"
-              className="flex items-center text-gray-600 hover:text-gray-800 transition-colors"
+              className="inline-flex items-center text-gray-600 hover:text-gray-800 transition-colors"
             >
-              <ArrowLeft className="h-5 w-5 mr-1" />
-              Volver a Jugadores
+              <ArrowLeft className="h-4 w-4 mr-1" />
+              <span className="text-sm sm:text-base">Volver a Jugadores</span>
             </Link>
+          </div>
+
+          {/* Título y descripción */}
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between space-y-4 sm:space-y-0">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 flex items-center">
-                <Users className="h-6 w-6 mr-2 text-blue-600" />
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900 flex items-center">
+                <Users className="h-5 w-5 sm:h-6 sm:w-6 mr-2 text-blue-600" />
                 Comparación de Jugadores
               </h1>
-              <p className="text-gray-600 mt-1">
+              <p className="text-gray-600 mt-1 text-sm sm:text-base">
                 Selecciona hasta 4 jugadores para comparar sus estadísticas
               </p>
             </div>
-          </div>
 
-          <div className="flex items-center space-x-3">
-            {/* Botón de exportación */}
-            {selectedPlayers.length >= 2 && (
-              <ComparisonExport 
-                players={selectedPlayers} 
-                activeCategory={activeCategory} 
-              />
-            )}
-            
-            {/* Botón limpiar selección */}
-            {selectedPlayers.length > 0 && (
-              <button
-                onClick={clearSelection}
-                className="px-4 py-2 text-red-600 hover:text-red-800 border border-red-300 hover:border-red-400 rounded-lg transition-colors"
-              >
-                Limpiar Selección
-              </button>
-            )}
+            {/* Botones de acción - Stack en móvil */}
+            <div className="flex flex-col space-y-2 sm:flex-row sm:items-center sm:space-y-0 sm:space-x-3">
+              {/* Botón de exportación */}
+              {selectedPlayers.length >= 2 && (
+                <ComparisonExport 
+                  players={selectedPlayers} 
+                  activeCategory={activeCategory} 
+                />
+              )}
+              
+              {/* Botón limpiar selección */}
+              {selectedPlayers.length > 0 && (
+                <button
+                  onClick={clearSelection}
+                  className="px-4 py-2 text-red-600 hover:text-red-800 border border-red-300 hover:border-red-400 rounded-lg transition-colors text-sm sm:text-base"
+                >
+                  Limpiar Selección
+                </button>
+              )}
+            </div>
           </div>
         </div>
 
         {/* Jugadores Seleccionados */}
         {selectedPlayers.length > 0 && (
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-            <h3 className="text-lg font-semibold text-blue-900 mb-3">
+            <h3 className="text-base sm:text-lg font-semibold text-blue-900 mb-3">
               Jugadores Seleccionados ({selectedPlayers.length}/4)
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
               {selectedPlayers.map(player => (
                 <div
                   key={player.id}
                   className="bg-white rounded-lg p-3 border border-blue-200 flex items-center justify-between"
                 >
-                  <div>
-                    <div className="font-medium text-gray-900">{player.name}</div>
-                    <div className="text-sm text-gray-600">{player.team}</div>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-medium text-gray-900 truncate">{player.name}</div>
+                    <div className="text-sm text-gray-600 truncate">{player.team}</div>
                     <div className="text-xs text-gray-500">{player.position}</div>
                   </div>
                   <button
                     onClick={() => removePlayer(player.id)}
-                    className="text-red-500 hover:text-red-700 ml-2 text-lg font-bold"
+                    className="text-red-500 hover:text-red-700 ml-2 text-lg font-bold flex-shrink-0 w-6 h-6 flex items-center justify-center"
                   >
                     ×
                   </button>
@@ -194,23 +200,23 @@ const PlayerComparison: React.FC = () => {
           </div>
         )}
 
-        {/* Categorías de Métricas */}
+        {/* Categorías de Métricas - Responsivas */}
         {selectedPlayers.length >= 2 && (
           <div className="mb-6">
-            <div className="flex space-x-1 bg-gray-100 rounded-lg p-1">
+            <div className="flex flex-col sm:flex-row space-y-1 sm:space-y-0 sm:space-x-1 bg-gray-100 rounded-lg p-1">
               {categories.map(category => {
                 const Icon = category.icon;
                 return (
                   <button
                     key={category.key}
                     onClick={() => setActiveCategory(category.key)}
-                    className={`flex items-center px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                    className={`flex items-center justify-center px-3 py-2 rounded-md text-xs sm:text-sm font-medium transition-colors w-full sm:w-auto ${
                       activeCategory === category.key
                         ? 'bg-white text-blue-600 shadow-sm'
                         : 'text-gray-600 hover:text-gray-800'
                     }`}
                   >
-                    <Icon className="h-4 w-4 mr-2" />
+                    <Icon className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                     {category.label}
                   </button>
                 );
@@ -238,7 +244,7 @@ const PlayerComparison: React.FC = () => {
           <div>
             {/* Título dinámico para la sección de selección */}
             <div className="border-t border-gray-200 pt-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-4">
                 {selectedPlayers.length === 0 
                   ? 'Selecciona jugadores para comparar' 
                   : `Agregar más jugadores (${selectedPlayers.length}/4 seleccionados)`
@@ -253,21 +259,21 @@ const PlayerComparison: React.FC = () => {
                     placeholder="Buscar jugadores por nombre, equipo o posición..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full px-4 py-3 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-3 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
                   />
-                  <Users className="absolute left-3 top-3.5 h-5 w-5 text-gray-400" />
+                  <Users className="absolute left-3 top-3.5 h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
                 </div>
               </div>
 
-              {/* Lista de jugadores */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {/* Lista de jugadores - Grid responsivo */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 {filteredPlayers.slice(0, 20).map(player => {
                   const isSelected = selectedPlayers.find(p => p.id === player.id);
                   
                   return (
                     <div
                       key={player.id}
-                      className={`bg-white rounded-lg border p-4 transition-all cursor-pointer ${
+                      className={`bg-white rounded-lg border p-3 sm:p-4 transition-all cursor-pointer ${
                         isSelected 
                           ? 'border-blue-500 bg-blue-50 opacity-60' 
                           : 'border-gray-200 hover:border-blue-300 hover:shadow-md'
@@ -275,11 +281,11 @@ const PlayerComparison: React.FC = () => {
                       onClick={() => !isSelected && addPlayer(player)}
                     >
                       <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <h4 className={`font-semibold ${isSelected ? 'text-blue-800' : 'text-gray-900'}`}>
+                        <div className="flex-1 min-w-0">
+                          <h4 className={`font-semibold text-sm sm:text-base truncate ${isSelected ? 'text-blue-800' : 'text-gray-900'}`}>
                             {player.name}
                           </h4>
-                          <p className="text-sm text-gray-600">{player.team}</p>
+                          <p className="text-xs sm:text-sm text-gray-600 truncate">{player.team}</p>
                           <p className="text-xs text-gray-500">{player.position}</p>
                           
                           <div className="mt-2 space-y-1">
@@ -305,13 +311,13 @@ const PlayerComparison: React.FC = () => {
                           </div>
                         </div>
                         
-                        <div className="ml-2">
+                        <div className="ml-2 flex-shrink-0">
                           {isSelected ? (
-                            <div className="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center">
+                            <div className="w-6 h-6 sm:w-8 sm:h-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs sm:text-sm">
                               ✓
                             </div>
                           ) : (
-                            <button className="w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center hover:bg-blue-200 transition-colors">
+                            <button className="w-6 h-6 sm:w-8 sm:h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center hover:bg-blue-200 transition-colors text-xs sm:text-sm">
                               +
                             </button>
                           )}
@@ -324,13 +330,13 @@ const PlayerComparison: React.FC = () => {
 
               {filteredPlayers.length === 0 && !loading && (
                 <div className="text-center py-8 text-gray-500">
-                  No se encontraron jugadores que coincidan con la búsqueda
+                  <p className="text-sm sm:text-base">No se encontraron jugadores que coincidan con la búsqueda</p>
                 </div>
               )}
 
               {error && (
                 <div className="bg-red-50 border border-red-200 rounded-lg p-4 mt-4">
-                  <div className="text-red-800">{error}</div>
+                  <div className="text-red-800 text-sm sm:text-base">{error}</div>
                 </div>
               )}
             </div>
