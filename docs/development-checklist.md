@@ -130,16 +130,16 @@
 ## ⏳ **DÍA 5: Panel de Análisis**
 
 ### Dashboard Interactivo
-- [ ] Gráficos de distribución por posición
-- [ ] Métricas de edad promedio por equipo
-- [ ] Gráfico de valores de mercado
-- [ ] Estadísticas de rendimiento
+- [x] Gráficos de distribución por posición
+- [x] Métricas de edad promedio por equipo
+- [x] Gráfico de valores de mercado
+- [] Estadísticas de rendimiento
 
 ### Visualización de Datos
-- [ ] Integrar Chart.js o Recharts
-- [ ] Gráficos responsivos
+- [x] Integrar Chart.js o Recharts
+- [x] Gráficos responsivos
 - [ ] Filtros interactivos en gráficos
-- [ ] Tooltips informativos
+- [x] Tooltips informativos
 
 ### Métricas Avanzadas
 - [ ] Comparación entre ligas

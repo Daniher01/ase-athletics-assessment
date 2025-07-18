@@ -16,6 +16,8 @@ import StatCard from '../../components/dashboard/StatCard';
 import PositionChart from '../../components/dashboard/PositionChart';
 import TopScorers from '../../components/dashboard/TopScorers';
 import AttributesRadar from '../../components/dashboard/AttributesRadar'; // ✅ NUEVO IMPORT
+import MarketTrendChart from '../../components/dashboard/MarketTrendChart'; // ✅ NUEVO IMPORT
+import PerformanceStats from '../../components/dashboard/PerformanceStats';
 import { 
   dashboardService, 
   DashboardData,
@@ -212,9 +214,19 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
 
+        {/* ✅ AGREGAR: Gráfico de Tendencias de Mercado */}
+        <div className="mb-8">
+          <MarketTrendChart data={positionDistribution} />
+        </div>
+
+        <div className="mb-8">
+          <PerformanceStats data={positionDistribution} />
+        </div>
+
         {/* Segunda fila: TopScorers + TopTeams */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           <TopScorers data={topPlayers.topScorers.slice(0, 10)} />
+
           
           {/* MANTENER: Top Teams (movido aquí) */}
           <div className="bg-white rounded-lg shadow-sm border border-secondary-200 p-6">
@@ -222,7 +234,7 @@ const Dashboard: React.FC = () => {
               Equipos Principales
             </h3>
             <div className="space-y-3">
-              {teamDistribution.slice(0, 5).map((team, index) => (
+              {teamDistribution.slice(0, 10).map((team, index) => (
                 <div key={team.team} className="flex justify-between items-center">
                   <div>
                     <div className="font-medium text-secondary-900">{team.team}</div>
