@@ -86,7 +86,7 @@ export class ReportsController {
     }
   }
 
-  // POST /api/reports - Crear nuevo reporte
+// POST /api/reports - Crear nuevo reporte
   static async createReport(req: Request, res: Response) {
     try {
       const reportData: CreateReportRequest = req.body;
@@ -99,12 +99,43 @@ export class ReportsController {
         data: newReport
       });
 
-    } catch (error) {
-      console.error('Error en createReport:', error);
+    } catch (error: any) {
+      console.error('Error en ReportsController.createReport:', error);
+
+      // Error de foreign key constraint (jugador o scout no existe)
+      if (error.code === 'P2003') {
+        return res.status(400).json({
+          success: false,
+          error: 'Datos inválidos',
+          message: 'El jugador o scout especificado no existe'
+        });
+      }
+
+      // Error de datos duplicados
+      if (error.code === 'P2002') {
+        return res.status(400).json({
+          success: false,
+          error: 'Datos duplicados',
+          message: 'Ya existe un reporte con estos datos únicos'
+        });
+      }
+      
+      // Errores de validación (vienen del service)
+      if (error.message.includes('requerido') || 
+          error.message.includes('debe estar') ||
+          error.message.includes('debe tener') ||
+          error.message.includes('debe ser')) {
+        return res.status(400).json({
+          success: false,
+          error: 'Datos inválidos',
+          message: error.message
+        });
+      }
+
       res.status(500).json({
         success: false,
-        message: 'Error interno del servidor',
-        error: error instanceof Error ? error.message : 'Error desconocido'
+        error: 'Error interno del servidor',
+        message: 'No se pudo crear el reporte'
       });
     }
   }
@@ -134,8 +165,8 @@ export class ReportsController {
       console.error('Error en updateReport:', error);
       res.status(500).json({
         success: false,
-        message: 'Error interno del servidor',
-        error: error instanceof Error ? error.message : 'Error desconocido'
+        error: 'Error interno del servidor',
+        message: 'No se pudo actualizar el reporte'
       });
     }
   }
@@ -163,8 +194,8 @@ export class ReportsController {
       console.error('Error en deleteReport:', error);
       res.status(500).json({
         success: false,
-        message: 'Error interno del servidor',
-        error: error instanceof Error ? error.message : 'Error desconocido'
+        error: 'Error interno del servidor',
+        message: 'No se pudo eliminar el reporte'
       });
     }
   }
