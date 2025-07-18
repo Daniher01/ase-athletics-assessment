@@ -24,11 +24,11 @@ export class PlayerValidation {
     }
 
     // Validar posición
-    const validPositions = ['Goalkeeper', 'Defender', 'Midfielder', 'Forward'];
+    // const validPositions = ['Goalkeeper', 'Defender', 'Midfielder', 'Forward'];
     
-    if (!data.position || !validPositions.includes(data.position)) {
-      errors.push(`La posición debe ser una de: ${validPositions.join(', ')}`);
-    }
+    // if (!data.position || !validPositions.includes(data.position)) {
+    //   errors.push(`La posición debe ser una de: ${validPositions.join(', ')}`);
+    // }
 
     // Validar edad
     if (!data.age || typeof data.age !== 'number' || data.age < 16 || data.age > 50) {

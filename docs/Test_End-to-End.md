@@ -18,28 +18,28 @@
 - [x] Intentar ir a /players sin login → redirige a login
 
 ### **2. Dashboard**
-- [ ] Muestra Total Players (debería ser ~94)
-- [ ] Muestra Average Age
-- [ ] Gráfico de posiciones se ve
-- [ ] No errores en consola
+- [x] Muestra Total Players (debería ser ~94)
+- [x] Muestra Average Age
+- [x] Gráfico de posiciones se ve
+- [x] No errores en consola
 
 ### **3. Lista de Jugadores**
-- [ ] Carga lista de jugadores (mínimo 20)
-- [ ] Paginación funciona (Next/Previous)
-- [ ] Buscar "Messi" → encuentra a Lionel Messi
-- [ ] Filtrar por posición "Centre-Forward" → filtra correctamente
-- [ ] Clear filters → muestra todos otra vez
+- [x] Carga lista de jugadores (mínimo 20)
+- [x] Paginación funciona (Next/Previous)
+- [x] Buscar "Kane" → encuentra a Harry Kane
+- [x] Filtrar por posición "Forward" → filtra correctamente
+- [x] Clear filters → muestra todos otra vez
 
 ### **4. CRUD Jugadores**
-- [ ] Crear jugador nuevo:
+- [x] Crear jugador nuevo:
   - Name: "Test Player"
   - Position: Centre-Forward
   - Age: 25
   - Team: Test FC
-- [ ] Jugador aparece en la lista
-- [ ] Editar ese jugador → cambiar goals a 15
-- [ ] Ver detalle del jugador → muestra toda la info
-- [ ] Eliminar jugador → confirma y desaparece
+- [x] Jugador aparece en la lista
+- [x] Editar ese jugador → cambiar goals a 15
+- [x] Ver detalle del jugador → muestra toda la info
+- [x] Eliminar jugador → confirma y desaparece
 
 ### **5. Comparación de Jugadores**
 - [ ] Seleccionar 2-3 jugadores

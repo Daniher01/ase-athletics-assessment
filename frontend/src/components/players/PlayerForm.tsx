@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Save, User } from 'lucide-react';
 import { Player } from '../../services/playerService';
+import { useToast } from '../../context/ToastContext';
 
 interface PlayerFormData {
   name: string;
@@ -56,6 +57,8 @@ const PlayerForm: React.FC<PlayerFormProps> = ({
   nationalities,
   positions
 }) => {
+  const toast = useToast(); // 🔥 Agregar hook de Toast
+  
   const [formData, setFormData] = useState<PlayerFormData>({
     name: '',
     position: '',
@@ -203,6 +206,21 @@ const PlayerForm: React.FC<PlayerFormProps> = ({
     if (formData.marketValue < 0) newErrors.marketValue = 'El valor de mercado no puede ser negativo';
 
     setErrors(newErrors);
+
+    // 🔥 Toast de validación si hay errores
+    if (Object.keys(newErrors).length > 0) {
+      const firstError = Object.values(newErrors)[0];
+      toast.warning('Datos incompletos', firstError);
+      
+      // Cambiar a la tab que contiene el primer error
+      const errorField = Object.keys(newErrors)[0];
+      if (['name', 'position', 'team', 'nationality', 'age', 'height', 'weight', 'salary', 'contractEnd', 'marketValue'].includes(errorField)) {
+        setActiveTab('basic');
+      } else if (['goals', 'assists', 'appearances'].includes(errorField)) {
+        setActiveTab('stats');
+      }
+    }
+
     return Object.keys(newErrors).length === 0;
   };
 
@@ -215,10 +233,56 @@ const PlayerForm: React.FC<PlayerFormProps> = ({
 
     try {
       await onSave(formData);
+      
+      // 🔥 Toast de éxito
+      const action = player ? 'actualizado' : 'creado';
+      toast.success(
+        `Jugador ${action}`, 
+        `${formData.name} ha sido ${action} exitosamente`
+      );
+      
       onClose();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving player:', error);
+      
+      // 🔥 Toast de error con mensaje específico
+      const errorMessage = error?.message || error?.response?.data?.message || 'Error desconocido';
+      toast.error(
+        'Error al guardar', 
+        `No se pudo ${player ? 'actualizar' : 'crear'} el jugador: ${errorMessage}`
+      );
     }
+  };
+
+  // 🔥 Función para manejar el cierre con confirmación si hay cambios
+  const handleClose = () => {
+    // Verificar si hay cambios no guardados
+    const hasChanges = player ? (
+      formData.name !== player.name ||
+      formData.position !== player.position ||
+      formData.age !== player.age ||
+      formData.team !== player.team ||
+      formData.nationality !== player.nationality ||
+      formData.goals !== player.goals ||
+      formData.assists !== player.assists
+      // ... más campos si necesitas
+    ) : (
+      formData.name.trim() !== '' ||
+      formData.position !== '' ||
+      formData.team.trim() !== '' ||
+      formData.nationality.trim() !== ''
+    );
+
+    if (hasChanges) {
+      const confirmClose = window.confirm(
+        '¿Estás seguro de cerrar? Los cambios no guardados se perderán.'
+      );
+      if (!confirmClose) {
+        return;
+      }
+    }
+
+    onClose();
   };
 
   if (!isOpen) return null;
@@ -234,7 +298,7 @@ const PlayerForm: React.FC<PlayerFormProps> = ({
             {player ? 'Editar Jugador' : 'Crear Nuevo Jugador'}
           </h2>
           <button
-            onClick={onClose}
+            onClick={handleClose} // 🔥 Usar handleClose en lugar de onClose
             className="text-secondary-400 hover:text-secondary-600 transition-colors"
           >
             <X size={24} />
@@ -252,6 +316,10 @@ const PlayerForm: React.FC<PlayerFormProps> = ({
             }`}
           >
             Información Básica
+            {/* 🔥 Indicador de errores en tab */}
+            {Object.keys(errors).some(key => ['name', 'position', 'team', 'nationality', 'age', 'height', 'weight', 'salary', 'contractEnd', 'marketValue'].includes(key)) && (
+              <span className="ml-1 w-2 h-2 bg-red-500 rounded-full inline-block"></span>
+            )}
           </button>
           <button
             onClick={() => setActiveTab('stats')}
@@ -611,7 +679,7 @@ const PlayerForm: React.FC<PlayerFormProps> = ({
           <div className="flex items-center justify-end gap-3 p-6 border-t border-secondary-200 bg-secondary-50">
             <button
               type="button"
-              onClick={onClose}
+              onClick={handleClose} // 🔥 Usar handleClose
               className="px-4 py-2 text-secondary-600 hover:text-secondary-700 transition-colors"
             >
               Cancelar
