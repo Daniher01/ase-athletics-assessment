@@ -42,7 +42,7 @@ export class AuthController {
         });
       }
 
-      // Error genérico (tu lógica)
+      // Error genérico
       res.status(500).json({
         error: 'Error interno',
         message: 'Error al crear el usuario'
@@ -83,7 +83,7 @@ export class AuthController {
         });
       }
 
-      // Error genérico (tu lógica)
+      // Error genérico
       res.status(500).json({
         error: 'Error interno',
         message: 'Error al iniciar sesión'
@@ -91,7 +91,7 @@ export class AuthController {
     }
   }
 
-  // ============= GET /api/auth/me (nuevo endpoint) =============
+  // ============= GET /api/auth/me  =============
   static async getProfile(req: Request, res: Response) {
     try {
       // El usuario viene del middleware authenticateToken
@@ -127,7 +127,7 @@ export class AuthController {
     }
   }
 
-  // ============= POST /api/auth/logout (opcional) =============
+  // ============= POST /api/auth/logout =============
   static async logout(req: Request, res: Response) {
     try {
       // En JWT, el logout es principalmente del lado del frontend

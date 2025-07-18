@@ -100,7 +100,7 @@ const ComparisonTable: React.FC<ComparisonTableProps> = ({ players, category }) 
 
   const metrics = getMetrics();
 
-  // Función para obtener el mejor valor (más alto o más bajo según métrica)
+  // Función para obtener el mejor valor 
   const getBestValueIndex = (metricKey: string) => {
     const values = players.map(player => {
       if (metricKey === 'goalsPerGame') {

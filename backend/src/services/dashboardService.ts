@@ -307,7 +307,7 @@ export class DashboardService {
     }
   }
 
-  // ============= OBTENER ATRIBUTOS POR POSICIÓN =============
+
 // ============= OBTENER ATRIBUTOS POR POSICIÓN =============
 async getAttributesByPosition(): Promise<AttributesByPositionItem[]> {
   try {

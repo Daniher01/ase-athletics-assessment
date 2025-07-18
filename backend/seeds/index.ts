@@ -9,7 +9,7 @@ async function main() {
   console.log('🌱 Iniciando siembra de datos...');
 
   try {
-    // Limpiar datos existentes (opcional)
+    // Limpiar datos existentes
     console.log('🧹 Limpiando datos existentes...');
     await prisma.scoutReport.deleteMany();
     await prisma.playerAttributes.deleteMany();

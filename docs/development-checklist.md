@@ -161,7 +161,7 @@
 ### Funcionalidades Extra
 - [x] Exportación a PDF/Excel
 - [x] Búsqueda avanzada con múltiples filtros
-- [ ] Revisar todo el responsive de la app
+- [x] Revisar todo el responsive de la app
 - [ ] Comentarios del codigo
 
 ---

@@ -37,7 +37,7 @@ const PlayerComparison: React.FC = () => {
         console.log('📊 Jugadores cargados:', response.data?.length);
         
         if (response && response.data) {
-          setAvailablePlayers(response.data); // Usar response.data en lugar de response.players
+          setAvailablePlayers(response.data); 
         } else {
           console.warn('⚠️ No se encontraron jugadores en la respuesta');
           setAvailablePlayers([]);

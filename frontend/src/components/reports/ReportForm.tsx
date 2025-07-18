@@ -23,7 +23,7 @@ const ReportForm: React.FC<ReportFormProps> = ({ isOpen, onClose, onSuccess }) =
   // Form data
   const [formData, setFormData] = useState<CreateReportData>({
     playerId: 0,
-    scoutId: 1, // Por ahora hardcoded, luego puedes obtenerlo del usuario logueado
+    scoutId: 1,
     matchDate: '',
     competition: '',
     opponent: '',

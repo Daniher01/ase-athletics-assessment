@@ -9,7 +9,7 @@ export interface PlayerFilters {
   maxAge?: number;
   minMarketValue?: number;
   maxMarketValue?: number;
-  search?: string; // Para búsqueda por texto
+  search?: string;
 }
 
 // ============= INTERFACES PARA ORDENAMIENTO =============
@@ -97,7 +97,7 @@ export interface CreatePlayerRequest {
   assists?: number;
   appearances?: number;
   salary?: number;
-  contractEnd?: string; // Como string porque viene del form
+  contractEnd?: string;
   marketValue?: number;
   attributes?: PlayerAttributes;
   imageUrl?: string;

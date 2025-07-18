@@ -84,7 +84,7 @@ class PlayerService {
       });
 
       const response = await api.get(`/players?${params}`);
-      return response.data; // Ya viene en el formato correcto
+      return response.data; 
     } catch (error) {
       console.error('Error fetching players:', error);
       throw error;
@@ -140,7 +140,7 @@ class PlayerService {
     }
   }
 
-  // Obtener listas para filtros - usando los datos que ya tienes
+  // Obtener listas para filtros 
   async getTeams(): Promise<string[]> {
     try {
       const response = await this.getPlayers(1, 1000); // Obtener todos los jugadores

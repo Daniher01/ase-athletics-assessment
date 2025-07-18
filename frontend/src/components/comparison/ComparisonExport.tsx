@@ -82,7 +82,7 @@ const ComparisonExport: React.FC<ComparisonExportProps> = ({ players, activeCate
           detail: { category: category.key } 
         }));
         
-        // Wait for DOM update
+        // Esperar para actualizar el DOM
         await new Promise(resolve => setTimeout(resolve, 500));
         
         // Buscar el contenedor de comparación
@@ -108,8 +108,8 @@ const ComparisonExport: React.FC<ComparisonExportProps> = ({ players, activeCate
         const imgHeight = canvas.height;
 
         // Calcular dimensiones
-        const maxWidth = pdfWidth - 20; // Margins
-        const maxHeight = pdfHeight - 80; // Space for headers
+        const maxWidth = pdfWidth - 20; 
+        const maxHeight = pdfHeight - 80; 
         const ratio = Math.min(maxWidth / imgWidth, maxHeight / imgHeight);
         const finalWidth = imgWidth * ratio;
         const finalHeight = imgHeight * ratio;
@@ -161,7 +161,6 @@ const ComparisonExport: React.FC<ComparisonExportProps> = ({ players, activeCate
       setIsExporting(true);
       const comparisonData = prepareComparisonData();
       
-      // Usar tu función existente pero con datos de comparación
       await exportToCSV(comparisonData);
       
       // Mostrar notificación de éxito
@@ -181,7 +180,6 @@ const ComparisonExport: React.FC<ComparisonExportProps> = ({ players, activeCate
       setIsExporting(true);
       const comparisonData = prepareComparisonData();
       
-      // Usar tu función existente pero con datos de comparación
       await exportToExcel(comparisonData);
       
       // Mostrar notificación de éxito
@@ -195,7 +193,7 @@ const ComparisonExport: React.FC<ComparisonExportProps> = ({ players, activeCate
     }
   };
 
-  // Notificaciones simples (puedes integrar con tu sistema de notificaciones)
+  // Notificaciones simples
   const showSuccessNotification = (message: string) => {
     // Implementar notificación de éxito
     console.log('✅ Success:', message);

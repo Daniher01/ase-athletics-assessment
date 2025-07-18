@@ -99,7 +99,7 @@ const PlayersPage: React.FC = () => {
 
   const handleFiltersChange = (newFilters: PlayerFilters) => {
     setFilters(newFilters);
-    setPagination(prev => ({ ...prev, page: 1 })); // Reset to first page
+    setPagination(prev => ({ ...prev, page: 1 })); 
   };
 
   const handleClearFilters = () => {

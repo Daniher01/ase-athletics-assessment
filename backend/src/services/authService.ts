@@ -21,7 +21,7 @@ export class AuthService {
     try {
       const { email, password, name } = data;
 
-      // Validaciones básicas (mantengo tu lógica exacta)
+      // Validaciones básicas 
       if (!email || !password || !name) {
         throw new Error('Email, contraseña y nombre son requeridos');
       }
@@ -132,7 +132,7 @@ export class AuthService {
     }
   }
 
-  // ============= OBTENER PERFIL (nuevo endpoint) =============
+  // ============= OBTENER PERFIL  =============
   async getUserProfile(userId: number): Promise<UserResponse> {
     try {
       const user = await this.prisma.user.findUnique({

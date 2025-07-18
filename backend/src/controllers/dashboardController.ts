@@ -24,7 +24,7 @@ export class DashboardController {
     } catch (error: any) {
       console.error('Error en DashboardController.getStats:', error);
       
-      // Manejo de errores (mantengo tu lógica exacta)
+      // Manejo de errores
       res.status(500).json({
         success: false,
         error: 'Error interno del servidor',
@@ -39,7 +39,7 @@ static async getAttributesByPosition(req: Request, res: Response) {
     // Llamar al servicio
     const data = await dashboardService.getAttributesByPosition();
 
-    // Respuesta exitosa (mismo formato que tenías)
+    // Respuesta exitosa
     res.status(200).json({
       success: true,
       data: data

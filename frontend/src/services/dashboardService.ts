@@ -59,7 +59,7 @@ export interface MarketAnalysis {
   }>;
 }
 
-// ✅ ACTUALIZAR: Cambiar la estructura para que coincida con el componente
+
 export interface AttributesByPosition {
   position: string;
   playerCount: number;
@@ -81,7 +81,7 @@ export interface DashboardData {
   ageDistribution: { [key: string]: number };
   topPlayers: TopPlayers;
   marketAnalysis: MarketAnalysis;
-  attributesByPosition: AttributesByPosition[]; // ✅ CAMBIAR: Array en lugar de objeto
+  attributesByPosition: AttributesByPosition[]; 
   generatedAt: string;
   dataVersion: string;
 }
@@ -97,7 +97,7 @@ class DashboardService {
     }
   }
 
-  // ✅ NUEVO: Método para obtener atributos por posición del endpoint correcto
+  
   async getAttributesByPosition(): Promise<AttributesByPosition[]> {
     try {
       const response = await api.get('/dashboard/stats/position');

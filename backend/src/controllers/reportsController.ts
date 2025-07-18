@@ -102,7 +102,7 @@ export class ReportsController {
     } catch (error: any) {
       console.error('Error en ReportsController.createReport:', error);
 
-      // Error de foreign key constraint (jugador o scout no existe)
+      // Error de foreign key constraint 
       if (error.code === 'P2003') {
         return res.status(400).json({
           success: false,
@@ -120,7 +120,7 @@ export class ReportsController {
         });
       }
       
-      // Errores de validación (vienen del service)
+      // Errores de validación 
       if (error.message.includes('requerido') || 
           error.message.includes('debe estar') ||
           error.message.includes('debe tener') ||

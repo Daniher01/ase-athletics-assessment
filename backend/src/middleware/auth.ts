@@ -122,7 +122,7 @@ export const requireRole = (roles: string[]) => {
   };
 };
 
-// ============= MIDDLEWARE OPCIONAL (permite acceso sin token) =============
+// ============= MIDDLEWARE OPCIONAL  =============
 export const optionalAuth = async (
   req: Request, 
   res: Response, 

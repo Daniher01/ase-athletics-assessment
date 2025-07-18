@@ -4,12 +4,12 @@
 export interface CreateReportRequest {
   playerId: number;
   scoutId: number;
-  matchDate: string; // Como string porque viene del form
+  matchDate: string;
   competition?: string;
   opponent?: string;
   overallRating: number; // 1-10
-  strengths: string[]; // Array de strings
-  weaknesses: string[]; // Array de strings
+  strengths: string[];
+  weaknesses: string[];
   recommendation: 'fichar' | 'monitorear' | 'pasar';
   notes?: string;
 }

@@ -8,7 +8,7 @@ interface RadarComparisonProps {
 }
 
 const RadarComparison: React.FC<RadarComparisonProps> = ({ players }) => {
-  // Colores para cada jugador (usando los colores de tu design system)
+  // Colores para cada jugador
   const playerColors = [
     '#0ea5e9', // blue-500
     '#10b981', // green-500

@@ -43,7 +43,6 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     
     setToasts(prev => [...prev, newToast]);
 
-    // Auto remove after duration
     const duration = toast.duration || 5000;
     setTimeout(() => {
       removeToast(id);
@@ -98,7 +97,6 @@ const ToastContainer: React.FC<ToastContainerProps> = ({ toasts, onRemove }) => 
   );
 };
 
-// Individual Toast Component
 interface ToastComponentProps {
   toast: Toast;
   onRemove: (id: string) => void;

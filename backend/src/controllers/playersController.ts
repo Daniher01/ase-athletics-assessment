@@ -37,7 +37,7 @@ export class PlayersController {
         limit = '20'
       } = req.query as PlayerQueryParams;
 
-      // Parsear filtros (usando las mismas validaciones que tenías)
+      // Parsear filtros
       const filters: PlayerFilters = {};
       
       if (position) filters.position = position;
@@ -64,7 +64,7 @@ export class PlayersController {
       // Llamar al servicio
       const result = await playersService.getPlayers(filters, sort, pagination);
 
-      // Respuesta exitosa (mismo formato que tenías)
+      // Respuesta exitosa 
       res.status(200).json({
         success: true,
         message: `Se encontraron ${result.totalCount} jugadores`,
@@ -154,7 +154,7 @@ export class PlayersController {
         });
       }
       
-      // Errores de validación (vienen del service)
+      // Errores de validación 
       if (error.message.includes('requerido') || 
           error.message.includes('debe estar') ||
           error.message.includes('debe tener') ||
