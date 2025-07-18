@@ -35,7 +35,7 @@
 - [x] Crear scripts de siembra de datos (seeds)
 - [x] Verificar integridad de datos en PostgreSQL
 - [x] Optimizar consultas con índices
-- [ ] Crear relacion entre tabla users y ScoutReport mediante scout_id
+- [x] Crear relacion entre tabla users y ScoutReport mediante scout_id
 
 ### API de Jugadores
 - [x] GET /api/players - Lista paginada con filtros
@@ -169,8 +169,8 @@
 ## ⏳ **DÍA 7: Pulido y Despliegue**
 
 ### Testing Final
-- [ ] Pruebas end-to-end completas
-- [ ] Verificación en diferentes dispositivos
+- [x] Pruebas end-to-end completas
+- [x] Verificación en diferentes dispositivos
 - [x] Colocar el retelimit en el backend
 
 ### Despliegue
