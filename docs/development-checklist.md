@@ -149,7 +149,7 @@
 - [x] Selección de jugadores para comparar
 - [x] Vista lado a lado de estadísticas
 - [x] Gráficos de radar comparativos
-- [ ] Exportación de comparaciones
+- [x] Exportación de comparaciones
 
 ### Sistema de Reportes de Scouting
 - [ ] Formulario de creación de reportes
@@ -158,10 +158,8 @@
 - [ ] Sistema de calificaciones
 
 ### Funcionalidades Extra
-- [ ] Exportación a PDF/Excel
-- [ ] Búsqueda avanzada con múltiples filtros
-- [ ] Favoritos de jugadores
-- [ ] Notificaciones de cambios
+- [x] Exportación a PDF/Excel
+- [x] Búsqueda avanzada con múltiples filtros
 - [ ] Revisar todo el responsive de la app
 - [ ] Comentarios del codigo
 
