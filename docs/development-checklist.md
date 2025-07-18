@@ -172,6 +172,7 @@
 - [ ] Verificación en diferentes dispositivos
 - [ ] Optimización de rendimiento
 - [ ] Corrección de bugs finales
+- [ ] Colocar el retelimit en el backend
 
 ### Despliegue
 - [ ] Frontend desplegado (Netlify/Vercel)
