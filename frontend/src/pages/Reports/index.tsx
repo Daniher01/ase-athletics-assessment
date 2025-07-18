@@ -1,8 +1,8 @@
 // src/pages/Reports/index.tsx
 import React, { useState, useEffect } from 'react';
-import { FileText, Plus, Search, Filter, Calendar, User, Target, Star, Eye, Edit, Trash2 } from 'lucide-react';
+import { FileText, Plus, Search, Calendar, User, Target, Star, Eye, Edit, Trash2 } from 'lucide-react';
 import Layout from '../../components/common/Layout';
-import { Report, ReportFilters, reportsService } from '../../services/reportsService';
+import { Report, reportsService } from '../../services/reportsService';
 
 const Reports: React.FC = () => {
   const [reports, setReports] = useState<Report[]>([]);
@@ -11,21 +11,19 @@ const Reports: React.FC = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
-  const [showFilters, setShowFilters] = useState(false);
-  const [filters, setFilters] = useState<ReportFilters>({});
   const [error, setError] = useState<string | null>(null);
 
   // Cargar reportes
   useEffect(() => {
     loadReports();
-  }, [currentPage, filters]);
+  }, [currentPage]);
 
   const loadReports = async () => {
     try {
       setLoading(true);
       setError(null);
       
-      const response = await reportsService.getReports(currentPage, 10, filters);
+      const response = await reportsService.getReports(currentPage, 10, {});
       
       if (response.success) {
         setReports(response.data);
@@ -42,7 +40,7 @@ const Reports: React.FC = () => {
     }
   };
 
-  // Filtrar reportes por búsqueda
+  // Filtrar reportes por búsqueda local
   const filteredReports = reports.filter(report =>
     report.player.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     report.competition.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -62,20 +60,6 @@ const Reports: React.FC = () => {
   // Formatear calificación
   const formatRating = (rating: number) => {
     return rating.toFixed(1);
-  };
-
-  // Obtener color por recomendación
-  const getRecommendationColor = (recommendation: string) => {
-    switch (recommendation.toLowerCase()) {
-      case 'fichar':
-        return 'bg-green-100 text-green-800 border-green-200';
-      case 'monitorear':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'pasar':
-        return 'bg-red-100 text-red-800 border-red-200';
-      default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
-    }
   };
 
   // Renderizar estrellas
@@ -142,7 +126,7 @@ const Reports: React.FC = () => {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <div className="bg-white rounded-lg border border-gray-200 p-4">
             <div className="flex items-center justify-between">
               <div>
@@ -171,18 +155,6 @@ const Reports: React.FC = () => {
           <div className="bg-white rounded-lg border border-gray-200 p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Para Fichar</p>
-                <p className="text-2xl font-bold text-green-600">
-                  {reports.filter(r => r.recommendation === 'fichar').length}
-                </p>
-              </div>
-              <Target className="h-8 w-8 text-green-500" />
-            </div>
-          </div>
-          
-          <div className="bg-white rounded-lg border border-gray-200 p-4">
-            <div className="flex items-center justify-between">
-              <div>
                 <p className="text-sm text-gray-600">Scouts Activos</p>
                 <p className="text-2xl font-bold text-gray-900">
                   {[...new Set(reports.map(r => r.scout.id))].length}
@@ -193,93 +165,30 @@ const Reports: React.FC = () => {
           </div>
         </div>
 
-        {/* Search and Filters */}
+        {/* Search Bar */}
         <div className="bg-white rounded-lg border border-gray-200 p-4 mb-6">
-          <div className="flex flex-col md:flex-row gap-4">
-            {/* Search */}
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Buscar por jugador, competición, oponente o scout..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
-
-            {/* Filter Toggle */}
-            <button
-              onClick={() => setShowFilters(!showFilters)}
-              className={`flex items-center px-4 py-2 border rounded-lg transition-colors ${
-                showFilters 
-                  ? 'bg-blue-50 border-blue-300 text-blue-700' 
-                  : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
-              }`}
-            >
-              <Filter className="h-4 w-4 mr-2" />
-              Filtros
-            </button>
+          <div className="relative">
+            <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Buscar por jugador, competición, oponente o scout..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
           </div>
-
-          {/* Filters Panel */}
-          {showFilters && (
-            <div className="mt-4 pt-4 border-t border-gray-200">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Recomendación
-                  </label>
-                  <select
-                    value={filters.recommendation || ''}
-                    onChange={(e) => setFilters({...filters, recommendation: e.target.value || undefined})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="">Todas</option>
-                    <option value="fichar">Fichar</option>
-                    <option value="monitorear">Monitorear</option>
-                    <option value="pasar">Pasar</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Rating Mínimo
-                  </label>
-                  <input
-                    type="number"
-                    min="1"
-                    max="10"
-                    step="0.1"
-                    value={filters.minRating || ''}
-                    onChange={(e) => setFilters({...filters, minRating: parseFloat(e.target.value) || undefined})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="1.0"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Competición
-                  </label>
-                  <input
-                    type="text"
-                    value={filters.competition || ''}
-                    onChange={(e) => setFilters({...filters, competition: e.target.value || undefined})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Ej: Serie A, La Liga"
-                  />
-                </div>
-              </div>
-
-              <div className="mt-4 flex justify-end">
-                <button
-                  onClick={() => setFilters({})}
-                  className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
-                >
-                  Limpiar Filtros
-                </button>
-              </div>
+          
+          {searchTerm && (
+            <div className="mt-3 flex items-center justify-between text-sm text-gray-600">
+              <span>
+                {filteredReports.length} resultados encontrados para "{searchTerm}"
+              </span>
+              <button
+                onClick={() => setSearchTerm('')}
+                className="text-blue-600 hover:text-blue-800 transition-colors"
+              >
+                Limpiar búsqueda
+              </button>
             </div>
           )}
         </div>
@@ -298,9 +207,6 @@ const Reports: React.FC = () => {
                       </h3>
                       <span className="text-sm text-gray-500">
                         {report.player.position} • {report.player.team}
-                      </span>
-                      <span className={`px-2 py-1 text-xs font-medium rounded-full border ${getRecommendationColor(report.recommendation)}`}>
-                        {report.recommendation}
                       </span>
                     </div>
                     
@@ -343,7 +249,7 @@ const Reports: React.FC = () => {
                   </div>
 
                   {/* Strengths & Weaknesses Preview */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <div>
                       <h4 className="text-sm font-medium text-green-700 mb-1">Fortalezas</h4>
                       <ul className="text-sm text-gray-600 space-y-1">
@@ -378,6 +284,17 @@ const Reports: React.FC = () => {
                       </ul>
                     </div>
                   </div>
+
+                  {/* Recomendación */}
+                  <div className="bg-gray-50 rounded-lg p-3 border-l-4 border-blue-500">
+                    <h4 className="text-sm font-medium text-gray-700 mb-1 flex items-center">
+                      <Target className="h-4 w-4 mr-1 text-blue-500" />
+                      Recomendación
+                    </h4>
+                    <p className="text-sm text-gray-700 leading-relaxed">
+                      {report.recommendation}
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -392,8 +309,8 @@ const Reports: React.FC = () => {
               No hay reportes disponibles
             </h3>
             <p className="text-gray-600 mb-4">
-              {searchTerm || Object.keys(filters).length > 0 
-                ? 'No se encontraron reportes que coincidan con los filtros aplicados'
+              {searchTerm 
+                ? 'No se encontraron reportes que coincidan con la búsqueda'
                 : 'Aún no hay reportes de scouting creados'
               }
             </p>
