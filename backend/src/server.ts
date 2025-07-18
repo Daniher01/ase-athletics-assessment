@@ -86,7 +86,8 @@ app.use('*', (req: Request, res: Response) => {
       'POST /api/auth/register',
       'POST /api/auth/login',
       'GET /api/players',
-      'GET /api/reports'
+      'GET /api/reports',
+      'POST /api/stats',
     ]
   });
 });
