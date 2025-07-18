@@ -239,7 +239,6 @@ const PlayerComparison: React.FC = () => {
           </div>
         )}
 
-        {/* Mostrar selector de jugadores (siempre visible si hay menos de 4 jugadores) */}
         {selectedPlayers.length < 4 && (
           <div>
             {/* Título dinámico para la sección de selección */}

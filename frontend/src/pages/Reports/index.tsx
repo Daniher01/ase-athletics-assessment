@@ -326,7 +326,7 @@ const Reports: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Strengths & Weaknesses Preview - Responsivo */}
+
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
                     <div>
                       <h4 className="text-sm font-medium text-green-700 mb-2">Fortalezas</h4>

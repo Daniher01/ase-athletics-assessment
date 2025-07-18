@@ -268,7 +268,6 @@ const Dashboard: React.FC = () => {
          />
        </div>
 
-       {/* ✅ NUEVO LAYOUT: Distribución de tamaños mejorada */}
        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
          {/* Distribución por posición - más pequeño */}
          <div className="lg:col-span-2">
@@ -281,7 +280,6 @@ const Dashboard: React.FC = () => {
          </div>
        </div>
 
-       {/* ✅ AGREGAR: Gráfico de Tendencias de Mercado */}
        <div className="mb-8">
          <MarketTrendChart data={positionDistribution} />
        </div>
@@ -294,7 +292,7 @@ const Dashboard: React.FC = () => {
        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
          <TopScorers data={topPlayers.topScorers.slice(0, 10)} />
 
-         {/* MANTENER: Top Teams con ordenamiento por edad */}
+
          <div className="bg-white rounded-lg shadow-sm border border-secondary-200 p-6">
            <div className="flex items-center justify-between mb-4">
              <h3 className="text-lg font-semibold text-secondary-900">
@@ -335,144 +333,144 @@ const Dashboard: React.FC = () => {
          </div>
        </div>
 
-{/* ✅ MANTENER: Contratos próximos a vencer con filtros RESPONSIVOS */}
-{marketAnalysis.expiringContracts.length > 0 && (
-  <div className="bg-white rounded-lg shadow-sm border border-secondary-200 p-6">
-    {/* Header responsivo */}
-    <div className="flex flex-col space-y-4 mb-6">
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-secondary-900">
-          Contratos Próximos a Vencer
-        </h3>
-        <span className="text-sm font-normal text-gray-600 bg-gray-100 px-2 py-1 rounded">
-          {filteredContracts.length} de {marketAnalysis.expiringContracts.length}
-        </span>
-      </div>
-      
-      {/* Filtros responsivos */}
-      <div className="flex flex-col sm:flex-row sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
-        {/* Filtro por Urgencia */}
-        <div className="flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-2">
-          <label className="text-sm font-medium text-gray-600 whitespace-nowrap">Urgencia:</label>
-          <select
-            value={contractUrgencyFilter}
-            onChange={(e) => setContractUrgencyFilter(e.target.value)}
-            className="w-full sm:w-auto px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          >
-            <option value="all">Todos</option>
-            <option value="expired">Vencidos</option>
-            <option value="critical">Críticos (&lt;30 días)</option>
-            <option value="upcoming">Próximos (30-90 días)</option>
-            <option value="longterm">A largo plazo (&gt;90 días)</option>
-          </select>
+
+  {marketAnalysis.expiringContracts.length > 0 && (
+    <div className="bg-white rounded-lg shadow-sm border border-secondary-200 p-6">
+      {/* Header responsivo */}
+      <div className="flex flex-col space-y-4 mb-6">
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-semibold text-secondary-900">
+            Contratos Próximos a Vencer
+          </h3>
+          <span className="text-sm font-normal text-gray-600 bg-gray-100 px-2 py-1 rounded">
+            {filteredContracts.length} de {marketAnalysis.expiringContracts.length}
+          </span>
         </div>
         
-        {/* Filtro por Equipo */}
-        <div className="flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-2">
-          <label className="text-sm font-medium text-gray-600 whitespace-nowrap">Equipo:</label>
-          <select
-            value={contractTeamFilter}
-            onChange={(e) => setContractTeamFilter(e.target.value)}
-            className="w-full sm:w-auto px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          >
-            <option value="">Todos los equipos</option>
-            {contractTeams.map(team => (
-              <option key={team} value={team}>{team}</option>
-            ))}
-          </select>
-        </div>
+        {/* Filtros responsivos */}
+        <div className="flex flex-col sm:flex-row sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
+          {/* Filtro por Urgencia */}
+          <div className="flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-2">
+            <label className="text-sm font-medium text-gray-600 whitespace-nowrap">Urgencia:</label>
+            <select
+              value={contractUrgencyFilter}
+              onChange={(e) => setContractUrgencyFilter(e.target.value)}
+              className="w-full sm:w-auto px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="all">Todos</option>
+              <option value="expired">Vencidos</option>
+              <option value="critical">Críticos (&lt;30 días)</option>
+              <option value="upcoming">Próximos (30-90 días)</option>
+              <option value="longterm">A largo plazo (&gt;90 días)</option>
+            </select>
+          </div>
+          
+          {/* Filtro por Equipo */}
+          <div className="flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-2">
+            <label className="text-sm font-medium text-gray-600 whitespace-nowrap">Equipo:</label>
+            <select
+              value={contractTeamFilter}
+              onChange={(e) => setContractTeamFilter(e.target.value)}
+              className="w-full sm:w-auto px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="">Todos los equipos</option>
+              {contractTeams.map(team => (
+                <option key={team} value={team}>{team}</option>
+              ))}
+            </select>
+          </div>
 
-        {/* Botón limpiar filtros - solo visible en móvil si hay filtros activos */}
-        {(contractUrgencyFilter !== 'all' || contractTeamFilter !== '') && (
+
+          {(contractUrgencyFilter !== 'all' || contractTeamFilter !== '') && (
+            <button
+              onClick={() => {
+                setContractUrgencyFilter('all');
+                setContractTeamFilter('');
+              }}
+              className="sm:hidden w-full px-3 py-2 text-sm text-blue-600 hover:text-blue-800 border border-blue-300 hover:border-blue-400 rounded-lg transition-colors"
+            >
+              Limpiar filtros
+            </button>
+          )}
+        </div>
+      </div>
+
+      {filteredContracts.length === 0 ? (
+        <div className="text-center py-8 text-gray-500">
+          <Calendar className="h-8 w-8 mx-auto mb-2 text-gray-300" />
+          <p className="text-sm">No hay contratos que coincidan con los filtros seleccionados</p>
           <button
             onClick={() => {
               setContractUrgencyFilter('all');
               setContractTeamFilter('');
             }}
-            className="sm:hidden w-full px-3 py-2 text-sm text-blue-600 hover:text-blue-800 border border-blue-300 hover:border-blue-400 rounded-lg transition-colors"
+            className="mt-2 text-sm text-blue-600 hover:text-blue-800 underline"
           >
             Limpiar filtros
           </button>
-        )}
-      </div>
-    </div>
-
-    {filteredContracts.length === 0 ? (
-      <div className="text-center py-8 text-gray-500">
-        <Calendar className="h-8 w-8 mx-auto mb-2 text-gray-300" />
-        <p className="text-sm">No hay contratos que coincidan con los filtros seleccionados</p>
-        <button
-          onClick={() => {
-            setContractUrgencyFilter('all');
-            setContractTeamFilter('');
-          }}
-          className="mt-2 text-sm text-blue-600 hover:text-blue-800 underline"
-        >
-          Limpiar filtros
-        </button>
-      </div>
-    ) : (
-      <div className="overflow-x-auto -mx-6 sm:mx-0">
-        <div className="min-w-full inline-block align-middle">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-secondary-200">
-                <th className="text-left py-3 px-4 font-medium text-secondary-700 text-sm">Jugador</th>
-                <th className="text-left py-3 px-4 font-medium text-secondary-700 text-sm hidden sm:table-cell">Equipo</th>
-                <th className="text-left py-3 px-4 font-medium text-secondary-700 text-sm">Vencimiento</th>
-                <th className="text-left py-3 px-4 font-medium text-secondary-700 text-sm">Estado</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredContracts.slice(0, 10).map((contract) => {
-                const contractDate = new Date(contract.contractEnd);
-                const now = new Date();
-                const daysRemaining = Math.ceil((contractDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-                
-                return (
-                  <tr key={contract.id} className="border-b border-secondary-100 hover:bg-secondary-50">
-                    <td className="py-3 px-4">
-                      <div className="font-medium text-secondary-900 text-sm">{contract.name}</div>
-                      {/* Mostrar equipo en móvil debajo del nombre */}
-                      <div className="text-xs text-secondary-500 sm:hidden">{contract.team}</div>
-                    </td>
-                    <td className="py-3 px-4 text-secondary-600 text-sm hidden sm:table-cell">{contract.team}</td>
-                    <td className="py-3 px-4 text-secondary-600 text-xs sm:text-sm">
-                      {contractDate.toLocaleDateString('es-ES', { 
-                        day: '2-digit', 
-                        month: '2-digit',
-                        year: window.innerWidth > 640 ? 'numeric' : '2-digit'
-                      })}
-                    </td>
-                    <td className="py-3 px-4">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
-                        daysRemaining <= 0
-                          ? 'bg-gray-100 text-gray-800' 
-                          : daysRemaining <= 30 
-                            ? 'bg-red-100 text-red-800' 
-                            : daysRemaining <= 90 
-                              ? 'bg-yellow-100 text-yellow-800' 
-                              : daysRemaining <= 180
-                                ? 'bg-blue-100 text-blue-800'
-                                : 'bg-green-100 text-green-800'
-                      }`}>
-                        {daysRemaining <= 0 ? 'Vencido' : (
-                          window.innerWidth > 640 
-                            ? `${daysRemaining} días`
-                            : `${daysRemaining}d`
-                        )}
-                      </span>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
         </div>
-      </div>
-    )}
-  </div>
-)}
+      ) : (
+        <div className="overflow-x-auto -mx-6 sm:mx-0">
+          <div className="min-w-full inline-block align-middle">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-secondary-200">
+                  <th className="text-left py-3 px-4 font-medium text-secondary-700 text-sm">Jugador</th>
+                  <th className="text-left py-3 px-4 font-medium text-secondary-700 text-sm hidden sm:table-cell">Equipo</th>
+                  <th className="text-left py-3 px-4 font-medium text-secondary-700 text-sm">Vencimiento</th>
+                  <th className="text-left py-3 px-4 font-medium text-secondary-700 text-sm">Estado</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredContracts.slice(0, 10).map((contract) => {
+                  const contractDate = new Date(contract.contractEnd);
+                  const now = new Date();
+                  const daysRemaining = Math.ceil((contractDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+                  
+                  return (
+                    <tr key={contract.id} className="border-b border-secondary-100 hover:bg-secondary-50">
+                      <td className="py-3 px-4">
+                        <div className="font-medium text-secondary-900 text-sm">{contract.name}</div>
+                        {/* Mostrar equipo en móvil debajo del nombre */}
+                        <div className="text-xs text-secondary-500 sm:hidden">{contract.team}</div>
+                      </td>
+                      <td className="py-3 px-4 text-secondary-600 text-sm hidden sm:table-cell">{contract.team}</td>
+                      <td className="py-3 px-4 text-secondary-600 text-xs sm:text-sm">
+                        {contractDate.toLocaleDateString('es-ES', { 
+                          day: '2-digit', 
+                          month: '2-digit',
+                          year: window.innerWidth > 640 ? 'numeric' : '2-digit'
+                        })}
+                      </td>
+                      <td className="py-3 px-4">
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
+                          daysRemaining <= 0
+                            ? 'bg-gray-100 text-gray-800' 
+                            : daysRemaining <= 30 
+                              ? 'bg-red-100 text-red-800' 
+                              : daysRemaining <= 90 
+                                ? 'bg-yellow-100 text-yellow-800' 
+                                : daysRemaining <= 180
+                                  ? 'bg-blue-100 text-blue-800'
+                                  : 'bg-green-100 text-green-800'
+                        }`}>
+                          {daysRemaining <= 0 ? 'Vencido' : (
+                            window.innerWidth > 640 
+                              ? `${daysRemaining} días`
+                              : `${daysRemaining}d`
+                          )}
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+    </div>
+  )}
      </div>
    </Layout>
  );
