@@ -162,7 +162,7 @@
 - [x] Exportación a PDF/Excel
 - [x] Búsqueda avanzada con múltiples filtros
 - [x] Revisar todo el responsive de la app
-- [ ] Comentarios del codigo
+- [x] Comentarios del codigo
 
 ---
 
