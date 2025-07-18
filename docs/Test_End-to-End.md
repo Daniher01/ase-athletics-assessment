@@ -42,19 +42,19 @@
 - [x] Eliminar jugador → confirma y desaparece
 
 ### **5. Comparación de Jugadores**
-- [ ] Seleccionar 2-3 jugadores
-- [ ] Vista de comparación muestra estadísticas lado a lado
-- [ ] Gráfico radar se muestra
+- [x] Seleccionar 2-3 jugadores
+- [x] Vista de comparación muestra estadísticas lado a lado
+- [x] Gráfico radar se muestra
 
 ### **6. Reportes de Scouting**
-- [ ] Lista de reportes existentes carga
-- [ ] Crear nuevo reporte:
+- [x] Lista de reportes existentes carga
+- [x] Crear nuevo reporte:
   - Seleccionar jugador
   - Rating: 8/10
   - Strengths: "Good passing"
   - Recommendation: TRACK
-- [ ] Reporte aparece en lista
-- [ ] Ver detalle del reporte
+- [x] Reporte aparece en lista
+- [x] Ver detalle del reporte
 
 ### **7. Responsive**
 - [ ] Cambiar a móvil (375px) → navegación colapsa
@@ -64,7 +64,7 @@
 
 ---
 
-## 🚀 **TESTS DE HUMO (5 min extra)**
+## 🚀 **TESTS DE HUMO**
 
 ### **APIs funcionan:**
 - [ ] F12 → Network → hacer cualquier acción → requests exitosos (200)
