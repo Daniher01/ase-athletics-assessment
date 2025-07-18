@@ -41,12 +41,18 @@ const Reports: React.FC = () => {
   };
 
   // Filtrar reportes por búsqueda local
-  const filteredReports = reports.filter(report =>
-    report.player.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    report.competition.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    report.opponent.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    report.scout.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredReports = reports.filter(report => {
+    const searchLower = searchTerm.toLowerCase();
+    
+    return (
+      report.player.name.toLowerCase().includes(searchLower) ||
+      report.player.team.toLowerCase().includes(searchLower) ||
+      report.competition.toLowerCase().includes(searchLower) ||
+      report.opponent.toLowerCase().includes(searchLower) ||
+      report.scout.name.toLowerCase().includes(searchLower) ||
+      report.overallRating.toString().includes(searchTerm)
+    );
+  });
 
   // Formatear fecha
   const formatDate = (dateString: string) => {
@@ -171,7 +177,7 @@ const Reports: React.FC = () => {
             <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
             <input
               type="text"
-              placeholder="Buscar por jugador, competición, oponente o scout..."
+              placeholder="Buscar por jugador, equipo, competición, oponente, scout o rating..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
