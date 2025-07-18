@@ -30,7 +30,7 @@ export default function Layout({ children }: LayoutProps) {
   const navigation = [
     { name: 'Dashboard', href: '/', icon: Home },
     { name: 'Jugadores', href: '/players', icon: Users },
-    { name: 'Análisis', href: '/analysis', icon: BarChart3 },
+    { name: 'Comparación', href: '/comparison', icon: BarChart3 },
     { name: 'Reportes', href: '/reports', icon: FileText },
   ]
 

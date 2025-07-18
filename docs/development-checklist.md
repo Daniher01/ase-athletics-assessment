@@ -138,14 +138,8 @@
 ### Visualización de Datos
 - [x] Integrar Chart.js o Recharts
 - [x] Gráficos responsivos
-- [ ] Filtros interactivos en gráficos
+- [x] Filtros interactivos en gráficos
 - [x] Tooltips informativos
-
-### Métricas Avanzadas
-- [ ] Comparación entre ligas
-- [ ] Tendencias temporales
-- [ ] Rankings de jugadores
-- [ ] Análisis de rendimiento
 
 ---
 

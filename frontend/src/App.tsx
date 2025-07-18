@@ -5,6 +5,7 @@ import Players from './pages/Players'
 import Login from './pages/auth/Login'
 import Register from './pages/auth/Register'
 import PlayerDetail from './pages/PlayerDetail';
+import PlayerComparison from './pages/PlayerComparison';
 
 function App() {
   return (
@@ -33,6 +34,7 @@ function App() {
             } 
           />
           <Route path="/players/:id" element={<PlayerDetail />} />
+          <Route path="/comparison" element={<PlayerComparison />} />
         </Routes>
       </div>
     </Router>
