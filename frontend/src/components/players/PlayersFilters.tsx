@@ -1,4 +1,4 @@
-// src/components/players/PlayersFilters.tsx
+// src/components/players/PlayersFilters.tsx - RESPONSIVE FIX
 import React, { useState, useEffect } from 'react';
 import { Search, Filter, X, Plus } from 'lucide-react';
 import { PlayerFilters } from '../../services/playerService';
@@ -50,11 +50,13 @@ const PlayersFilters: React.FC<PlayersFiltersProps> = ({
   });
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-secondary-200 p-6 mb-6">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-4">
+    <div className="bg-white rounded-lg shadow-sm border border-secondary-200 p-4 sm:p-6 mb-6">
+      {/* Header Responsivo */}
+      <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0 mb-4">
         <h3 className="text-lg font-medium text-secondary-900">Filtros de Jugadores</h3>
-        <div className="flex items-center gap-3">
+        
+        {/* Botones apilados en móvil, en línea en desktop */}
+        <div className="flex flex-col space-y-2 sm:flex-row sm:items-center sm:space-y-0 sm:space-x-3">
           <ExportDropdown 
             players={players} 
             filters={filters} 
@@ -62,10 +64,10 @@ const PlayersFilters: React.FC<PlayersFiltersProps> = ({
           />
           <button
             onClick={onAddPlayer}
-            className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+            className="flex items-center justify-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm sm:text-base"
           >
             <Plus size={16} />
-            Agregar Jugador
+            <span className="whitespace-nowrap">Agregar Jugador</span>
           </button>
         </div>
       </div>
@@ -78,12 +80,12 @@ const PlayersFilters: React.FC<PlayersFiltersProps> = ({
           placeholder="Buscar jugadores por nombre..."
           value={searchValue}
           onChange={(e) => setSearchValue(e.target.value)}
-          className="w-full pl-10 pr-4 py-2 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
+          className="w-full pl-10 pr-4 py-2 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none text-sm sm:text-base"
         />
       </div>
 
-      {/* Basic Filters */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+      {/* Basic Filters - Stack en móvil */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
         <div>
           <label className="block text-sm font-medium text-secondary-700 mb-1">
             Posición
@@ -91,7 +93,7 @@ const PlayersFilters: React.FC<PlayersFiltersProps> = ({
           <select
             value={filters.position || ''}
             onChange={(e) => handleFilterChange('position', e.target.value || undefined)}
-            className="w-full px-3 py-2 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
+            className="w-full px-3 py-2 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none text-sm"
           >
             <option value="">Todas las posiciones</option>
             {positions.map(position => (
@@ -107,7 +109,7 @@ const PlayersFilters: React.FC<PlayersFiltersProps> = ({
           <select
             value={filters.team || ''}
             onChange={(e) => handleFilterChange('team', e.target.value || undefined)}
-            className="w-full px-3 py-2 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
+            className="w-full px-3 py-2 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none text-sm"
           >
             <option value="">Todos los equipos</option>
             {teams.map(team => (
@@ -116,14 +118,14 @@ const PlayersFilters: React.FC<PlayersFiltersProps> = ({
           </select>
         </div>
 
-        <div>
+        <div className="sm:col-span-2 lg:col-span-1">
           <label className="block text-sm font-medium text-secondary-700 mb-1">
             Nacionalidad
           </label>
           <select
             value={filters.nationality || ''}
             onChange={(e) => handleFilterChange('nationality', e.target.value || undefined)}
-            className="w-full px-3 py-2 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
+            className="w-full px-3 py-2 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none text-sm"
           >
             <option value="">Todas las nacionalidades</option>
             {nationalities.map(nationality => (
@@ -133,17 +135,19 @@ const PlayersFilters: React.FC<PlayersFiltersProps> = ({
         </div>
       </div>
 
-      {/* Advanced Filters Toggle */}
-      <div className="flex items-center justify-between">
+      {/* Advanced Filters Toggle - Responsive */}
+      <div className="flex flex-col space-y-3 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
         <button
           onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
-          className="flex items-center gap-2 text-primary-600 hover:text-primary-700 transition-colors"
+          className="flex items-center justify-center sm:justify-start gap-2 text-primary-600 hover:text-primary-700 transition-colors p-2 rounded-lg hover:bg-primary-50"
         >
           <Filter size={16} />
-          {showAdvancedFilters ? 'Ocultar filtros avanzados' : 'Mostrar filtros avanzados'}
+          <span className="text-sm">
+            {showAdvancedFilters ? 'Ocultar filtros avanzados' : 'Mostrar filtros avanzados'}
+          </span>
         </button>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-col space-y-2 sm:flex-row sm:items-center sm:space-y-0 sm:space-x-3">
           <FavoriteFiltersDropdown
             currentFilters={filters}
             onApplyFilters={onFiltersChange}
@@ -153,19 +157,19 @@ const PlayersFilters: React.FC<PlayersFiltersProps> = ({
           {hasActiveFilters && (
             <button
               onClick={onClearFilters}
-              className="flex items-center gap-2 text-red-600 hover:text-red-700 transition-colors"
+              className="flex items-center justify-center gap-2 text-red-600 hover:text-red-700 transition-colors p-2 rounded-lg hover:bg-red-50"
             >
               <X size={16} />
-              Limpiar filtros
+              <span className="text-sm">Limpiar filtros</span>
             </button>
           )}
         </div>
       </div>
 
-      {/* Advanced Filters */}
+      {/* Advanced Filters - Responsive Grid */}
       {showAdvancedFilters && (
         <div className="mt-4 pt-4 border-t border-secondary-200">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-secondary-700 mb-1">
                 Edad mínima
@@ -175,7 +179,7 @@ const PlayersFilters: React.FC<PlayersFiltersProps> = ({
                 placeholder="Ej: 18"
                 value={filters.minAge || ''}
                 onChange={(e) => handleFilterChange('minAge', e.target.value ? parseInt(e.target.value) : undefined)}
-                className="w-full px-3 py-2 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
+                className="w-full px-3 py-2 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none text-sm"
               />
             </div>
 
@@ -188,7 +192,7 @@ const PlayersFilters: React.FC<PlayersFiltersProps> = ({
                 placeholder="Ej: 35"
                 value={filters.maxAge || ''}
                 onChange={(e) => handleFilterChange('maxAge', e.target.value ? parseInt(e.target.value) : undefined)}
-                className="w-full px-3 py-2 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
+                className="w-full px-3 py-2 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none text-sm"
               />
             </div>
 
@@ -201,7 +205,7 @@ const PlayersFilters: React.FC<PlayersFiltersProps> = ({
                 placeholder="Ej: 10"
                 value={filters.minGoals || ''}
                 onChange={(e) => handleFilterChange('minGoals', e.target.value ? parseInt(e.target.value) : undefined)}
-                className="w-full px-3 py-2 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
+                className="w-full px-3 py-2 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none text-sm"
               />
             </div>
 
@@ -214,7 +218,7 @@ const PlayersFilters: React.FC<PlayersFiltersProps> = ({
                 placeholder="Ej: 50"
                 value={filters.maxGoals || ''}
                 onChange={(e) => handleFilterChange('maxGoals', e.target.value ? parseInt(e.target.value) : undefined)}
-                className="w-full px-3 py-2 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
+                className="w-full px-3 py-2 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none text-sm"
               />
             </div>
           </div>
