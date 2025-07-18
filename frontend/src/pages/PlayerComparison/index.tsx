@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import Layout from '../../components/common/Layout';
 import ComparisonTable from '../../components/comparison/ComparisonTable';
 import RadarComparison from '../../components/comparison/RadarComparison';
+import ComparisonExport from '../../components/comparison/ComparisonExport';
 import { Player, playerService } from '../../services/playerService';
 
 type MetricCategory = 'performance' | 'attributes' | 'market';
@@ -50,6 +51,20 @@ const PlayerComparison: React.FC = () => {
     };
 
     loadPlayers();
+  }, []);
+
+  // Listener para cambios de categoría desde PDF export
+  useEffect(() => {
+    const handleCategoryChange = (event: CustomEvent) => {
+      const { category } = event.detail;
+      setActiveCategory(category);
+    };
+
+    window.addEventListener('changeCategoryForPDF', handleCategoryChange as EventListener);
+    
+    return () => {
+      window.removeEventListener('changeCategoryForPDF', handleCategoryChange as EventListener);
+    };
   }, []);
 
   // Filtrar jugadores por búsqueda
@@ -129,14 +144,25 @@ const PlayerComparison: React.FC = () => {
             </div>
           </div>
 
-          {selectedPlayers.length > 0 && (
-            <button
-              onClick={clearSelection}
-              className="px-4 py-2 text-red-600 hover:text-red-800 border border-red-300 hover:border-red-400 rounded-lg transition-colors"
-            >
-              Limpiar Selección
-            </button>
-          )}
+          <div className="flex items-center space-x-3">
+            {/* Botón de exportación */}
+            {selectedPlayers.length >= 2 && (
+              <ComparisonExport 
+                players={selectedPlayers} 
+                activeCategory={activeCategory} 
+              />
+            )}
+            
+            {/* Botón limpiar selección */}
+            {selectedPlayers.length > 0 && (
+              <button
+                onClick={clearSelection}
+                className="px-4 py-2 text-red-600 hover:text-red-800 border border-red-300 hover:border-red-400 rounded-lg transition-colors"
+              >
+                Limpiar Selección
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Jugadores Seleccionados */}
@@ -195,7 +221,7 @@ const PlayerComparison: React.FC = () => {
 
         {/* Mostrar comparación si hay 2 o más jugadores */}
         {selectedPlayers.length >= 2 && (
-          <div className="space-y-6 mb-8">
+          <div className="space-y-6 mb-8" data-comparison-container>
             {activeCategory === 'attributes' ? (
               <RadarComparison players={selectedPlayers} />
             ) : (
