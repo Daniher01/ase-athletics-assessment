@@ -153,9 +153,9 @@
 
 ### Sistema de Reportes de Scouting
 - [ ] Formulario de creación de reportes
-- [ ] Lista de reportes existentes
-- [ ] Filtrado por scout y fecha
-- [ ] Sistema de calificaciones
+- [x] Lista de reportes existentes
+- [x] Filtrado por scout y fecha * revisar bien ese filtrado
+- [x] Sistema de calificaciones
 
 ### Funcionalidades Extra
 - [x] Exportación a PDF/Excel

@@ -6,6 +6,7 @@ import Login from './pages/auth/Login'
 import Register from './pages/auth/Register'
 import PlayerDetail from './pages/PlayerDetail';
 import PlayerComparison from './pages/PlayerComparison';
+import Reports from './pages/Reports'
 
 function App() {
   return (
@@ -35,6 +36,7 @@ function App() {
           />
           <Route path="/players/:id" element={<PlayerDetail />} />
           <Route path="/comparison" element={<PlayerComparison />} />
+          <Route path="/reports" element={<Reports />} />
         </Routes>
       </div>
     </Router>
