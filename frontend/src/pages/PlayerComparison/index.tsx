@@ -233,15 +233,6 @@ const PlayerComparison: React.FC = () => {
                 </div>
               </div>
 
-              {/* Información de debug */}
-              <div className="mb-4 p-3 bg-blue-50 rounded-lg">
-                <p className="text-sm text-blue-800">
-                  Debug: {availablePlayers.length} jugadores cargados | 
-                  {filteredPlayers.length} después del filtro | 
-                  Búsqueda: "{searchTerm}"
-                </p>
-              </div>
-
               {/* Lista de jugadores */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 {filteredPlayers.slice(0, 20).map(player => {
