@@ -3,7 +3,9 @@ import React, { useState, useEffect } from 'react';
 import { FileText, Plus, Search, Calendar, User, Target, Star, Eye, Edit, Trash2 } from 'lucide-react';
 import Layout from '../../components/common/Layout';
 import ReportForm from '../../components/reports/ReportForm';
+import DeleteConfirmationModal from '../../components/common/DeleteConfirmationModal';
 import { Report, reportsService } from '../../services/reportsService';
+import { useToast } from '../../context/ToastContext';
 
 const Reports: React.FC = () => {
   const [reports, setReports] = useState<Report[]>([]);
@@ -14,11 +16,47 @@ const Reports: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [selectedReport, setSelectedReport] = useState<Report | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const toast = useToast();
 
   // Manejar éxito de creación
   const handleCreateSuccess = () => {
     loadReports(); // Recargar la lista
     setShowCreateModal(false);
+  };
+
+  // Manejar eliminación
+  const handleDelete = (report: Report) => {
+    setSelectedReport(report);
+    setShowDeleteModal(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!selectedReport) return;
+    
+    try {
+      setDeleteLoading(true);
+      await reportsService.deleteReport(selectedReport.id);
+      toast.success(
+        'Reporte eliminado', 
+        `El reporte de ${selectedReport.player.name} ha sido eliminado correctamente`
+      );
+      loadReports(); // Recargar la lista
+    } catch (err) {
+      console.error('Error deleting report:', err);
+      toast.error('Error al eliminar', 'No se pudo eliminar el reporte');
+    } finally {
+      setDeleteLoading(false);
+      setShowDeleteModal(false);
+      setSelectedReport(null);
+    }
+  };
+
+  // Navegar al detalle
+  const handleViewReport = (reportId: number) => {
+    window.location.href = `/reports/${reportId}`;
   };
 
   // Cargar reportes
@@ -225,13 +263,25 @@ const Reports: React.FC = () => {
                     </div>
                     
                     <div className="flex items-center space-x-2">
-                      <button className="p-1 text-gray-400 hover:text-blue-600 transition-colors">
+                      <button 
+                        onClick={() => handleViewReport(report.id)}
+                        className="p-1 text-gray-400 hover:text-blue-600 transition-colors"
+                        title="Ver detalle"
+                      >
                         <Eye className="h-4 w-4" />
                       </button>
-                      <button className="p-1 text-gray-400 hover:text-green-600 transition-colors">
+                      <button 
+                        className="p-1 text-gray-400 hover:text-green-600 transition-colors"
+                        title="Editar reporte"
+                        onClick={() => toast.info('Función de edición', 'La edición de reportes estará disponible pronto')}
+                      >
                         <Edit className="h-4 w-4" />
                       </button>
-                      <button className="p-1 text-gray-400 hover:text-red-600 transition-colors">
+                      <button 
+                        onClick={() => handleDelete(report)}
+                        className="p-1 text-gray-400 hover:text-red-600 transition-colors"
+                        title="Eliminar reporte"
+                      >
                         <Trash2 className="h-4 w-4" />
                       </button>
                     </div>
@@ -392,6 +442,23 @@ const Reports: React.FC = () => {
           onClose={() => setShowCreateModal(false)}
           onSuccess={handleCreateSuccess}
         />
+
+        {/* Modal de eliminación */}
+        {selectedReport && (
+          <DeleteConfirmationModal
+            isOpen={showDeleteModal}
+            onClose={() => {
+              setShowDeleteModal(false);
+              setSelectedReport(null);
+            }}
+            onConfirm={handleConfirmDelete}
+            loading={deleteLoading}
+            title="Eliminar Reporte"
+            message="¿Estás seguro de que quieres eliminar este reporte de scouting?"
+            itemName={`Reporte de ${selectedReport.player.name}`}
+            type="danger"
+          />
+        )}
       </div>
     </Layout>
   );
