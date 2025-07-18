@@ -38,7 +38,7 @@ async function main() {
 
 async function seedMainPlayers() {
   // Leer archivo JSON de jugadores principales
-  const playersPath = path.join(process.cwd(), '..', 'data', 'players_Data_production.json');
+  const playersPath = path.join(process.cwd(), '.', 'data', 'players_Data_production.json');
   
   if (!fs.existsSync(playersPath)) {
     console.error(`❌ No se encontró el archivo: ${playersPath}`);
@@ -135,7 +135,7 @@ async function seedMainPlayers() {
 }
 
 async function seedDetailedPlayers() {
-  const statsPath = path.join(process.cwd(), '..', 'data', 'player_statistics_detailed.json');
+  const statsPath = path.join(process.cwd(), '.', 'data', 'player_statistics_detailed.json');
   
   if (!fs.existsSync(statsPath)) {
     console.warn(`⚠️ No se encontró: ${statsPath}`);
@@ -265,7 +265,7 @@ async function seedDetailedPlayers() {
 }
 
 async function seedScoutReports() {
-  const reportsPath = path.join(process.cwd(), '..', 'data', 'scout_report.json');
+  const reportsPath = path.join(process.cwd(), '.', 'data', 'scout_report.json');
   
   if (!fs.existsSync(reportsPath)) {
     console.warn(`⚠️ No se encontró: ${reportsPath}`);

@@ -17,6 +17,7 @@
     "db:generate": "npx prisma generate",
     "db:studio": "npx prisma studio",
     "db:seed": "ts-node seeds/index.ts",
+    "db:seed:prod": "node dist/seeds/index.js",
     "db:reset": "npx prisma migrate reset",
     "test": "echo \"Tests will be implemented later\" && exit 0"
   },
