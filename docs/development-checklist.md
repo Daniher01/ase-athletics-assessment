@@ -133,7 +133,7 @@
 - [x] Gráficos de distribución por posición
 - [x] Métricas de edad promedio por equipo
 - [x] Gráfico de valores de mercado
-- [] Estadísticas de rendimiento
+- [x] Estadísticas de rendimiento
 
 ### Visualización de Datos
 - [x] Integrar Chart.js o Recharts
