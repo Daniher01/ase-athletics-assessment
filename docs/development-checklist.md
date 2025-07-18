@@ -146,9 +146,9 @@
 ## ⏳ **DÍA 6: Características Avanzadas**
 
 ### Comparación de Jugadores
-- [ ] Selección de jugadores para comparar
-- [ ] Vista lado a lado de estadísticas
-- [ ] Gráficos de radar comparativos
+- [x] Selección de jugadores para comparar
+- [x] Vista lado a lado de estadísticas
+- [x] Gráficos de radar comparativos
 - [ ] Exportación de comparaciones
 
 ### Sistema de Reportes de Scouting

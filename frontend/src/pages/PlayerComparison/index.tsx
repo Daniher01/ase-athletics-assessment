@@ -4,6 +4,7 @@ import { Users, ArrowLeft, BarChart3, Radar, TrendingUp } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Layout from '../../components/common/Layout';
 import ComparisonTable from '../../components/comparison/ComparisonTable';
+import RadarComparison from '../../components/comparison/RadarComparison';
 import { Player, playerService } from '../../services/playerService';
 
 type MetricCategory = 'performance' | 'attributes' | 'market';
@@ -195,10 +196,14 @@ const PlayerComparison: React.FC = () => {
         {/* Mostrar comparación si hay 2 o más jugadores */}
         {selectedPlayers.length >= 2 && (
           <div className="space-y-6 mb-8">
-            <ComparisonTable 
-              players={selectedPlayers} 
-              category={activeCategory} 
-            />
+            {activeCategory === 'attributes' ? (
+              <RadarComparison players={selectedPlayers} />
+            ) : (
+              <ComparisonTable 
+                players={selectedPlayers} 
+                category={activeCategory} 
+              />
+            )}
           </div>
         )}
 
@@ -228,7 +233,14 @@ const PlayerComparison: React.FC = () => {
                 </div>
               </div>
 
-
+              {/* Información de debug */}
+              <div className="mb-4 p-3 bg-blue-50 rounded-lg">
+                <p className="text-sm text-blue-800">
+                  Debug: {availablePlayers.length} jugadores cargados | 
+                  {filteredPlayers.length} después del filtro | 
+                  Búsqueda: "{searchTerm}"
+                </p>
+              </div>
 
               {/* Lista de jugadores */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
