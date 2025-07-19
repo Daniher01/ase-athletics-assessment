@@ -174,10 +174,10 @@
 - [x] Colocar el retelimit en el backend
 
 ### Despliegue
-- [ ] Frontend desplegado (Netlify/Vercel)
-- [ ] Backend desplegado (Heroku/Railway)
-- [ ] Base de datos en producción
-- [ ] Variables de entorno de producción
+- [x] Frontend desplegado (Vercel)
+- [x] Backend desplegado (Render)
+- [x] Base de datos en producción
+- [x] Variables de entorno de producción
 
 ### Documentación
 - [ ] README completo con instrucciones
