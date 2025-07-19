@@ -262,6 +262,7 @@ Cada push al branch main desencadena automáticamente el redespliegue tanto en R
 - **Optimización de Consultas:** Índices de base de datos para búsquedas y filtrados eficientes
 - **Paginación:** Implementada para manejar grandes volúmenes de datos
 - **Compresión:** Middleware de compresión en el backend para reducir tamaño de respuestas
+- **Cold Start en Render:** En la capa gratuita de Render, el servicio backend se suspende por inactividad tras 15 minutos. El primer request después de la suspensión puede tomar 30-60 segundos adicionales para despertar el servicio
 
 ## Mejoras Futuras
 
