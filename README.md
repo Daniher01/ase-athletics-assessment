@@ -272,3 +272,37 @@ Cada push al branch main desencadena automáticamente el redespliegue tanto en R
 - **Análisis Avanzado:** Machine Learning para predicciones y análisis predictivo
 - **Notificaciones en Tiempo Real:** WebSockets para actualizaciones en vivo
 - **Testing Automatizado:** Expansión de test coverage con pruebas E2E automatizadas
+
+---
+
+## Autoría y Licencia
+
+### 👨‍💻 Autor
+**Daniel Hernández**  
+Desarrollador Full Stack
+
+### 📄 Propósito del Proyecto
+Este proyecto fue desarrollado como **evaluación técnica** para **ASE Athletics** como parte de un proceso de selección para desarrollador full stack. El código demuestra competencias en:
+- Desarrollo full stack con React + Node.js
+- Arquitectura de aplicaciones escalables
+- Integración de bases de datos y APIs RESTful
+- Implementación de sistemas de autenticación y autorización
+- Diseño responsive y experiencia de usuario
+
+### 📜 Licencia
+Copyright © 2025 Daniel Hernández. Todos los derechos reservados.
+
+Este software y su código fuente están protegidos por derechos de autor. El uso, reproducción, distribución o modificación de este código para **fines comerciales** está **estrictamente prohibido** sin autorización expresa y por escrito del autor.
+
+**Permisos permitidos:**
+- ✅ Visualización del código con fines educativos
+- ✅ Revisión técnica por parte de ASE Athletics
+- ✅ Uso como referencia para aprendizaje personal
+
+**Restricciones:**
+- ❌ Uso comercial sin autorización
+- ❌ Redistribución del código
+- ❌ Creación de trabajos derivados para fines comerciales
+- ❌ Eliminación de notificaciones de copyright
+
+Para solicitudes de licenciamiento comercial o colaboraciones, contactar al autor.
