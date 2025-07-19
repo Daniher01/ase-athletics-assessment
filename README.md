@@ -179,41 +179,65 @@ ase-athletics-assessment/
 - Filtros aplicados mantenidos en exportación
 - Datos completos de jugadores y atributos
 
+
 ## API Endpoints
 
 ### Autenticación
-- `POST /api/auth/login` - Inicio de sesión
 - `POST /api/auth/register` - Registro de usuario
+- `POST /api/auth/login` - Inicio de sesión
+- `GET /api/auth/me` - Obtener perfil del usuario actual
+- `POST /api/auth/logout` - Cerrar sesión
 
 ### Jugadores
-- `GET /api/players` - Lista paginada con filtros
+- `GET /api/players` - Lista de jugadores con filtros y paginación
+- `GET /api/players/search` - Búsqueda de jugadores
 - `GET /api/players/:id` - Detalles de jugador específico
 - `POST /api/players` - Crear nuevo jugador
-- `PUT /api/players/:id` - Actualizar jugador
+- `PUT /api/players/:id` - Actualizar jugador existente
 - `DELETE /api/players/:id` - Eliminar jugador
-- `GET /api/players/search` - Búsqueda por texto
 
 ### Dashboard
 - `GET /api/dashboard/stats` - Métricas generales del dashboard
+- `GET /api/dashboard/stats/position` - Atributos agrupados por posición
 
 ### Reportes
-- `GET /api/scout-reports` - Lista de reportes de scouting
-- `GET /api/scout-reports/:id` - Detalle de reporte específico
-- `POST /api/scout-reports` - Crear nuevo reporte
-- `PUT /api/scout-reports/:id` - Actualizar reporte
-- `DELETE /api/scout-reports/:id` - Eliminar reporte
+- `GET /api/reports` - Lista de reportes con filtros y paginación
+- `GET /api/reports/:id` - Detalles de reporte específico
+- `POST /api/reports` - Crear nuevo reporte
+- `PUT /api/reports/:id` - Actualizar reporte existente
+- `DELETE /api/reports/:id` - Eliminar reporte
+
 
 ## Pruebas
 
-### Pruebas Backend
-```bash
-cd backend && npm test
+### Estrategia de Testing End-to-End
+La aplicación ha sido probada mediante **testing manual end-to-end** que valida la funcionalidad completa del sistema, cubriendo la integración entre frontend, backend y base de datos.
+
+### Casos de Prueba Ejecutados
+- **Autenticación:** Login/logout, protección de rutas, manejo de errores
+- **Dashboard:** Carga de métricas, gráficos interactivos, rendimiento
+- **Gestión de Jugadores:** CRUD completo, búsqueda, filtros, paginación
+- **Comparación:** Selección múltiple, visualización comparativa, gráficos radar
+- **Reportes de Scouting:** Creación, listado, detalle, filtrado
+- **Responsive Design:** Funcionalidad en móvil, tablet y desktop
+- **Performance:** Tiempos de carga, respuesta de API, estabilidad
+
+### Documentación de Testing
+Los casos de prueba detallados y resultados están documentados en:
+```
+docs/Test_end-to-end.md
 ```
 
-### Pruebas Frontend
-```bash
-cd frontend && npm test
-```
+### Resultados
+- ✅ **25+ casos de prueba** ejecutados exitosamente
+- ✅ **Funcionalidades críticas** validadas
+- ✅ **Integración frontend-backend** verificada
+- ✅ **Responsive design** funcional en todos los dispositivos
+- ✅ **Performance** optimizado (< 3 segundos de carga)
+
+### Credenciales de Testing
+- **Usuario:** admin@test.com
+- **Contraseña:** admin123
 
 ## Notas de Despliegue
 
