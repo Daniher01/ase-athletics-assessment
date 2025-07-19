@@ -179,6 +179,33 @@ ase-athletics-assessment/
 - Filtros aplicados mantenidos en exportación
 - Datos completos de jugadores y atributos
 
+## Capturas de Pantalla
+
+### Dashboard Principal
+![Dashboard Analytics](docs/screenshots/dashboard_1.png)
+*Vista general del dashboard con métricas clave y gráficos interactivos*
+
+![Dashboard Estadísticas](docs/screenshots/dashboard_2.png)
+*Visualización de estadísticas por posición y rendimiento*
+
+### Gestión de Jugadores
+![Lista de Jugadores](docs/screenshots/listado_jugadores.png)
+*Tabla completa de jugadores con filtros, búsqueda y paginación*
+
+![Detalle de Jugador](docs/screenshots/detalle_jugador.png)
+*Vista detallada con estadísticas, atributos e información contractual*
+
+### Comparación de Jugadores
+![Comparación de Jugadores](docs/screenshots/comparacion_jugadores.png)
+*Herramienta de comparación lado a lado con gráficos radar*
+
+### Sistema de Reportes
+![Crear Reporte](docs/screenshots/form_crear_reporte.png)
+*Formulario de creación de reportes de scouting*
+
+![Reportes de Scouting](docs/screenshots/reporte_scouting.png)
+*Lista y gestión de reportes con filtros por jugador y scout*
+
 
 ## API Endpoints
 
@@ -207,6 +234,96 @@ ase-athletics-assessment/
 - `PUT /api/reports/:id` - Actualizar reporte existente
 - `DELETE /api/reports/:id` - Eliminar reporte
 
+## Ejemplos de Uso de API
+
+### Autenticación
+```bash
+# Login
+POST /api/auth/login
+Content-Type: application/json
+
+{
+  "email": "demo@ase-athletics.com",
+  "password": "demo123"
+}
+
+# Respuesta
+{
+  "success": true,
+  "message": "Login successful",
+  "data": {
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "user": {
+      "id": 1,
+      "name": "Demo User",
+      "email": "demo@ase-athletics.com"
+    }
+  }
+}
+```
+
+### Jugadores
+```bash
+# Obtener jugadores con filtros
+GET /api/players?page=1&limit=10&position=Centre-Forward&team=Barcelona
+Authorization: Bearer <token>
+
+# Búsqueda de jugadores
+GET /api/players/search?q=Messi
+Authorization: Bearer <token>
+
+# Crear nuevo jugador
+POST /api/players
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "name": "Nuevo Jugador",
+  "position": "Centre-Forward",
+  "age": 25,
+  "team": "Real Madrid",
+  "nationality": "Spain",
+  "goals": 15,
+  "assists": 8
+}
+```
+
+### Dashboard
+```bash
+# Obtener estadísticas del dashboard
+GET /api/dashboard/stats
+Authorization: Bearer <token>
+
+# Respuesta
+{
+  "success": true,
+  "data": {
+    "totalPlayers": 94,
+    "averageAge": 26.5,
+    "totalGoals": 456,
+    "topScorer": {
+      "name": "Harry Kane",
+      "goals": 30
+    }
+  }
+}
+```
+### Reportes
+```bash
+# Crear reporte de scouting
+POST /api/reports
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "playerId": 1,
+  "matchDate": "2025-01-15",
+  "overallRating": 8.5,
+  "strengths": "Excellent passing, Great vision",
+  "weaknesses": "Could improve defending",
+  "recommendation": "TRACK"
+}
+```
 
 ## Pruebas
 
