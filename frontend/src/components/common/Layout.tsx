@@ -51,10 +51,10 @@ export default function Layout({ children }: LayoutProps) {
           <div className="flex items-center justify-between flex-shrink-0 px-4">
             <div className="flex items-center">
               <div className="bg-primary-600 w-10 h-10 rounded-full flex items-center justify-center">
-                <span className="text-white text-lg font-bold">ASE</span>
+                <span className="text-white text-lg font-bold">AS</span>
               </div>
               {!isSidebarCollapsed && (
-                <span className="ml-3 text-white text-xl font-semibold">Athletics</span>
+                <span className="ml-3 text-white text-xl font-semibold">App Scouting</span>
               )}
             </div>
             {!isSidebarCollapsed && (
