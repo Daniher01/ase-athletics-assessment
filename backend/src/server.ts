@@ -39,7 +39,7 @@ const limiter = rateLimit({
 app.use(helmet());
 
 // Rate limiting
-app.use(limiter);
+// app.use(limiter);
 
 // CORS - permitir peticiones desde el frontend
 app.use(cors({
