@@ -137,6 +137,9 @@ ${Object.entries(data.atributos || {}).map(([attr, value]) =>
   `• ${attr.charAt(0).toUpperCase() + attr.slice(1)}: ${value}/100`
 ).slice(0, 6).join('\n')}
 
+🤖 ANÁLISIS PROFESIONAL IA:
+${data.analisisIA || 'Análisis no disponible'}
+
 🔍 Los datos completos y gráficos detallados se han cargado en la página web para análisis profundo.`;
   }
 

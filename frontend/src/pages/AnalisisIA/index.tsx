@@ -25,6 +25,7 @@ interface JugadorAnalisis {
     altura: number;
     peso: number;
   };
+  analisisIA?: string;
 }
 
 const AnalisisIA: React.FC = () => {
@@ -257,6 +258,34 @@ Los resultados aparecerán automáticamente en esta página.`);
                       </div>
                     </div>
                   ))}
+                </div>
+              </div>
+            )}
+
+            {/* Análisis IA */}
+            {analisisActual.analisisIA && (
+              <div className="bg-gradient-to-br from-purple-50 to-indigo-50 border border-purple-200 p-6 rounded-lg mb-6">
+                <h3 className="font-semibold text-purple-900 mb-4 flex items-center">
+                  🤖 Análisis IA
+                  <span className="ml-2 text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded-full">
+                    Generado automáticamente
+                  </span>
+                </h3>
+                <div className="bg-white rounded-lg p-4 border border-purple-100">
+                  <div 
+                    className="text-gray-800 whitespace-pre-line leading-relaxed"
+                    style={{
+                      fontFamily: 'system-ui, -apple-system, sans-serif',
+                      lineHeight: '1.6'
+                    }}
+                    dangerouslySetInnerHTML={{
+                      __html: analisisActual.analisisIA
+                        .replace(/\*\*(.*?)\*\*/g, '<strong class="text-purple-900 font-semibold">$1</strong>')
+                        .replace(/\*(.*?)\*/g, '<em class="text-gray-600 italic">$1</em>')
+                        .replace(/\n\n/g, '<br><br>')
+                        .replace(/\n/g, '<br>')
+                    }}
+                  />
                 </div>
               </div>
             )}
