@@ -27,10 +27,10 @@ export default function Register() {
       <div className="max-w-md w-full mx-4">
         <div className="text-center mb-8">
           <div className="bg-primary-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-            <span className="text-white text-2xl font-bold">ASE</span>
+            <span className="text-white text-2xl font-bold">AS</span>
           </div>
           <h2 className="text-3xl font-bold text-secondary-800">
-            Únete a ASE Athletics
+            Únete a App Scouting
           </h2>
           <p className="text-secondary-600 mt-2">
             Crea tu cuenta y empieza a analizar
