@@ -173,6 +173,19 @@ class PlayerService {
       return [];
     }
   }
+
+  // Método específico para análisis MCP
+  async analizarJugador(nombreJugador: string): Promise<any> {
+    try {
+      const response = await api.post('/mcp/analizar-jugador', {
+        nombre_jugador: nombreJugador
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error analizando jugador:', error);
+      throw error;
+    }
+  }
 }
 
 export const playerService = new PlayerService();

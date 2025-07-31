@@ -5,6 +5,7 @@ import {
   ListToolsRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod";
+import { playerService } from "../services/playerService";
 
 // Schema de validación
 const AnalizarJugadorSchema = z.object({
@@ -74,28 +75,8 @@ class ASEAnalyticsMCPServer {
           // Disparar evento de loading
           this.updateUIState({ loading: true, error: null });
           
-          // Obtener token JWT del localStorage
-          const token = localStorage.getItem('token');
-          if (!token) {
-            throw new Error('No hay sesión activa. Por favor, inicia sesión.');
-          }
-
-          // Llamar a la API
-          const response = await fetch('/api/mcp/analizar-jugador', {
-            method: 'POST',
-            headers: { 
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify(validatedArgs)
-          });
-
-          if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || 'Error al analizar jugador');
-          }
-
-          const data = await response.json();
+          // Llamar a la API usando el servicio
+          const data = await playerService.analizarJugador(validatedArgs.nombre_jugador);
           console.log("✅ Datos recibidos:", data);
 
           // Actualizar interfaz de usuario
