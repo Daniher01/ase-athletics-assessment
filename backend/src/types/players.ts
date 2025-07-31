@@ -62,9 +62,13 @@ export interface PlayerResponse {
   nationality: string;
   height: number;
   weight: number;
+  preferredFoot?: string;
   goals: number;
   assists: number;
   appearances: number;
+  minutesPlayed?: number;
+  yellowCards?: number;
+  redCards?: number;
   salary: number;
   contractEnd: Date;
   marketValue: number;

@@ -639,6 +639,618 @@ Una vez que funcione este MVP, puedes expandir fácilmente:
 - ✅ **Fallback graceful** si no hay extensión
 - ✅ **No afecta** usuarios que no usen IA
 
+### Fase 4: Integración con Extensión Chrome MCP-B (30 min)
+
+#### 4.1 Instalar Dependencias MCP-B
+
+```bash
+cd frontend
+npm install @mcp-b/transports
+```
+
+**Por qué estas dependencias específicas**:
+
+- `@mcp-b/transports`: Comunicación directa con la extensión Chrome MCP-B
+- `@mcp-b/client`: Cliente MCP optimizado para navegador
+
+#### 4.2 Crear Servidor MCP-B Compatible
+
+**Reemplazar completamente** `frontend/src/mcp/aseAnalyticsMcp.ts`:
+
+```typescript
+import { TabServerTransport } from "@mcp-b/transports";
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { z } from "zod";
+
+// Schema de validación
+const AnalizarJugadorSchema = z.object({
+  nombre_jugador: z.string().min(1, "Nombre del jugador es requerido")
+});
+
+class ASEAnalyticsMCPServer {
+  private server: McpServer;
+  private transport: TabServerTransport | null = null;
+
+  constructor() {
+    this.server = new McpServer({
+      name: "ase-analytics",
+      version: "1.0.0",
+    }, {
+      capabilities: {
+        tools: {},
+      },
+    });
+
+    this.setupToolHandlers();
+  }
+
+  private setupToolHandlers() {
+    // Registrar la herramienta de análisis
+    this.server.tool(
+      "analizar_jugador",
+      "Analiza un jugador específico de fútbol obteniendo todas sus estadísticas, atributos y datos de rendimiento",
+      {
+        type: "object",
+        properties: {
+          nombre_jugador: {
+            type: "string",
+            description: "Nombre del jugador a analizar (ej: 'Lionel Messi', 'Cristiano Ronaldo')"
+          }
+        },
+        required: ["nombre_jugador"]
+      },
+      async (args) => {
+        try {
+          console.log("🔄 Ejecutando análisis de jugador:", args);
+          
+          // Validar argumentos
+          const validatedArgs = AnalizarJugadorSchema.parse(args);
+          
+          // Disparar evento de loading
+          this.updateUIState({ loading: true, error: null });
+          
+          // Obtener token JWT del localStorage
+          const token = localStorage.getItem('token');
+          if (!token) {
+            throw new Error('No hay sesión activa. Por favor, inicia sesión.');
+          }
+
+          // Llamar a la API
+          const response = await fetch('/api/mcp/analizar-jugador', {
+            method: 'POST',
+            headers: { 
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(validatedArgs)
+          });
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Error al analizar jugador');
+          }
+
+          const data = await response.json();
+          console.log("✅ Datos recibidos:", data);
+
+          // Actualizar interfaz de usuario
+          this.updateUIWithAnalysis(data.data);
+
+          // Respuesta estructurada para la IA
+          const analisisTexto = this.formatearAnalisisParaIA(data.data);
+
+          return {
+            content: [
+              {
+                type: "text",
+                text: analisisTexto
+              }
+            ]
+          };
+
+        } catch (error: any) {
+          console.error("❌ Error en análisis:", error);
+          
+          // Actualizar UI con error
+          this.updateUIState({ loading: false, error: error.message });
+
+          return {
+            content: [
+              {
+                type: "text", 
+                text: `❌ Error: ${error.message}`
+              }
+            ],
+            isError: true
+          };
+        }
+      }
+    );
+  }
+
+  private formatearAnalisisParaIA(data: any): string {
+    return `✅ ANÁLISIS COMPLETADO para ${data.jugador.nombre}
+
+🏈 INFORMACIÓN BÁSICA:
+• Posición: ${data.jugador.posicion}
+• Edad: ${data.jugador.edad} años  
+• Equipo: ${data.jugador.equipo}
+• Nacionalidad: ${data.jugador.nacionalidad}
+
+📊 ESTADÍSTICAS TEMPORADA:
+• Goles: ${data.estadisticas.goles}
+• Asistencias: ${data.estadisticas.asistencias}
+• Apariciones: ${data.estadisticas.apariciones}
+• Minutos jugados: ${data.estadisticas.minutos_jugados?.toLocaleString() || 'N/A'}
+
+💰 VALOR DE MERCADO: €${data.contrato.valor_mercado?.toLocaleString() || 'No disponible'}
+
+⚡ ATRIBUTOS PRINCIPALES:
+${Object.entries(data.atributos || {}).map(([attr, value]) => 
+  `• ${attr.charAt(0).toUpperCase() + attr.slice(1)}: ${value}/100`
+).slice(0, 6).join('\n')}
+
+🔍 Los datos completos y gráficos detallados se han cargado en la página web para análisis profundo.`;
+  }
+
+  private updateUIWithAnalysis(data: any) {
+    console.log("📡 Enviando datos a UI:", data);
+    
+    // Disparar evento personalizado para actualizar la UI
+    const event = new CustomEvent('mcpAnalysisComplete', {
+      detail: data
+    });
+    window.dispatchEvent(event);
+    
+    // Actualizar estado
+    this.updateUIState({ loading: false, error: null });
+  }
+
+  private updateUIState(state: { loading?: boolean; error?: string | null }) {
+    const event = new CustomEvent('mcpStateChange', {
+      detail: state
+    });
+    window.dispatchEvent(event);
+  }
+
+  async connect() {
+    try {
+      // Crear transporte para extensión Chrome
+      this.transport = new TabServerTransport({
+        allowedOrigins: [
+          window.location.origin, // Origen actual
+          "chrome-extension://*", // Cualquier extensión Chrome
+        ]
+      });
+
+      // Conectar servidor MCP
+      await this.server.connect(this.transport);
+      
+      console.log("🔗 ASE Analytics MCP Server conectado exitosamente");
+      console.log("🌐 Origen permitido:", window.location.origin);
+      
+      // Notificar conexión exitosa
+      this.updateUIState({ loading: false, error: null });
+      
+      return true;
+    } catch (error) {
+      console.error("❌ Error conectando MCP Server:", error);
+      this.updateUIState({ loading: false, error: `Error de conexión: ${error.message}` });
+      return false;
+    }
+  }
+
+  disconnect() {
+    if (this.transport) {
+      this.transport.close();
+      this.transport = null;
+      console.log("🔌 MCP Server desconectado");
+    }
+  }
+}
+
+// Instancia global del servidor
+let mcpServerInstance: ASEAnalyticsMCPServer | null = null;
+
+// Función para inicializar el servidor MCP
+export async function initializeASEMCP(): Promise<boolean> {
+  try {
+    // Evitar múltiples instancias
+    if (mcpServerInstance) {
+      console.log("⚠️ MCP Server ya está inicializado");
+      return true;
+    }
+
+    console.log("🚀 Inicializando ASE Analytics MCP Server...");
+    
+    mcpServerInstance = new ASEAnalyticsMCPServer();
+    const connected = await mcpServerInstance.connect();
+    
+    if (connected) {
+      console.log("✅ MCP Server listo para recibir comandos");
+      
+      // Hacer disponible globalmente para debugging
+      (window as any).aseMcpServer = mcpServerInstance;
+      
+      return true;
+    } else {
+      mcpServerInstance = null;
+      return false;
+    }
+  } catch (error) {
+    console.error("💥 Error fatal inicializando MCP:", error);
+    mcpServerInstance = null;
+    return false;
+  }
+}
+
+// Función para limpiar al desmontar
+export function cleanupASEMCP() {
+  if (mcpServerInstance) {
+    mcpServerInstance.disconnect();
+    mcpServerInstance = null;
+    delete (window as any).aseMcpServer;
+    console.log("🧹 MCP Server limpiado");
+  }
+}
+
+// Verificar si MCP está activo
+export function isMCPActive(): boolean {
+  return mcpServerInstance !== null;
+}
+```
+
+#### 4.3 Actualizar Componente React
+
+**Actualizar** `frontend/src/pages/AnalisisIA/AnalisisIA.tsx`:
+
+```tsx
+import React, { useState, useEffect, useCallback } from 'react';
+import { initializeASEMCP, cleanupASEMCP, isMCPActive } from '../../mcp/aseAnalyticsMcp';
+
+interface JugadorAnalisis {
+  jugador: {
+    nombre: string;
+    posicion: string;
+    edad: number;
+    equipo: string;
+    nacionalidad: string;
+  };
+  estadisticas: any;
+  atributos: any;
+  contrato: any;
+  fisico: any;
+}
+
+const AnalisisIA: React.FC = () => {
+  const [mcpActivo, setMcpActivo] = useState(false);
+  const [mcpError, setMcpError] = useState<string | null>(null);
+  const [analisisActual, setAnalisisActual] = useState<JugadorAnalisis | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [inicializando, setInicializando] = useState(true);
+
+  // Manejar cambios de estado MCP
+  const handleMCPStateChange = useCallback((event: CustomEvent) => {
+    const { loading: newLoading, error } = event.detail;
+    
+    if (newLoading !== undefined) {
+      setLoading(newLoading);
+    }
+    
+    if (error !== undefined) {
+      setMcpError(error);
+    }
+  }, []);
+
+  // Manejar análisis completado
+  const handleAnalysisComplete = useCallback((event: CustomEvent) => {
+    console.log("📊 Análisis recibido en UI:", event.detail);
+    setAnalisisActual(event.detail);
+    setLoading(false);
+  }, []);
+
+  // Función para reconectar MCP
+  const reconectarMCP = async () => {
+    setInicializando(true);
+    setMcpError(null);
+    
+    // Limpiar instancia anterior
+    cleanupASEMCP();
+    
+    // Intentar nueva conexión
+    const conectado = await initializeASEMCP();
+    setMcpActivo(conectado);
+    setInicializando(false);
+    
+    if (!conectado) {
+      setMcpError("No se pudo conectar con la extensión MCP-B");
+    }
+  };
+
+  useEffect(() => {
+    // Inicializar MCP cuando se monta el componente
+    const inicializarMCP = async () => {
+      console.log("🔄 Montando componente AnalisisIA...");
+      
+      // Verificar si la extensión está disponible
+      if (!window.chrome?.runtime) {
+        setMcpError("Extensión Chrome MCP-B no detectada");
+        setInicializando(false);
+        return;
+      }
+
+      try {
+        const conectado = await initializeASEMCP();
+        setMcpActivo(conectado);
+        
+        if (!conectado) {
+          setMcpError("Error al conectar con MCP-B");
+        }
+      } catch (error: any) {
+        console.error("❌ Error inicializando MCP:", error);
+        setMcpError(`Error de inicialización: ${error.message}`);
+      } finally {
+        setInicializando(false);
+      }
+    };
+
+    inicializarMCP();
+
+    // Registrar listeners de eventos
+    window.addEventListener('mcpAnalysisComplete', handleAnalysisComplete as EventListener);
+    window.addEventListener('mcpStateChange', handleMCPStateChange as EventListener);
+
+    // Cleanup al desmontar
+    return () => {
+      window.removeEventListener('mcpAnalysisComplete', handleAnalysisComplete as EventListener);
+      window.removeEventListener('mcpStateChange', handleMCPStateChange as EventListener);
+      cleanupASEMCP();
+    };
+  }, [handleAnalysisComplete, handleMCPStateChange]);
+
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <div className="max-w-4xl mx-auto">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-4">
+            🤖 Analizar Jugador con IA
+          </h1>
+          <p className="text-lg text-gray-600">
+            Usa inteligencia artificial para obtener análisis profundos de cualquier jugador
+          </p>
+        </div>
+
+        {/* Estado del MCP */}
+        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              {inicializando ? (
+                <>
+                  <div className="w-3 h-3 rounded-full bg-yellow-500 animate-pulse"></div>
+                  <span className="font-medium">🔄 Inicializando MCP...</span>
+                </>
+              ) : mcpActivo ? (
+                <>
+                  <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                  <span className="font-medium">✅ Servidor MCP activo y conectado</span>
+                </>
+              ) : (
+                <>
+                  <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                  <span className="font-medium">❌ Servidor MCP inactivo</span>
+                </>
+              )}
+            </div>
+            
+            {mcpActivo && (
+              <div className="text-sm text-green-600">
+                🔗 Extensión MCP-B conectada
+              </div>
+            )}
+            
+            {mcpError && !inicializando && (
+              <button 
+                onClick={reconectarMCP}
+                className="bg-blue-500 text-white px-4 py-2 rounded text-sm hover:bg-blue-600"
+              >
+                🔄 Reconectar
+              </button>
+            )}
+          </div>
+          
+          {mcpError && (
+            <div className="mt-3 p-3 bg-red-50 border-l-4 border-red-400 text-red-700 text-sm">
+              ⚠️ {mcpError}
+            </div>
+          )}
+        </div>
+
+        {/* Instrucciones */}
+        <div className="bg-blue-50 border-l-4 border-blue-400 p-6 mb-6">
+          <h3 className="text-lg font-semibold text-blue-900 mb-3">
+            📋 Cómo usar el análisis con IA:
+          </h3>
+          <ol className="list-decimal list-inside space-y-2 text-blue-800">
+            <li>Asegúrate de tener instalada la <strong>extensión Chrome MCP-B</strong></li>
+            <li>Verifica que el estado arriba muestre "Servidor MCP activo"</li>
+            <li>Abre el chat de la extensión MCP-B</li>
+            <li>Escribe: <code className="bg-blue-100 px-2 py-1 rounded">"Analiza a Lionel Messi"</code></li>
+            <li>La IA ejecutará automáticamente la herramienta y mostrará resultados aquí</li>
+          </ol>
+          
+          <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded">
+            <p className="text-sm text-yellow-800">
+              💡 <strong>Debug info:</strong> Si tienes problemas, abre las Dev Tools (F12) 
+              y revisa la consola para ver los logs de conexión MCP.
+            </p>
+          </div>
+        </div>
+
+        {/* Área de resultados */}
+        {loading && (
+          <div className="bg-white rounded-lg shadow-md p-8 text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+            <p className="text-gray-600">🤖 IA analizando jugador...</p>
+          </div>
+        )}
+
+        {analisisActual && !loading && (
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+              📊 Análisis de {analisisActual.jugador.nombre}
+              <span className="ml-3 text-sm bg-green-100 text-green-800 px-3 py-1 rounded-full">
+                ✅ Completado
+              </span>
+            </h2>
+            
+            {/* Información básica */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <h3 className="font-semibold text-gray-900 mb-3">ℹ️ Información Básica</h3>
+                <div className="space-y-2 text-sm">
+                  <p><span className="font-medium">Posición:</span> {analisisActual.jugador.posicion}</p>
+                  <p><span className="font-medium">Edad:</span> {analisisActual.jugador.edad} años</p>
+                  <p><span className="font-medium">Equipo:</span> {analisisActual.jugador.equipo}</p>
+                  <p><span className="font-medium">Nacionalidad:</span> {analisisActual.jugador.nacionalidad}</p>
+                </div>
+              </div>
+
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <h3 className="font-semibold text-gray-900 mb-3">📈 Estadísticas</h3>
+                <div className="space-y-2 text-sm">
+                  <p><span className="font-medium">Goles:</span> {analisisActual.estadisticas.goles}</p>
+                  <p><span className="font-medium">Asistencias:</span> {analisisActual.estadisticas.asistencias}</p>
+                  <p><span className="font-medium">Apariciones:</span> {analisisActual.estadisticas.apariciones}</p>
+                  <p><span className="font-medium">Minutos:</span> {analisisActual.estadisticas.minutos_jugados?.toLocaleString()}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Atributos */}
+            {analisisActual.atributos && Object.keys(analisisActual.atributos).length > 0 && (
+              <div className="bg-gray-50 p-4 rounded-lg mb-6">
+                <h3 className="font-semibold text-gray-900 mb-3">⚡ Atributos</h3>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  {Object.entries(analisisActual.atributos).map(([attr, value]) => (
+                    <div key={attr} className="text-sm">
+                      <div className="flex justify-between mb-1">
+                        <span className="capitalize">{attr}:</span>
+                        <span className="font-medium">{value}/100</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div 
+                          className="bg-blue-500 h-2 rounded-full" 
+                          style={{ width: `${value}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Valor de mercado */}
+            {analisisActual.contrato?.valor_mercado && (
+              <div className="bg-green-50 p-4 rounded-lg">
+                <h3 className="font-semibold text-green-900 mb-2">💰 Valor de Mercado</h3>
+                <p className="text-2xl font-bold text-green-600">
+                  €{analisisActual.contrato.valor_mercado.toLocaleString()}
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Placeholder inicial */}
+        {!analisisActual && !loading && !inicializando && mcpActivo && (
+          <div className="bg-gray-50 rounded-lg p-8 text-center">
+            <div className="text-6xl mb-4">🤖</div>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">
+              Listo para analizar
+            </h3>
+            <p className="text-gray-600 mb-4">
+              Usa la extensión Chrome MCP-B para pedirle a la IA que analice cualquier jugador
+            </p>
+            <div className="text-sm text-gray-500">
+              Comandos de ejemplo: "Analiza a Messi", "Quiero ver datos de Ronaldo"
+            </div>
+          </div>
+        )}
+
+        {/* Estado de error o sin extensión */}
+        {!inicializando && !mcpActivo && (
+          <div className="bg-red-50 rounded-lg p-8 text-center">
+            <div className="text-6xl mb-4">⚠️</div>
+            <h3 className="text-xl font-semibold text-red-900 mb-2">
+              Extensión MCP-B no detectada
+            </h3>
+            <p className="text-red-700 mb-4">
+              Para usar esta función necesitas instalar la extensión Chrome MCP-B
+            </p>
+            <button 
+              onClick={reconectarMCP}
+              className="bg-red-500 text-white px-6 py-2 rounded hover:bg-red-600"
+            >
+              🔄 Intentar reconectar
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default AnalisisIA;
+```
+
+#### 4.4 Verificar Detección de la Extensión
+
+**Crear archivo** `frontend/public/mcp-manifest.json`:
+
+```json
+{
+  "name": "ASE Analytics",
+  "description": "Plataforma de análisis de fútbol con IA integrada",
+  "version": "1.0.0",
+  "capabilities": {
+    "tools": ["analizar_jugador"]
+  },
+  "origin": "http://localhost:3000",
+  "transport": "tab"
+}
+```
+
+**Agregar en** `frontend/public/index.html` (dentro del `<head>`):
+
+```html
+<!-- Metadatos para MCP-B -->
+<meta name="mcp-server" content="true">
+<meta name="mcp-version" content="1.0.0">
+<meta name="mcp-name" content="ASE Analytics">
+<link rel="mcp-manifest" href="/mcp-manifest.json">
+```
+
+#### 4.5 Debug y Verificación
+
+**Agregar en tu console del browser** (para debug):
+
+```javascript
+// Verificar si la extensión está disponible
+console.log("Chrome runtime:", !!window.chrome?.runtime);
+
+// Verificar servidor MCP
+console.log("MCP Server:", window.aseMcpServer);
+
+// Verificar eventos
+window.addEventListener('message', (event) => {
+  if (event.data.type === 'mcp') {
+    console.log("Mensaje MCP recibido:", event.data);
+  }
+});
+```
+
+
 ---
 
 ## 📋 Checklist de Implementación

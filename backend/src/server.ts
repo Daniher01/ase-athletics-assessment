@@ -12,6 +12,7 @@ import authRoutes from './routes/auth';
 import playerRoutes from './routes/players';
 import dashboardRoutes from './routes/dashboard';
 import reportRoutes from './routes/reports';
+import mcpRoutes from './routes/mcp';
 
 // Cargar variables de entorno
 dotenv.config();
@@ -75,6 +76,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/players', playerRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/reports', reportRoutes);
+app.use('/api/mcp', mcpRoutes);
 
 // Ruta 404 para endpoints no encontrados
 app.use('*', (req: Request, res: Response) => {
