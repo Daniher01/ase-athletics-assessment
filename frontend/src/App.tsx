@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { ProtectedRoute } from "./components/ProtectedRoute";
+import { MCPProvider } from "./context/MCPContext";
 import Dashboard from "./pages/Dashboard";
 import Players from "./pages/Players";
 import Login from "./pages/auth/Login";
@@ -13,8 +14,9 @@ import AnalisisIA from "./pages/AnalisisIA";
 function App() {
   return (
     <Router>
-      <div className="min-h-screen bg-gray-50">
-        <Routes>
+      <MCPProvider>
+        <div className="min-h-screen bg-gray-50">
+          <Routes>
           {/* Rutas públicas */}
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
@@ -76,8 +78,9 @@ function App() {
               </ProtectedRoute>
             }
           />
-        </Routes>
-      </div>
+          </Routes>
+        </div>
+      </MCPProvider>
     </Router>
   );
 }

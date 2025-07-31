@@ -1,5 +1,6 @@
 import { Navigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import MCPInitializer from './common/MCPInitializer'
 
 interface ProtectedRouteProps {
   children: React.ReactNode
@@ -26,5 +27,10 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   }
 
   // Si está autenticado, mostrar contenido
-  return <>{children}</>
+  return (
+    <>
+      <MCPInitializer />
+      {children}
+    </>
+  )
 }

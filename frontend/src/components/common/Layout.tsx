@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
-import { initializeASEMCP } from '../../mcp/aseAnalyticsMcp'
+import { useMCP } from '../../context/MCPContext'
 import { 
   Menu, 
   X, 
@@ -21,6 +21,7 @@ interface LayoutProps {
 export default function Layout({ children }: LayoutProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const { user, logout } = useAuth()
+  const { mcpActivo, conectarMCP } = useMCP()
   const location = useLocation()
   const navigate = useNavigate()
 
@@ -29,13 +30,7 @@ export default function Layout({ children }: LayoutProps) {
     navigate('/login')
   }
 
-  const handleAnalisisIAClick = async () => {
-    console.log("🚀 Iniciando MCP desde menú...");
-    try {
-      await initializeASEMCP();
-    } catch (error) {
-      console.error("Error inicializando MCP desde menú:", error);
-    }
+  const handleAnalisisIAClick = () => {
     navigate('/analisis-ia');
   }
 
@@ -58,6 +53,24 @@ export default function Layout({ children }: LayoutProps) {
               <span className="text-white text-lg font-bold">ASE</span>
             </div>
             <span className="ml-3 text-white text-xl font-semibold">Athletics</span>
+          </div>
+
+          {/* Estado MCP Global */}
+          <div className="px-4 py-2">
+            <div className="flex items-center space-x-2 text-xs">
+              <div className={`w-2 h-2 rounded-full ${mcpActivo ? 'bg-green-400' : 'bg-yellow-400'}`}></div>
+              <span className="text-secondary-300">
+                {mcpActivo ? '🤖 IA Activa' : '🤖 IA Conectando...'}
+              </span>
+              {!mcpActivo && (
+                <button 
+                  onClick={conectarMCP}
+                  className="text-blue-300 hover:text-blue-200 underline"
+                >
+                  Conectar
+                </button>
+              )}
+            </div>
           </div>
 
           {/* Navigation */}
