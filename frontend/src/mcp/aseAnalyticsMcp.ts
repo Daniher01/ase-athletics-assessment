@@ -15,6 +15,41 @@ const AnalizarJugadorSchema = z.object({
 class ASEAnalyticsMCPServer {
   private server: Server;
   private transport: TabServerTransport | null = null;
+  private reallyConnected: boolean = false; // Estado real de conexión con extensión
+
+  // Getter público para verificar estado del transporte
+  get isConnected(): boolean {
+    return this.transport !== null && this.reallyConnected;
+  }
+
+  // Método para verificar si la extensión está realmente disponible
+  async testConnection(): Promise<boolean> {
+    if (!this.transport) {
+      this.reallyConnected = false;
+      return false;
+    }
+    
+    try {
+      console.log("🧪 Probando conexión real con extensión...");
+      
+      // Verificar si el transporte está realmente conectado
+      // En lugar de hacer una petición que puede fallar, verificamos el estado del transporte
+      if (this.transport && typeof this.transport.readyState !== 'undefined') {
+        // Si el transporte tiene un readyState, verificamos que esté abierto
+        this.reallyConnected = this.transport.readyState === 1; // WebSocket.OPEN
+      } else {
+        // Si no hay readyState, asumimos que está conectado si existe el transporte
+        this.reallyConnected = true;
+      }
+      
+      console.log("✅ Estado de conexión verificado:", this.reallyConnected);
+      return this.reallyConnected;
+    } catch (error) {
+      console.warn("❌ Error verificando conexión:", error);
+      this.reallyConnected = false;
+      return false;
+    }
+  }
 
   constructor() {
     this.server = new Server(
@@ -248,30 +283,34 @@ Por favor, crea un análisis profundo y profesional que ayude a tomar decisiones
       // Conectar servidor MCP
       await this.server.connect(this.transport);
       
-      console.log("🔗 ASE Analytics MCP Server conectado exitosamente");
-      console.log("🌐 Origen permitido:", window.location.origin);
+      console.log("🔗 Transporte MCP conectado, verificando extensión...");
       
       // Agregar listeners para detectar desconexiones
       if (this.transport) {
         this.transport.onclose = () => {
           console.warn("⚠️ Transporte MCP cerrado");
-          mcpServerInstance = null;
+          this.transport = null;
+          this.reallyConnected = false;
           this.updateUIState({ loading: false, error: "Conexión MCP perdida" });
         };
 
         this.transport.onerror = (error) => {
           console.error("❌ Error en transporte MCP:", error);
-          mcpServerInstance = null;
+          this.transport = null;
+          this.reallyConnected = false;
           this.updateUIState({ loading: false, error: `Error de transporte: ${error}` });
         };
       }
       
-      // Notificar conexión exitosa
+      // Marcar como conectado inmediatamente si el transporte se conecta
+      this.reallyConnected = true;
+      console.log("✅ MCP Server conectado");
       this.updateUIState({ loading: false, error: null });
       
       return true;
     } catch (error) {
       console.error("❌ Error conectando MCP Server:", error);
+      this.reallyConnected = false;
       this.updateUIState({ loading: false, error: `Error de conexión: ${error.message}` });
       return false;
     }
@@ -294,11 +333,12 @@ export async function initializeASEMCP(): Promise<boolean> {
   try {
     // Evitar múltiples instancias
     if (mcpServerInstance) {
-      console.log("⚠️ MCP Server ya está inicializado");
-      return true;
+      console.log("⚠️ MCP Server ya está inicializado, reutilizando instancia existente");
+      return mcpServerInstance.isConnected;
     }
 
     console.log("🚀 Inicializando ASE Analytics MCP Server...");
+    console.log("📍 Stack trace:", new Error().stack);
     
     mcpServerInstance = new ASEAnalyticsMCPServer();
     const connected = await mcpServerInstance.connect();
@@ -312,6 +352,7 @@ export async function initializeASEMCP(): Promise<boolean> {
       
       return true;
     } else {
+      console.warn("❌ MCP Server no pudo conectarse");
       mcpServerInstance = null;
       return false;
     }
@@ -334,5 +375,11 @@ export function cleanupASEMCP() {
 
 // Verificar si MCP está activo
 export function isMCPActive(): boolean {
-  return mcpServerInstance !== null;
+  return mcpServerInstance !== null && mcpServerInstance.isConnected;
+}
+
+// Hacer test de conexión real
+export async function testMCPConnection(): Promise<boolean> {
+  if (!mcpServerInstance) return false;
+  return await mcpServerInstance.testConnection();
 }

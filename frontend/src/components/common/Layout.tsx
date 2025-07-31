@@ -23,7 +23,7 @@ export default function Layout({ children }: LayoutProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false) // móvil
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false) // desktop
   const { user, logout } = useAuth()
-  const { mcpActivo, conectarMCP } = useMCP()
+  const { mcpActivo, mcpError, conectarMCP } = useMCP()
   const location = useLocation()
   const navigate = useNavigate()
 
@@ -86,24 +86,33 @@ export default function Layout({ children }: LayoutProps) {
             {isSidebarCollapsed ? (
               <div className="flex justify-center">
                 <div 
-                  className={`w-3 h-3 rounded-full ${mcpActivo ? 'bg-green-400' : 'bg-yellow-400'}`}
-                  title={mcpActivo ? 'IA Activa' : 'IA Conectando...'}
+                  className={`w-3 h-3 rounded-full ${mcpActivo ? 'bg-green-400' : 'bg-gray-400'}`}
+                  title={mcpActivo ? 'IA Conectada' : 'IA Desconectada - Click para conectar'}
+                  onClick={!mcpActivo ? conectarMCP : undefined}
+                  style={{ cursor: !mcpActivo ? 'pointer' : 'default' }}
                 ></div>
               </div>
             ) : (
-              <div className="flex items-center space-x-2 text-xs">
-                <div className={`w-2 h-2 rounded-full ${mcpActivo ? 'bg-green-400' : 'bg-yellow-400'}`}></div>
-                <span className="text-secondary-300">
-                  {mcpActivo ? '🤖 IA Activa' : '🤖 IA Conectando...'}
-                </span>
+              <div className="flex items-center justify-between text-xs">
+                <div className="flex items-center space-x-2">
+                  <div className={`w-2 h-2 rounded-full ${mcpActivo ? 'bg-green-400' : 'bg-gray-400'}`}></div>
+                  <span className="text-secondary-300">
+                    {mcpActivo ? '🤖 IA Conectada' : '🤖 IA Desconectada'}
+                  </span>
+                </div>
                 {!mcpActivo && (
                   <button 
                     onClick={conectarMCP}
-                    className="text-blue-300 hover:text-blue-200 underline"
+                    className="text-blue-300 hover:text-blue-200 underline ml-2"
                   >
                     Conectar
                   </button>
                 )}
+              </div>
+            )}
+            {mcpError && !isSidebarCollapsed && (
+              <div className="text-red-300 text-xs mt-1 pl-4">
+                {mcpError}
               </div>
             )}
           </div>

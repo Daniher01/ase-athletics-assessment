@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useMCP } from '../../context/MCPContext';
@@ -7,11 +7,13 @@ const MCPInitializer: React.FC = () => {
   const { user } = useAuth();
   const { mcpActivo, conectarMCP } = useMCP();
   const navigate = useNavigate();
+  const hasInitialized = useRef(false); // Para evitar múltiples inicializaciones
 
   useEffect(() => {
-    // Solo inicializar MCP si el usuario está autenticado y MCP no está activo
-    if (user && !mcpActivo) {
-      console.log("👤 Usuario autenticado detectado, inicializando MCP...");
+    // Solo inicializar MCP una vez cuando el usuario está autenticado
+    if (user && !hasInitialized.current) {
+      console.log("👤 Usuario autenticado detectado, inicializando MCP una sola vez...");
+      hasInitialized.current = true;
       
       // Delay pequeño para asegurar que la UI esté lista
       const timer = setTimeout(() => {
@@ -20,7 +22,7 @@ const MCPInitializer: React.FC = () => {
 
       return () => clearTimeout(timer);
     }
-  }, [user, mcpActivo, conectarMCP]);
+  }, [user, conectarMCP]);
 
   useEffect(() => {
     // Listener para navegación MCP

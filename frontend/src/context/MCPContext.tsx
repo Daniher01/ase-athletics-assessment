@@ -1,11 +1,12 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { initializeASEMCP, cleanupASEMCP, isMCPActive } from '../mcp/aseAnalyticsMcp';
+import { initializeASEMCP, cleanupASEMCP, isMCPActive, testMCPConnection } from '../mcp/aseAnalyticsMcp';
 
 interface MCPContextType {
   mcpActivo: boolean;
   mcpError: string | null;
   conectarMCP: () => Promise<boolean>;
   desconectarMCP: () => void;
+  testConnection: () => Promise<boolean>;
   loading: boolean;
 }
 
@@ -59,40 +60,54 @@ export const MCPProvider: React.FC<MCPProviderProps> = ({ children }) => {
     }
   };
 
-  // Verificar estado MCP periódicamente
-  useEffect(() => {
-    const intervalo = setInterval(async () => {
-      const estadoActual = isMCPActive();
-      console.log("🔍 Verificando estado MCP:", { actual: estadoActual, previo: mcpActivo });
-      
-      if (estadoActual !== mcpActivo) {
-        setMcpActivo(estadoActual);
-        if (!estadoActual && mcpActivo) {
-          console.warn("⚠️ Conexión MCP perdida, intentando reconectar...");
-          setMcpError("Conexión MCP perdida - intentando reconectar...");
-          
-          // Intentar reconectar automáticamente
-          setTimeout(async () => {
-            try {
-              const reconectado = await conectarMCP();
-              if (reconectado) {
-                console.log("✅ Reconexión MCP exitosa");
-                setMcpError(null);
-              } else {
-                console.error("❌ Falló la reconexión MCP");
-                setMcpError("No se pudo reconectar automáticamente");
-              }
-            } catch (error) {
-              console.error("❌ Error en reconexión automática:", error);
-              setMcpError("Error en reconexión automática");
-            }
-          }, 2000);
-        }
+  const testConnection = async (): Promise<boolean> => {
+    try {
+      const isReallyConnected = await testMCPConnection();
+      setMcpActivo(isReallyConnected);
+      if (!isReallyConnected) {
+        setMcpError("Extensión MCP-B no responde");
+      } else {
+        setMcpError(null);
       }
-    }, 3000); // Verificar cada 3 segundos (más frecuente)
+      return isReallyConnected;
+    } catch (error: any) {
+      console.error("❌ Error testando conexión:", error);
+      setMcpError("Error verificando extensión");
+      return false;
+    }
+  };
+
+  // Verificar estado MCP solo ocasionalmente
+  useEffect(() => {
+    const intervalo = setInterval(() => {
+      const estadoActual = isMCPActive();
+      
+      // Solo actualizar si hay un cambio real
+      if (estadoActual !== mcpActivo) {
+        console.log("🔍 Estado MCP cambió:", { actual: estadoActual, previo: mcpActivo });
+        setMcpActivo(estadoActual);
+        
+        // No cambiar el error automáticamente - dejarlo para manejo manual
+      }
+    }, 5000); // Verificar cada 5 segundos, menos frecuente
 
     return () => clearInterval(intervalo);
-  }, [mcpActivo, conectarMCP]);
+  }, [mcpActivo]);
+
+  // Listener para eventos de estado MCP
+  useEffect(() => {
+    const handleMCPStateChange = (event: CustomEvent) => {
+      const { loading, error } = event.detail;
+      if (loading !== undefined) setLoading(loading);
+      if (error !== undefined) setMcpError(error);
+    };
+
+    window.addEventListener('mcpStateChange', handleMCPStateChange as EventListener);
+
+    return () => {
+      window.removeEventListener('mcpStateChange', handleMCPStateChange as EventListener);
+    };
+  }, []);
 
   return (
     <MCPContext.Provider value={{
@@ -100,6 +115,7 @@ export const MCPProvider: React.FC<MCPProviderProps> = ({ children }) => {
       mcpError,
       conectarMCP,
       desconectarMCP,
+      testConnection,
       loading
     }}>
       {children}
