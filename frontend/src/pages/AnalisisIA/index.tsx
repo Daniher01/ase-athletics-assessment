@@ -28,11 +28,10 @@ interface JugadorAnalisis {
 }
 
 const AnalisisIA: React.FC = () => {
-  const [mcpActivo, setMcpActivo] = useState(false);
+  const [mcpActivo, setMcpActivo] = useState(() => isMCPActive());
   const [mcpError, setMcpError] = useState<string | null>(null);
   const [analisisActual, setAnalisisActual] = useState<JugadorAnalisis | null>(null);
   const [loading, setLoading] = useState(false);
-  const [inicializando, setInicializando] = useState(true);
 
   // Manejar cambios de estado MCP
   const handleMCPStateChange = useCallback((event: CustomEvent) => {
@@ -54,52 +53,42 @@ const AnalisisIA: React.FC = () => {
     setLoading(false);
   }, []);
 
-  // Función para reconectar MCP
-  const reconectarMCP = async () => {
-    setInicializando(true);
+  // Función para conectar MCP manualmente
+  const conectarMCP = async () => {
     setMcpError(null);
     
-    // Limpiar instancia anterior
-    cleanupASEMCP();
-    
-    // Intentar nueva conexión
-    const conectado = await initializeASEMCP();
-    setMcpActivo(conectado);
-    setInicializando(false);
-    
-    if (!conectado) {
-      setMcpError("No se pudo conectar con la extensión MCP-B");
+    try {
+      const conectado = await initializeASEMCP();
+      setMcpActivo(conectado);
+      
+      if (!conectado) {
+        setMcpError("No se pudo conectar con la extensión MCP-B");
+      }
+    } catch (error: any) {
+      console.error("❌ Error conectando MCP:", error);
+      setMcpError(`Error de conexión: ${error.message}`);
     }
   };
 
+  // Función para mostrar instrucciones de la extensión
+  const mostrarInstrucciones = () => {
+    alert(`📱 Para usar el análisis con IA:
+
+1. Haz clic en el icono de extensiones (🧩) en la barra de Chrome
+2. Busca y haz clic en la extensión 'MCP-B' 
+3. En el chat de la extensión, escribe comandos como:
+   • "Analiza a Lionel Messi"
+   • "Quiero ver datos de Cristiano Ronaldo"
+   • "Analiza el rendimiento de Neymar"
+
+Los resultados aparecerán automáticamente en esta página.`);
+  };
+
   useEffect(() => {
-    // Inicializar MCP cuando se monta el componente
-    const inicializarMCP = async () => {
-      console.log("🔄 Montando componente AnalisisIA...");
-      
-      // Verificar si la extensión está disponible
-      if (!window.chrome?.runtime) {
-        setMcpError("Extensión Chrome MCP-B no detectada");
-        setInicializando(false);
-        return;
-      }
-
-      try {
-        const conectado = await initializeASEMCP();
-        setMcpActivo(conectado);
-        
-        if (!conectado) {
-          setMcpError("Error al conectar con MCP-B");
-        }
-      } catch (error: any) {
-        console.error("❌ Error inicializando MCP:", error);
-        setMcpError(`Error de inicialización: ${error.message}`);
-      } finally {
-        setInicializando(false);
-      }
-    };
-
-    inicializarMCP();
+    console.log("🔄 Componente AnalisisIA montado");
+    
+    // Solo verificar estado actual, no inicializar automáticamente
+    setMcpActivo(isMCPActive());
 
     // Registrar listeners de eventos
     window.addEventListener('mcpAnalysisComplete', handleAnalysisComplete as EventListener);
@@ -109,7 +98,6 @@ const AnalisisIA: React.FC = () => {
     return () => {
       window.removeEventListener('mcpAnalysisComplete', handleAnalysisComplete as EventListener);
       window.removeEventListener('mcpStateChange', handleMCPStateChange as EventListener);
-      cleanupASEMCP();
     };
   }, [handleAnalysisComplete, handleMCPStateChange]);
 
@@ -131,20 +119,15 @@ const AnalisisIA: React.FC = () => {
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              {inicializando ? (
-                <>
-                  <div className="w-3 h-3 rounded-full bg-yellow-500 animate-pulse"></div>
-                  <span className="font-medium">🔄 Inicializando MCP...</span>
-                </>
-              ) : mcpActivo ? (
+              {mcpActivo ? (
                 <>
                   <div className="w-3 h-3 rounded-full bg-green-500"></div>
                   <span className="font-medium">✅ Servidor MCP activo y conectado</span>
                 </>
               ) : (
                 <>
-                  <div className="w-3 h-3 rounded-full bg-red-500"></div>
-                  <span className="font-medium">❌ Servidor MCP inactivo</span>
+                  <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+                  <span className="font-medium">⚠️ MCP no iniciado - Haz clic en "Conectar"</span>
                 </>
               )}
             </div>
@@ -155,12 +138,12 @@ const AnalisisIA: React.FC = () => {
               </div>
             )}
             
-            {mcpError && !inicializando && (
+            {!mcpActivo && (
               <button 
-                onClick={reconectarMCP}
+                onClick={conectarMCP}
                 className="bg-blue-500 text-white px-4 py-2 rounded text-sm hover:bg-blue-600"
               >
-                🔄 Reconectar
+                🚀 Conectar MCP
               </button>
             )}
           </div>
@@ -180,15 +163,16 @@ const AnalisisIA: React.FC = () => {
           <ol className="list-decimal list-inside space-y-2 text-blue-800">
             <li>Asegúrate de tener instalada la <strong>extensión Chrome MCP-B</strong></li>
             <li>Verifica que el estado arriba muestre "Servidor MCP activo"</li>
-            <li>Abre el chat de la extensión MCP-B</li>
-            <li>Escribe: <code className="bg-blue-100 px-2 py-1 rounded">"Analiza a Lionel Messi"</code></li>
-            <li>La IA ejecutará automáticamente la herramienta y mostrará resultados aquí</li>
+            <li>Haz clic en el icono de extensiones (🧩) en la barra de Chrome</li>
+            <li>Busca y haz clic en la extensión <strong>MCP-B</strong></li>
+            <li>En el chat, escribe: <code className="bg-blue-100 px-2 py-1 rounded">"Analiza a Lionel Messi"</code></li>
+            <li>Los resultados aparecerán automáticamente en esta página</li>
           </ol>
           
           <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded">
             <p className="text-sm text-yellow-800">
-              💡 <strong>Debug info:</strong> Si tienes problemas, abre las Dev Tools (F12) 
-              y revisa la consola para ver los logs de conexión MCP.
+              💡 <strong>Tip:</strong> No es posible abrir automáticamente la extensión por seguridad de Chrome. 
+              Debes abrirla manualmente desde el icono de extensiones (🧩).
             </p>
           </div>
         </div>
@@ -280,7 +264,7 @@ const AnalisisIA: React.FC = () => {
         )}
 
         {/* Placeholder inicial */}
-        {!analisisActual && !loading && !inicializando && mcpActivo && (
+        {!analisisActual && !loading && mcpActivo && (
           <div className="bg-gray-50 rounded-lg p-8 text-center">
             <div className="text-6xl mb-4">🤖</div>
             <h3 className="text-xl font-semibold text-gray-900 mb-2">
@@ -289,27 +273,33 @@ const AnalisisIA: React.FC = () => {
             <p className="text-gray-600 mb-4">
               Usa la extensión Chrome MCP-B para pedirle a la IA que analice cualquier jugador
             </p>
-            <div className="text-sm text-gray-500">
+            <div className="text-sm text-gray-500 mb-4">
               Comandos de ejemplo: "Analiza a Messi", "Quiero ver datos de Ronaldo"
             </div>
+            <button 
+              onClick={mostrarInstrucciones}
+              className="bg-green-500 text-white px-6 py-2 rounded hover:bg-green-600"
+            >
+              📋 Ver instrucciones detalladas
+            </button>
           </div>
         )}
 
-        {/* Estado de error o sin extensión */}
-        {!inicializando && !mcpActivo && (
-          <div className="bg-red-50 rounded-lg p-8 text-center">
-            <div className="text-6xl mb-4">⚠️</div>
-            <h3 className="text-xl font-semibold text-red-900 mb-2">
-              Extensión MCP-B no detectada
+        {/* Estado inicial sin conexión */}
+        {!analisisActual && !loading && !mcpActivo && (
+          <div className="bg-blue-50 rounded-lg p-8 text-center">
+            <div className="text-6xl mb-4">🚀</div>
+            <h3 className="text-xl font-semibold text-blue-900 mb-2">
+              Conecta con MCP para empezar
             </h3>
-            <p className="text-red-700 mb-4">
-              Para usar esta función necesitas instalar la extensión Chrome MCP-B
+            <p className="text-blue-700 mb-4">
+              Haz clic en "Conectar MCP" arriba para inicializar la conexión con la extensión
             </p>
             <button 
-              onClick={reconectarMCP}
-              className="bg-red-500 text-white px-6 py-2 rounded hover:bg-red-600"
+              onClick={conectarMCP}
+              className="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600"
             >
-              🔄 Intentar reconectar
+              🚀 Conectar ahora
             </button>
           </div>
         )}
