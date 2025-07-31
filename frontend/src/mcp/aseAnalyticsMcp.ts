@@ -40,13 +40,30 @@ class ASEAnalyticsMCPServer {
         tools: [
           {
             name: "analizar_jugador",
-            description: "Analiza un jugador específico de fútbol obteniendo todas sus estadísticas, atributos y datos de rendimiento",
+            description: `🏈 ANALIZADOR PROFESIONAL DE JUGADORES DE FÚTBOL
+
+Esta herramienta funciona como un scout deportivo experto que:
+- Obtiene datos completos del jugador desde la base de datos
+- Genera análisis técnico profesional con IA
+- Proporciona recomendaciones de transferencia
+- Evalúa potential futuro y valor de mercado
+- Compara con jugadores élite de la posición
+
+El análisis incluye:
+✅ Resumen ejecutivo
+✅ Evaluación técnica detallada  
+✅ Análisis posicional
+✅ Recomendación de transferencia
+✅ Proyección futura
+✅ Valor de mercado justificado
+
+Perfecto para scouts, directores deportivos y analistas que necesitan evaluaciones profundas basadas en datos reales.`,
             inputSchema: {
               type: "object",
               properties: {
                 nombre_jugador: {
                   type: "string",
-                  description: "Nombre del jugador a analizar (ej: 'Lionel Messi', 'Cristiano Ronaldo')"
+                  description: "Nombre completo o parcial del jugador a analizar (ej: 'Lionel Messi', 'Cristiano', 'Mbappé')"
                 }
               },
               required: ["nombre_jugador"]
@@ -82,8 +99,8 @@ class ASEAnalyticsMCPServer {
           // Navegar a la página de detalle del jugador
           this.navigateToPlayerDetail(data.data);
 
-          // Respuesta estructurada para la IA
-          const analisisTexto = this.formatearAnalisisParaIA(data.data);
+          // 🎯 RESPUESTA CON PROMPT PROFESIONAL INTEGRADO
+          const analisisTexto = this.formatearAnalisisConPrompt(data.data);
 
           return {
             content: [
@@ -116,34 +133,62 @@ class ASEAnalyticsMCPServer {
     });
   }
 
-  private formatearAnalisisParaIA(data: any): string {
-    return `✅ NAVEGANDO A PERFIL DE ${data.jugador.nombre}
+  // 🔥 NUEVA FUNCIÓN CON PROMPT PROFESIONAL
+  private formatearAnalisisConPrompt(data: any): string {
+    return `📊 DATOS COMPLETOS DEL JUGADOR ${data.jugador.nombre.toUpperCase()}
 
-🧭 Te he llevado automáticamente a la página de detalle del jugador donde puedes ver toda la información:
+${JSON.stringify({
+      informacion_basica: data.jugador,
+      estadisticas_temporada: data.estadisticas,
+      atributos_tecnicos: data.atributos,
+      datos_contrato: data.contrato,
+      caracteristicas_fisicas: data.fisico
+    }, null, 2)}
 
-🏈 INFORMACIÓN BÁSICA:
-• Posición: ${data.jugador.posicion}
-• Edad: ${data.jugador.edad} años  
-• Equipo: ${data.jugador.equipo}
-• Nacionalidad: ${data.jugador.nacionalidad}
+🎯 INSTRUCCIONES DE ANÁLISIS PROFESIONAL:
 
-📊 ESTADÍSTICAS TEMPORADA:
-• Goles: ${data.estadisticas.goles}
-• Asistencias: ${data.estadisticas.asistencias}
-• Apariciones: ${data.estadisticas.apariciones}
+Eres un scout deportivo de élite con 20 años de experiencia. Analiza estos datos y proporciona un reporte completo siguiendo esta estructura:
 
-💰 VALOR DE MERCADO: €${data.contrato.valor_mercado?.toLocaleString() || 'No disponible'}
+**1. RESUMEN EJECUTIVO** (2-3 líneas)
+- Evaluación general del jugador
+- Recomendación principal (fichar/no fichar/seguir monitoreando)
 
-⚡ ATRIBUTOS PRINCIPALES:
-${Object.entries(data.atributos || {}).map(([attr, value]) => 
-  `• ${attr.charAt(0).toUpperCase() + attr.slice(1)}: ${value}/100`
-).slice(0, 6).join('\n')}
+**2. ANÁLISIS TÉCNICO DETALLADO**
+- Evalúa cada atributo técnico (pace, shooting, passing, etc.) con contexto
+- Identifica el top 3 fortalezas y top 2 debilidades
+- Calificación general del 1-10 con justificación
 
-🤖 ANÁLISIS PROFESIONAL IA:
-${data.analisisIA || 'Análisis no disponible'}
+**3. ANÁLISIS POSICIONAL**
+- ¿Qué tan bueno es en su posición actual?
+- ¿Podría jugar en otras posiciones?
+- Comparación con jugadores élite de su posición
 
-🔍 Ahora estás viendo el perfil completo del jugador. Puedes pedirme análisis más específicos sobre lo que ves en la página.`;
+**4. VALOR DE MERCADO Y TRANSFERENCIA**
+- ¿El valor actual (€${data.contrato.valor_mercado?.toLocaleString() || 'N/A'}) es justo?
+- Rango de precio recomendado para transferencia
+- Factores que podrían aumentar/disminuir su valor
+
+**5. PROYECCIÓN FUTURA**
+- Basándote en su edad (${data.jugador.edad} años), ¿cuál es su trayectoria esperada?
+- Potential de crecimiento en los próximos 2-3 años
+- Riesgos de lesiones o declive
+
+**6. RECOMENDACIÓN FINAL**
+- ¿Vale la pena ficharlo? ¿Por qué?
+- ¿Qué tipo de equipo le conviene más?
+- Plan de desarrollo recomendado
+
+**IMPORTANTE**: 
+- Usa los datos proporcionados para justificar cada conclusión
+- Sé específico con números y estadísticas
+- Mantén un tono profesional pero accesible
+- Compara con jugadores conocidos cuando sea relevante
+- Considera factores como edad, experiencia, y tendencias de rendimiento
+- Toda respuesta debe ser en español
+
+Por favor, crea un análisis profundo y profesional que ayude a tomar decisiones informadas sobre este jugador.`;
   }
+
 
   private navigateToPlayerDetail(data: any) {
     console.log("🧭 Navegando a PlayerDetail:", data);
@@ -223,6 +268,7 @@ export async function initializeASEMCP(): Promise<boolean> {
     
     if (connected) {
       console.log("✅ MCP Server listo para recibir comandos");
+      console.log("💡 Prueba: 'Analiza a Messi' en la extensión");
       
       // Hacer disponible globalmente para debugging
       (window as any).aseMcpServer = mcpServerInstance;
