@@ -199,8 +199,15 @@ Por favor, crea un análisis profundo y profesional que ayude a tomar decisiones
       return;
     }
 
-    // Navegar a la página de detalle del jugador
-    window.location.href = `/players/${playerId}`;
+    // Usar navegación SPA sin recargar la página
+    const navigationEvent = new CustomEvent('mcpNavigate', {
+      detail: { 
+        path: `/players/${playerId}`,
+        playerId: playerId,
+        playerData: data
+      }
+    });
+    window.dispatchEvent(navigationEvent);
     
     // Actualizar estado
     this.updateUIState({ loading: false, error: null });
