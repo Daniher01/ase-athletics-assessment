@@ -9,7 +9,6 @@ import PlayerDetail from "./pages/PlayerDetail";
 import PlayerComparison from "./pages/PlayerComparison";
 import Reports from "./pages/Reports";
 import ReportDetail from "./pages/ReportDetail";
-import AnalisisIA from "./pages/AnalisisIA";
 
 function App() {
   return (
@@ -67,14 +66,6 @@ function App() {
             element={
               <ProtectedRoute>
                 <ReportDetail />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/analisis-ia"
-            element={
-              <ProtectedRoute>
-                <AnalisisIA />
               </ProtectedRoute>
             }
           />

@@ -30,16 +30,12 @@ export default function Layout({ children }: LayoutProps) {
     navigate('/login')
   }
 
-  const handleAnalisisIAClick = () => {
-    navigate('/analisis-ia');
-  }
 
   const navigation = [
     { name: 'Dashboard', href: '/', icon: Home },
     { name: 'Jugadores', href: '/players', icon: Users },
     { name: 'Comparación', href: '/comparison', icon: BarChart3 },
     { name: 'Reportes', href: '/reports', icon: FileText },
-    { name: 'Analizar con IA', href: '/analisis-ia', icon: Bot },
   ]
 
   return (
@@ -77,24 +73,6 @@ export default function Layout({ children }: LayoutProps) {
           <nav className="mt-8 flex-1 px-2 space-y-1">
             {navigation.map((item) => {
               const isActive = location.pathname === item.href
-              
-              // Manejar "Analizar con IA" de forma especial
-              if (item.name === 'Analizar con IA') {
-                return (
-                  <button
-                    key={item.name}
-                    onClick={handleAnalisisIAClick}
-                    className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors w-full text-left ${
-                      isActive
-                        ? 'bg-secondary-700 text-white'
-                        : 'text-secondary-300 hover:bg-secondary-700 hover:text-white'
-                    }`}
-                  >
-                    <item.icon className="mr-3 h-5 w-5" />
-                    {item.name}
-                  </button>
-                )
-              }
               
               return (
                 <Link

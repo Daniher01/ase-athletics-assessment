@@ -121,6 +121,7 @@ router.post('/analizar-jugador', authenticateToken, async (req: Request, res: Re
     // Formato optimizado para análisis de IA
     const analisisData = {
       jugador: {
+        id: jugadorCompleto.id,
         nombre: jugadorCompleto.name,
         posicion: jugadorCompleto.position,
         edad: jugadorCompleto.age,

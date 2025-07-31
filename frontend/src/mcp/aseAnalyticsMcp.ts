@@ -79,8 +79,8 @@ class ASEAnalyticsMCPServer {
           const data = await playerService.analizarJugador(validatedArgs.nombre_jugador);
           console.log("✅ Datos recibidos:", data);
 
-          // Actualizar interfaz de usuario
-          this.updateUIWithAnalysis(data.data);
+          // Navegar a la página de detalle del jugador
+          this.navigateToPlayerDetail(data.data);
 
           // Respuesta estructurada para la IA
           const analisisTexto = this.formatearAnalisisParaIA(data.data);
@@ -117,7 +117,9 @@ class ASEAnalyticsMCPServer {
   }
 
   private formatearAnalisisParaIA(data: any): string {
-    return `✅ ANÁLISIS COMPLETADO para ${data.jugador.nombre}
+    return `✅ NAVEGANDO A PERFIL DE ${data.jugador.nombre}
+
+🧭 Te he llevado automáticamente a la página de detalle del jugador donde puedes ver toda la información:
 
 🏈 INFORMACIÓN BÁSICA:
 • Posición: ${data.jugador.posicion}
@@ -140,17 +142,20 @@ ${Object.entries(data.atributos || {}).map(([attr, value]) =>
 🤖 ANÁLISIS PROFESIONAL IA:
 ${data.analisisIA || 'Análisis no disponible'}
 
-🔍 Los datos completos y gráficos detallados se han cargado en la página web para análisis profundo.`;
+🔍 Ahora estás viendo el perfil completo del jugador. Puedes pedirme análisis más específicos sobre lo que ves en la página.`;
   }
 
-  private updateUIWithAnalysis(data: any) {
-    console.log("📡 Enviando datos a UI:", data);
+  private navigateToPlayerDetail(data: any) {
+    console.log("🧭 Navegando a PlayerDetail:", data);
     
-    // Disparar evento personalizado para actualizar la UI
-    const event = new CustomEvent('mcpAnalysisComplete', {
-      detail: data
-    });
-    window.dispatchEvent(event);
+    const playerId = data.jugador.id;
+    if (!playerId) {
+      console.error("❌ No se encontró ID del jugador");
+      return;
+    }
+
+    // Navegar a la página de detalle del jugador
+    window.location.href = `/players/${playerId}`;
     
     // Actualizar estado
     this.updateUIState({ loading: false, error: null });

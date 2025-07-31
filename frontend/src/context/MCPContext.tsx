@@ -66,7 +66,7 @@ export const MCPProvider: React.FC<MCPProviderProps> = ({ children }) => {
       if (estadoActual !== mcpActivo) {
         setMcpActivo(estadoActual);
         if (!estadoActual) {
-          setMcpError("Conexión MCP perdida");
+          setMcpError("Conexión MCP perdida - se intentará reconectar");
         }
       }
     }, 5000); // Verificar cada 5 segundos
