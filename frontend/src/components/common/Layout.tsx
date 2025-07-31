@@ -9,7 +9,8 @@ import {
   BarChart3, 
   FileText, 
   Settings,
-  LogOut
+  LogOut,
+  Bot
 } from 'lucide-react'
 
 interface LayoutProps {
@@ -32,6 +33,7 @@ export default function Layout({ children }: LayoutProps) {
     { name: 'Jugadores', href: '/players', icon: Users },
     { name: 'Comparación', href: '/comparison', icon: BarChart3 },
     { name: 'Reportes', href: '/reports', icon: FileText },
+    { name: 'Analizar con IA', href: '/analisis-ia', icon: Bot },
   ]
 
   return (
