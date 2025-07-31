@@ -19,7 +19,8 @@ interface LayoutProps {
 }
 
 export default function Layout({ children }: LayoutProps) {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false) // móvil
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false) // desktop
   const { user, logout } = useAuth()
   const { mcpActivo, conectarMCP } = useMCP()
   const location = useLocation()
@@ -41,32 +42,53 @@ export default function Layout({ children }: LayoutProps) {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Sidebar para desktop */}
-      <div className="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0">
+      <div className={`hidden md:flex md:flex-col md:fixed md:inset-y-0 transition-all duration-300 ${
+        isSidebarCollapsed ? 'md:w-16' : 'md:w-64'
+      }`}>
         <div className="flex flex-col flex-grow pt-5 bg-secondary-800 overflow-y-auto">
-          {/* Logo */}
-          <div className="flex items-center flex-shrink-0 px-4">
-            <div className="bg-primary-600 w-10 h-10 rounded-full flex items-center justify-center">
-              <span className="text-white text-lg font-bold">ASE</span>
+          {/* Logo y Toggle */}
+          <div className="flex items-center justify-between flex-shrink-0 px-4">
+            <div className="flex items-center">
+              <div className="bg-primary-600 w-10 h-10 rounded-full flex items-center justify-center">
+                <span className="text-white text-lg font-bold">ASE</span>
+              </div>
+              {!isSidebarCollapsed && (
+                <span className="ml-3 text-white text-xl font-semibold">Athletics</span>
+              )}
             </div>
-            <span className="ml-3 text-white text-xl font-semibold">Athletics</span>
+            <button
+              onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+              className="text-secondary-300 hover:text-white p-2 rounded-md transition-colors"
+            >
+              <Menu className="h-5 w-5" />
+            </button>
           </div>
 
           {/* Estado MCP Global */}
           <div className="px-4 py-2">
-            <div className="flex items-center space-x-2 text-xs">
-              <div className={`w-2 h-2 rounded-full ${mcpActivo ? 'bg-green-400' : 'bg-yellow-400'}`}></div>
-              <span className="text-secondary-300">
-                {mcpActivo ? '🤖 IA Activa' : '🤖 IA Conectando...'}
-              </span>
-              {!mcpActivo && (
-                <button 
-                  onClick={conectarMCP}
-                  className="text-blue-300 hover:text-blue-200 underline"
-                >
-                  Conectar
-                </button>
-              )}
-            </div>
+            {isSidebarCollapsed ? (
+              <div className="flex justify-center">
+                <div 
+                  className={`w-3 h-3 rounded-full ${mcpActivo ? 'bg-green-400' : 'bg-yellow-400'}`}
+                  title={mcpActivo ? 'IA Activa' : 'IA Conectando...'}
+                ></div>
+              </div>
+            ) : (
+              <div className="flex items-center space-x-2 text-xs">
+                <div className={`w-2 h-2 rounded-full ${mcpActivo ? 'bg-green-400' : 'bg-yellow-400'}`}></div>
+                <span className="text-secondary-300">
+                  {mcpActivo ? '🤖 IA Activa' : '🤖 IA Conectando...'}
+                </span>
+                {!mcpActivo && (
+                  <button 
+                    onClick={conectarMCP}
+                    className="text-blue-300 hover:text-blue-200 underline"
+                  >
+                    Conectar
+                  </button>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Navigation */}
@@ -78,14 +100,15 @@ export default function Layout({ children }: LayoutProps) {
                 <Link
                   key={item.name}
                   to={item.href}
-                  className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors ${
+                  className={`group flex items-center py-2 text-sm font-medium rounded-md transition-colors ${
                     isActive
                       ? 'bg-secondary-700 text-white'
                       : 'text-secondary-300 hover:bg-secondary-700 hover:text-white'
-                  }`}
+                  } ${isSidebarCollapsed ? 'px-3 justify-center' : 'px-2'}`}
+                  title={isSidebarCollapsed ? item.name : ''}
                 >
-                  <item.icon className="mr-3 h-5 w-5" />
-                  {item.name}
+                  <item.icon className={`h-5 w-5 ${!isSidebarCollapsed ? 'mr-3' : ''}`} />
+                  {!isSidebarCollapsed && item.name}
                 </Link>
               )
             })}
@@ -93,23 +116,45 @@ export default function Layout({ children }: LayoutProps) {
 
           {/* User section */}
           <div className="flex-shrink-0 flex border-t border-secondary-700 p-4">
-            <div className="flex items-center">
-              <div className="bg-primary-600 w-8 h-8 rounded-full flex items-center justify-center">
-                <span className="text-white text-sm font-medium">
-                  {user?.name?.charAt(0).toUpperCase()}
-                </span>
+            {isSidebarCollapsed ? (
+              <div className="flex justify-center">
+                <div className="relative group">
+                  <div className="bg-primary-600 w-8 h-8 rounded-full flex items-center justify-center cursor-pointer">
+                    <span className="text-white text-sm font-medium">
+                      {user?.name?.charAt(0).toUpperCase()}
+                    </span>
+                  </div>
+                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                    {user?.name}
+                  </div>
+                  <button
+                    onClick={handleLogout}
+                    className="absolute -bottom-1 -right-1 bg-secondary-600 hover:bg-secondary-500 w-5 h-5 rounded-full flex items-center justify-center transition-colors"
+                    title="Cerrar sesión"
+                  >
+                    <LogOut className="h-3 w-3 text-white" />
+                  </button>
+                </div>
               </div>
-              <div className="ml-3">
-                <p className="text-sm font-medium text-white">{user?.name}</p>
-                <button
-                  onClick={handleLogout}
-                  className="flex items-center text-xs text-secondary-300 hover:text-white transition-colors"
-                >
-                  <LogOut className="mr-1 h-3 w-3" />
-                  Cerrar sesión
-                </button>
+            ) : (
+              <div className="flex items-center">
+                <div className="bg-primary-600 w-8 h-8 rounded-full flex items-center justify-center">
+                  <span className="text-white text-sm font-medium">
+                    {user?.name?.charAt(0).toUpperCase()}
+                  </span>
+                </div>
+                <div className="ml-3">
+                  <p className="text-sm font-medium text-white">{user?.name}</p>
+                  <button
+                    onClick={handleLogout}
+                    className="flex items-center text-xs text-secondary-300 hover:text-white transition-colors"
+                  >
+                    <LogOut className="mr-1 h-3 w-3" />
+                    Cerrar sesión
+                  </button>
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </div>
@@ -164,7 +209,9 @@ export default function Layout({ children }: LayoutProps) {
       )}
 
       {/* Main content */}
-      <div className="md:pl-64 flex flex-col flex-1">
+      <div className={`flex flex-col flex-1 transition-all duration-300 ${
+        isSidebarCollapsed ? 'md:pl-16' : 'md:pl-64'
+      }`}>
         {/* Top bar mobile */}
         <div className="sticky top-0 z-10 md:hidden pl-1 pt-1 sm:pl-3 sm:pt-3 bg-gray-50">
           <button
