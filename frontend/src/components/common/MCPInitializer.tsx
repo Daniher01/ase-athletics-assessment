@@ -27,8 +27,22 @@ const MCPInitializer: React.FC = () => {
   useEffect(() => {
     // Listener para navegación MCP
     const handleMCPNavigation = (event: CustomEvent) => {
-      const { path } = event.detail;
+      const { path, comparisonData } = event.detail;
       console.log("🧭 Navegación MCP solicitada a:", path);
+      
+      if (comparisonData) {
+        // Si hay datos de comparación, disparar evento para precargar jugadores
+        console.log("⚖️ Datos de comparación detectados:", comparisonData);
+        
+        // Esperar un poco antes de disparar el evento para asegurar que la página se cargue
+        setTimeout(() => {
+          const loadComparisonEvent = new CustomEvent('loadComparison', {
+            detail: comparisonData
+          });
+          window.dispatchEvent(loadComparisonEvent);
+        }, 500);
+      }
+      
       navigate(path);
     };
 

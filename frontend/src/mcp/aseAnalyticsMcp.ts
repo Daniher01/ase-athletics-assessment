@@ -7,9 +7,14 @@ import {
 import { z } from "zod";
 import { playerService } from "../services/playerService";
 
-// Schema de validación
+// Schemas de validación
 const AnalizarJugadorSchema = z.object({
   nombre_jugador: z.string().min(1, "Nombre del jugador es requerido")
+});
+
+const CompararJugadoresSchema = z.object({
+  jugador1: z.string().min(1, "Nombre del primer jugador es requerido"),
+  jugador2: z.string().min(1, "Nombre del segundo jugador es requerido")
 });
 
 class ASEAnalyticsMCPServer {
@@ -75,7 +80,7 @@ class ASEAnalyticsMCPServer {
         tools: [
           {
             name: "analizar_jugador",
-            description: `🏈 ANALIZADOR PROFESIONAL DE JUGADORES DE FÚTBOL
+            description: `ANALIZADOR PROFESIONAL DE JUGADORES DE FÚTBOL
 
 Esta herramienta funciona como un scout deportivo experto que:
 - Obtiene datos completos del jugador desde la base de datos
@@ -102,6 +107,40 @@ Perfecto para scouts, directores deportivos y analistas que necesitan evaluacion
                 }
               },
               required: ["nombre_jugador"]
+            }
+          },
+          {
+            name: "comparar_jugadores",
+            description: `COMPARADOR AUTOMÁTICO DE JUGADORES
+
+Esta herramienta permite comparar dos jugadores automáticamente:
+- Busca ambos jugadores en la base de datos
+- Navega automáticamente a la página de comparación
+- Selecciona ambos jugadores en las tarjetas
+- Ejecuta la comparación completa como si el usuario lo hubiera hecho manualmente
+
+La comparación incluye:
+✅ Estadísticas de rendimiento lado a lado
+✅ Gráficos radar de atributos técnicos
+✅ Comparación de valor de mercado
+✅ Análisis posicional detallado
+✅ Métricas físicas y técnicas
+✅ Export de comparación disponible
+
+Perfecto para análisis rápidos de transferencias, evaluación de alternativas y toma de decisiones basada en datos.`,
+            inputSchema: {
+              type: "object",
+              properties: {
+                jugador1: {
+                  type: "string",
+                  description: "Nombre del primer jugador a comparar (ej: 'Lionel Messi', 'Cristiano')"
+                },
+                jugador2: {
+                  type: "string", 
+                  description: "Nombre del segundo jugador a comparar (ej: 'Kylian Mbappé', 'Erling Haaland')"
+                }
+              },
+              required: ["jugador1", "jugador2"]
             }
           }
         ]
@@ -175,6 +214,63 @@ Perfecto para scouts, directores deportivos y analistas que necesitan evaluacion
         }
       }
 
+      if (name === "comparar_jugadores") {
+        try {
+          console.log("⚖️ Ejecutando comparación de jugadores con args:", args);
+          
+          // Validar argumentos
+          const validatedArgs = CompararJugadoresSchema.parse(args);
+          console.log("✅ Argumentos validados:", validatedArgs);
+          
+          // Disparar evento de loading
+          this.updateUIState({ loading: true, error: null });
+          
+          // Buscar ambos jugadores
+          const [player1Data, player2Data] = await Promise.all([
+            playerService.analizarJugador(validatedArgs.jugador1),
+            playerService.analizarJugador(validatedArgs.jugador2)
+          ]);
+          
+          console.log("✅ Datos de ambos jugadores recibidos:", { 
+            player1: player1Data.data.jugador.nombre, 
+            player2: player2Data.data.jugador.nombre 
+          });
+          console.log("🔍 Atributos player1 completos:", player1Data.data.atributos);
+          console.log("🔍 Atributos player2 completos:", player2Data.data.atributos);
+
+          // Navegar a la página de comparación y seleccionar jugadores
+          this.navigateToComparison(player1Data.data, player2Data.data);
+
+          // Formatear respuesta
+          const comparacionTexto = this.formatearComparacionParaIA(player1Data.data, player2Data.data);
+
+          return {
+            content: [
+              {
+                type: "text",
+                text: comparacionTexto
+              }
+            ]
+          };
+
+        } catch (error: any) {
+          console.error("❌ Error en comparación:", error);
+          
+          // Actualizar UI con error
+          this.updateUIState({ loading: false, error: error.message });
+
+          return {
+            content: [
+              {
+                type: "text", 
+                text: `❌ Error en comparación: ${error.message}`
+              }
+            ],
+            isError: true
+          };
+        }
+      }
+
       throw new Error(`Herramienta desconocida: ${name}`);
     });
   }
@@ -235,6 +331,39 @@ Eres un scout deportivo de élite con 20 años de experiencia. Analiza estos dat
 Por favor, crea un análisis profundo y profesional que ayude a tomar decisiones informadas sobre este jugador.`;
   }
 
+  private formatearComparacionParaIA(player1Data: any, player2Data: any): string {
+    return `✅ COMPARACIÓN AUTOMÁTICA COMPLETADA
+
+⚖️ Te he llevado automáticamente a la página de comparación donde puedes ver el análisis completo de:
+
+🔵 **${player1Data.jugador.nombre.toUpperCase()}** vs 🔴 **${player2Data.jugador.nombre.toUpperCase()}**
+
+📊 DATOS COMPARATIVOS CARGADOS:
+
+**${player1Data.jugador.nombre}:**
+• Posición: ${player1Data.jugador.posicion} | Edad: ${player1Data.jugador.edad} años
+• Equipo: ${player1Data.jugador.equipo}
+• Goles: ${player1Data.estadisticas.goles} | Asistencias: ${player1Data.estadisticas.asistencias}
+• Valor de Mercado: €${player1Data.contrato.valor_mercado?.toLocaleString() || 'No disponible'}
+
+**${player2Data.jugador.nombre}:**
+• Posición: ${player2Data.jugador.posicion} | Edad: ${player2Data.jugador.edad} años  
+• Equipo: ${player2Data.jugador.equipo}
+• Goles: ${player2Data.estadisticas.goles} | Asistencias: ${player2Data.estadisticas.asistencias}
+• Valor de Mercado: €${player2Data.contrato.valor_mercado?.toLocaleString() || 'No disponible'}
+
+🎯 COMPARACIÓN DISPONIBLE:
+✅ Estadísticas de rendimiento lado a lado
+✅ Gráficos radar de atributos técnicos
+✅ Análisis de valor de mercado
+✅ Métricas físicas y posicionales
+✅ Opción de exportar comparación en PDF
+
+🔍 La comparación está completamente cargada. Puedes cambiar entre categorías (Rendimiento, Atributos, Mercado) y pedirme análisis específicos sobre lo que ves en pantalla.
+
+¿Te gustaría que analice algún aspecto específico de esta comparación?`;
+  }
+
 
   private navigateToPlayerDetail(data: any) {
     console.log("🧭 Navegando a PlayerDetail:", data);
@@ -251,6 +380,80 @@ Por favor, crea un análisis profundo y profesional que ayude a tomar decisiones
         path: `/players/${playerId}`,
         playerId: playerId,
         playerData: data
+      }
+    });
+    window.dispatchEvent(navigationEvent);
+    
+    // Actualizar estado
+    this.updateUIState({ loading: false, error: null });
+  }
+
+  private navigateToComparison(player1Data: any, player2Data: any) {
+    console.log("⚖️ Navegando a Comparación:", { 
+      player1: player1Data.jugador.nombre, 
+      player2: player2Data.jugador.nombre 
+    });
+
+    // Navegar a la página de comparación con datos precargados incluyendo atributos
+    const navigationEvent = new CustomEvent('mcpNavigate', {
+      detail: { 
+        path: '/comparison',
+        comparisonData: {
+          player1: {
+            id: player1Data.jugador.id,
+            name: player1Data.jugador.nombre,
+            team: player1Data.jugador.equipo,
+            position: player1Data.jugador.posicion,
+            age: player1Data.jugador.edad,
+            goals: player1Data.estadisticas.goles,
+            assists: player1Data.estadisticas.asistencias,
+            appearances: player1Data.estadisticas.apariciones,
+            marketValue: player1Data.contrato.valor_mercado,
+            salary: player1Data.contrato.salario_semanal,
+            nationality: player1Data.jugador.nacionalidad,
+            height: player1Data.fisico?.altura || 180,
+            weight: player1Data.fisico?.peso || 75,
+            contractEnd: player1Data.contrato?.fin_contrato || '2025-12-31',
+            attributes: player1Data.atributos || {
+              pace: 70,
+              shooting: 70,
+              passing: 70,
+              dribbling: 70,
+              defending: 70,
+              physical: 70
+            },
+            imageUrl: '',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+          },
+          player2: {
+            id: player2Data.jugador.id,
+            name: player2Data.jugador.nombre,
+            team: player2Data.jugador.equipo,
+            position: player2Data.jugador.posicion,
+            age: player2Data.jugador.edad,
+            goals: player2Data.estadisticas.goles,
+            assists: player2Data.estadisticas.asistencias,
+            appearances: player2Data.estadisticas.apariciones,
+            marketValue: player2Data.contrato.valor_mercado,
+            salary: player2Data.contrato.salario_semanal,
+            nationality: player2Data.jugador.nacionalidad,
+            height: player2Data.fisico?.altura || 180,
+            weight: player2Data.fisico?.peso || 75,
+            contractEnd: player2Data.contrato?.fin_contrato || '2025-12-31',
+            attributes: player2Data.atributos || {
+              pace: 70,
+              shooting: 70,
+              passing: 70,
+              dribbling: 70,
+              defending: 70,
+              physical: 70
+            },
+            imageUrl: '',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+          }
+        }
       }
     });
     window.dispatchEvent(navigationEvent);

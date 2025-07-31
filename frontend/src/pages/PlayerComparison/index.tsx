@@ -67,6 +67,85 @@ const PlayerComparison: React.FC = () => {
     };
   }, []);
 
+  // Listener para carga automática de comparación desde MCP
+  useEffect(() => {
+    const handleLoadComparison = (event: CustomEvent) => {
+      const { player1, player2 } = event.detail;
+      console.log("⚖️ Cargando comparación automática:", { player1, player2 });
+      console.log("🔍 Atributos player1:", player1.attributes);
+      console.log("🔍 Atributos player2:", player2.attributes);
+      
+      // Convertir los datos a formato Player
+      const players = [
+        {
+          id: player1.id,
+          name: player1.name,
+          team: player1.team,
+          position: player1.position,
+          age: player1.age,
+          goals: player1.goals,
+          assists: player1.assists,
+          marketValue: player1.marketValue,
+          // Campos requeridos del interface Player
+          nationality: player1.nationality || 'Unknown',
+          height: player1.height || 180,
+          weight: player1.weight || 75,
+          appearances: player1.appearances || 0,
+          salary: player1.salary || 0,
+          contractEnd: player1.contractEnd || '2025-12-31',
+          attributes: player1.attributes || {
+            pace: 70,
+            shooting: 70,
+            passing: 70,
+            dribbling: 70,
+            defending: 70,
+            physical: 70
+          },
+          imageUrl: player1.imageUrl || '',
+          createdAt: player1.createdAt || new Date().toISOString(),
+          updatedAt: player1.updatedAt || new Date().toISOString()
+        },
+        {
+          id: player2.id,
+          name: player2.name,
+          team: player2.team,
+          position: player2.position,
+          age: player2.age,
+          goals: player2.goals,
+          assists: player2.assists,
+          marketValue: player2.marketValue,
+          // Campos requeridos del interface Player
+          nationality: player2.nationality || 'Unknown',
+          height: player2.height || 180,
+          weight: player2.weight || 75,
+          appearances: player2.appearances || 0,
+          salary: player2.salary || 0,
+          contractEnd: player2.contractEnd || '2025-12-31',
+          attributes: player2.attributes || {
+            pace: 70,
+            shooting: 70,
+            passing: 70,
+            dribbling: 70,
+            defending: 70,
+            physical: 70
+          },
+          imageUrl: player2.imageUrl || '',
+          createdAt: player2.createdAt || new Date().toISOString(),
+          updatedAt: player2.updatedAt || new Date().toISOString()
+        }
+      ];
+      
+      setSelectedPlayers(players);
+      console.log("✅ Jugadores seleccionados automáticamente para comparación");
+    };
+
+    window.addEventListener('loadComparison', handleLoadComparison as EventListener);
+    
+    return () => {
+      window.removeEventListener('loadComparison', handleLoadComparison as EventListener);
+    };
+  }, []);
+
   // Filtrar jugadores por búsqueda
   const filteredPlayers = availablePlayers.filter(player =>
     player.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
