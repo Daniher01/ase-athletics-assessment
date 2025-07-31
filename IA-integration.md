@@ -3,557 +3,678 @@
 
 ---
 
-## 📋 Executive Summary
+## 🎯 Objetivo del MVP
 
-**Objetivo**: Convertir ASE Athletics en una plataforma habilitada con MCP-B, permitiendo que los usuarios interactúen con la analítica de fútbol mediante chat con AI de forma natural, manteniendo toda la funcionalidad existente.
+Convertir ASE Athletics en un servidor MCP-B con **UN SOLO CASO DE USO**: analizar un jugador específico mediante IA, donde:
 
-**ROI Esperado**: 
-- 🚀 **40% reducción** en tiempo de análisis de jugadores
-- 📈 **60% aumento** en engagement de usuarios avanzados
-- 🎯 **Diferenciación competitiva** como primera plataforma de fútbol con AI integrada
-
----
-
-## 🎯 Casos de Uso de Producto
-
-### Para Scouts Profesionales
-- **Chat Natural**: *"Compara Mbappé con Haaland en términos de eficiencia goleadora"*
-- **Análisis Rápido**: *"Muéstrame los mejores defensas centrales menores de 25 años"*
-- **Reportes Automáticos**: *"Genera un reporte de scouting para Pedri"*
-
-### Para Directores Técnicos
-- **Planificación Táctica**: *"¿Qué jugadores del Barcelona tienen mejor passing accuracy?"*
-- **Benchmarking**: *"Compara nuestro plantel con el Real Madrid por posiciones"*
-- **Decisiones de Transferencia**: *"Analiza el valor de mercado vs rendimiento de jugadores disponibles"*
-
-### Para Analistas de Datos
-- **Consultas Complejas**: *"Correlaciona edad con rendimiento en delanteros de La Liga"*
-- **Tendencias**: *"¿Cuál es la evolución de goles por partido en los últimos 3 años?"*
-- **Insights Automáticos**: AI detecta patrones y sugiere análisis
+1. **Nueva página**: "Analizar con IA" en el menú principal
+2. **Una sola tool MCP**: `analizar_jugador` que recibe el nombre del jugador
+3. **Análisis en la web**: Los resultados aparecen en la página web, no solo en el chat de la extensión
+4. **API existente**: Aprovechar el endpoint `GET /api/players/:id` que ya tienes
 
 ---
 
-## 🏗️ Arquitectura Técnica
+## 🏗️ Arquitectura Simplificada
 
-### Estado Actual vs Estado Objetivo
+```
+Usuario → Página "Analizar con IA" → Extensión Chrome MCP-B → Tool MCP → API /players/:id → Análisis mostrado en la página
+```
 
-```mermaid
-graph TB
-    subgraph "ACTUAL - Arquitectura Tradicional"
-        A1[Usuario] --> A2[Frontend React]
-        A2 --> A3[Backend Express]
-        A3 --> A4[PostgreSQL]
-    end
+### Lo que NO cambia (95% de tu app)
+
+- ✅ Toda la aplicación actual sigue igual
+- ✅ Todos los endpoints existentes
+- ✅ Dashboard, tablas, filtros, etc.
+- ✅ Sistema de autenticación
+
+### Lo que SÍ añades (5% nuevo)
+
+- ✅ Nueva página "Analizar con IA"
+- ✅ Un nuevo endpoint optimizado para MCP
+- ✅ Servidor MCP integrado en el frontend
+- ✅ Una sola herramienta: analizar jugador
+
+---
+
+## 🛠️ Plan de Implementación
+
+### Fase 1: Backend - Nuevo Endpoint MCP (30 min)
+
+**Ubicación**: `backend/src/routes/mcp.ts`
+
+```typescript
+import express, { Request, Response } from 'express';
+import { authenticateToken } from '../middleware/auth';
+import { playersService } from '../services/playersService';
+
+const router = express.Router();
+
+// POST /api/mcp/analizar-jugador
+router.post('/analizar-jugador', authenticateToken, async (req: Request, res: Response) => {
+  try {
+    const { nombre_jugador } = req.body;
     
-    subgraph "OBJETIVO - Arquitectura MCP-Enabled"
-        B1[Usuario] --> B2[Frontend React + MCP Server]
-        B1 --> B3[Extensión Chrome MCP-B]
-        B3 --> B2
-        B2 --> B4[Backend Express]
-        B4 --> B5[PostgreSQL]
-        B6[AI/LLM] --> B3
-    end
-```
+    // Validar entrada
+    if (!nombre_jugador || typeof nombre_jugador !== 'string') {
+      return res.status(400).json({
+        success: false,
+        error: 'Nombre de jugador requerido'
+      });
+    }
 
-### Componentes Nuevos Necesarios
+    // Buscar jugador por nombre (usando el servicio existente)
+    const jugadores = await playersService.searchPlayersByName(nombre_jugador.trim());
+    
+    if (jugadores.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: 'Jugador no encontrado',
+        message: `No se encontró ningún jugador con el nombre "${nombre_jugador}"`
+      });
+    }
 
-1. **MCP Server Integration** (Frontend)
-2. **Chrome Extension MCP-B** (Ya instalada)
-3. **API Endpoints Optimizados** (Backend)
-4. **No se requiere API de LLM propia** (la extensión maneja esto)
+    // Tomar el primer resultado (más relevante)
+    const jugador = jugadores[0];
+    
+    // Obtener datos completos del jugador
+    const jugadorCompleto = await playersService.getPlayerById(jugador.id);
 
----
+    // Formato optimizado para análisis de IA
+    const analisisData = {
+      jugador: {
+        nombre: jugadorCompleto.name,
+        posicion: jugadorCompleto.position,
+        edad: jugadorCompleto.age,
+        equipo: jugadorCompleto.team,
+        nacionalidad: jugadorCompleto.nationality
+      },
+      estadisticas: {
+        goles: jugadorCompleto.goals,
+        asistencias: jugadorCompleto.assists,
+        apariciones: jugadorCompleto.appearances,
+        minutos_jugados: jugadorCompleto.minutesPlayed,
+        tarjetas_amarillas: jugadorCompleto.yellowCards,
+        tarjetas_rojas: jugadorCompleto.redCards
+      },
+      atributos: jugadorCompleto.attributes || {},
+      contrato: {
+        salario_semanal: jugadorCompleto.salary,
+        valor_mercado: jugadorCompleto.marketValue,
+        fin_contrato: jugadorCompleto.contractEnd
+      },
+      fisico: {
+        altura: jugadorCompleto.height,
+        peso: jugadorCompleto.weight,
+        pie_preferido: jugadorCompleto.preferredFoot
+      }
+    };
 
-## 🛠️ Plan de Implementación Técnica
+    // Respuesta estructurada para MCP
+    res.status(200).json({
+      success: true,
+      message: `Datos encontrados para ${jugadorCompleto.name}`,
+      data: analisisData,
+      timestamp: new Date().toISOString()
+    });
 
-### Fase 1: Preparación del Backend (1 semana)
-
-#### 1.1 Nuevos Endpoints MCP-Optimizados
-
-**Ubicación**: `backend/src/routes/mcp.routes.ts`
-
-```typescript
-// Endpoints específicos para MCP con respuestas estructuradas
-GET /api/mcp/players/analyze-position
-GET /api/mcp/players/compare
-GET /api/mcp/reports/generate-scouting
-GET /api/mcp/dashboard/insights
-```
-
-**Por qué nuevos endpoints**: Las respuestas MCP necesitan formato específico (JSON estructurado) vs las respuestas de UI (HTML/componentes React).
-
-#### 1.2 Schemas de Validación MCP
-
-**Ubicación**: `backend/src/schemas/mcp.schemas.ts`
-
-```typescript
-// Usando Zod para validación estricta (requerido por MCP)
-export const AnalyzePositionSchema = z.object({
-  position: z.enum(['Centre-Forward', 'Centre-Back', 'Central Midfield']),
-  minAge: z.number().optional(),
-  maxAge: z.number().optional(),
-  team: z.string().optional(),
-  limit: z.number().default(10)
+  } catch (error: any) {
+    console.error('Error en analizar-jugador:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Error interno del servidor',
+      message: 'No se pudo analizar el jugador'
+    });
+  }
 });
+
+export default router;
 ```
 
-**Por qué Zod**: TypeScript necesita validación de schemas muy estricta para comunicación MCP. Es más robusto que validación manual.
+**Agregar en server.ts**:
 
-### Fase 2: Integración MCP en Frontend (1.5 semanas)
+```typescript
+import mcpRoutes from './routes/mcp';
 
-#### 2.1 Instalación de Dependencias
+// Agregar esta línea con las otras rutas
+app.use('/api/mcp', mcpRoutes);
+```
 
-**Ubicación**: `frontend/package.json`
+### Fase 2: Frontend - Servidor MCP (45 min)
+
+#### 2.1 Instalar Dependencias
 
 ```bash
-npm install @mcp-b/transports @modelcontextprotocol/sdk zod
+cd frontend
+npm install @modelcontextprotocol/sdk zod
 ```
 
-**Por qué estos paquetes**:
-- `@mcp-b/transports`: Comunicación con extensión Chrome
-- `@modelcontextprotocol/sdk`: Protocolo estándar MCP
-- `zod`: Validación de tipos (mismo que backend para consistencia)
+**Por qué estas dependencias**:
 
-#### 2.2 Servidor MCP Integrado
+- `@modelcontextprotocol/sdk`: Protocolo estándar para comunicación MCP
+- `zod`: Validación de tipos TypeScript (necesario para MCP)
 
-**Ubicación**: `frontend/src/mcp/aseAthleticsMcpServer.ts`
+#### 2.2 Crear Servidor MCP
+
+**Ubicación**: `frontend/src/mcp/aseAnalyticsMcp.ts`
 
 ```typescript
-import { TabServerTransport } from "@mcp-b/transports";
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { z } from "zod";
+import { Server } from '@modelcontextprotocol/sdk/server/index.js';
+import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
+import { 
+  CallToolRequestSchema,
+  ListToolsRequestSchema,
+} from '@modelcontextprotocol/sdk/types.js';
+import { z } from 'zod';
 
-// Servidor MCP específico para ASE Athletics
-const server = new McpServer({
-  name: "ase-analytics",
-  version: "1.0.0",
+// Schema de validación para la herramienta
+const AnalizarJugadorSchema = z.object({
+  nombre_jugador: z.string().min(1, "Nombre del jugador es requerido")
 });
 
-// Tool 1: Análisis por posición
-server.tool(
-  "analyze_players_by_position",
-  "Analiza jugadores por posición específica",
-  {
-    type: "object",
-    properties: {
-      position: { 
-        type: "string", 
-        enum: ["Centre-Forward", "Centre-Back", "Central Midfield"],
-        description: "Posición a analizar" 
-      },
-      limit: { type: "number", description: "Número de jugadores", default: 10 }
-    },
-    required: ["position"]
-  },
-  async (args) => {
-    const response = await fetch('/api/mcp/players/analyze-position', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'same-origin',
-      body: JSON.stringify(args)
-    });
-    
-    const data = await response.json();
-    
-    return {
-      content: [{
-        type: "text",
-        text: JSON.stringify(data, null, 2)
-      }]
-    };
-  }
-);
+class ASEAnalyticsMCPServer {
+  private server: Server;
 
-// Tool 2: Comparación de jugadores
-server.tool(
-  "compare_players",
-  "Compara estadísticas entre 2 o más jugadores",
-  {
-    type: "object",
-    properties: {
-      playerIds: { 
-        type: "array", 
-        items: { type: "number" },
-        description: "IDs de jugadores a comparar" 
+  constructor() {
+    this.server = new Server(
+      {
+        name: "ase-analytics",
+        version: "1.0.0",
       },
-      metrics: {
-        type: "array",
-        items: { type: "string" },
-        description: "Métricas a comparar (goals, assists, etc.)"
+      {
+        capabilities: {
+          tools: {},
+        },
       }
-    },
-    required: ["playerIds"]
-  },
-  async (args) => {
-    const response = await fetch('/api/mcp/players/compare', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'same-origin',
-      body: JSON.stringify(args)
-    });
-    
-    const data = await response.json();
-    
-    return {
-      content: [{
-        type: "text",
-        text: JSON.stringify(data, null, 2)
-      }]
-    };
-  }
-);
+    );
 
-// Tool 3: Generación de reportes automáticos
-server.tool(
-  "generate_scouting_report",
-  "Genera reporte automático de scouting para un jugador",
-  {
-    type: "object",
-    properties: {
-      playerId: { type: "number", description: "ID del jugador" },
-      focus: { 
-        type: "string", 
-        enum: ["offensive", "defensive", "complete"],
-        description: "Enfoque del análisis"
-      }
-    },
-    required: ["playerId"]
-  },
-  async (args) => {
-    const response = await fetch('/api/mcp/reports/generate-scouting', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'same-origin',
-      body: JSON.stringify(args)
+    this.setupToolHandlers();
+    this.setupErrorHandling();
+  }
+
+  private setupToolHandlers() {
+    // Listar herramientas disponibles
+    this.server.setRequestHandler(ListToolsRequestSchema, async () => {
+      return {
+        tools: [
+          {
+            name: "analizar_jugador",
+            description: "Analiza un jugador específico de fútbol obteniendo todas sus estadísticas, atributos y datos de rendimiento",
+            inputSchema: {
+              type: "object",
+              properties: {
+                nombre_jugador: {
+                  type: "string",
+                  description: "Nombre del jugador a analizar (ej: 'Lionel Messi', 'Cristiano Ronaldo')"
+                }
+              },
+              required: ["nombre_jugador"]
+            }
+          }
+        ]
+      };
     });
-    
-    const data = await response.json();
-    
-    return {
-      content: [{
-        type: "text",
-        text: JSON.stringify(data, null, 2)
-      }]
+
+    // Ejecutar herramienta
+    this.server.setRequestHandler(CallToolRequestSchema, async (request) => {
+      const { name, arguments: args } = request.params;
+
+      if (name === "analizar_jugador") {
+        try {
+          // Validar argumentos
+          const validatedArgs = AnalizarJugadorSchema.parse(args);
+          
+          // Llamar a la API
+          const response = await fetch('/api/mcp/analizar-jugador', {
+            method: 'POST',
+            headers: { 
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${localStorage.getItem('token')}` // Usar tu token JWT
+            },
+            body: JSON.stringify(validatedArgs)
+          });
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Error al analizar jugador');
+          }
+
+          const data = await response.json();
+
+          // Actualizar interfaz de usuario
+          this.updateUIWithAnalysis(data.data);
+
+          // Respuesta para la IA
+          return {
+            content: [
+              {
+                type: "text",
+                text: `✅ ANÁLISIS COMPLETADO para ${data.data.jugador.nombre}
+
+🏈 INFORMACIÓN BÁSICA:
+- Posición: ${data.data.jugador.posicion}
+- Edad: ${data.data.jugador.edad} años
+- Equipo: ${data.data.jugador.equipo}
+- Nacionalidad: ${data.data.jugador.nacionalidad}
+
+📊 ESTADÍSTICAS TEMPORADA:
+- Goles: ${data.data.estadisticas.goles}
+- Asistencias: ${data.data.estadisticas.asistencias}
+- Apariciones: ${data.data.estadisticas.apariciones}
+- Minutos jugados: ${data.data.estadisticas.minutos_jugados}
+
+💰 VALOR DE MERCADO: €${data.data.contrato.valor_mercado?.toLocaleString() || 'No disponible'}
+
+📈 ATRIBUTOS PRINCIPALES:
+${Object.entries(data.data.atributos).map(([attr, value]) => 
+  `- ${attr}: ${value}/100`
+).join('\n')}
+
+Los datos completos se han cargado en la interfaz web para análisis detallado.`
+              }
+            ]
+          };
+
+        } catch (error: any) {
+          return {
+            content: [
+              {
+                type: "text", 
+                text: `❌ Error: ${error.message}`
+              }
+            ],
+            isError: true
+          };
+        }
+      }
+
+      throw new Error(`Herramienta desconocida: ${name}`);
+    });
+  }
+
+  private updateUIWithAnalysis(data: any) {
+    // Disparar evento personalizado para actualizar la UI
+    const event = new CustomEvent('mcpAnalysisComplete', {
+      detail: data
+    });
+    window.dispatchEvent(event);
+  }
+
+  private setupErrorHandling() {
+    this.server.onerror = (error) => {
+      console.error("[MCP Server Error]", error);
     };
   }
-);
+
+  async run() {
+    const transport = new StdioServerTransport();
+    await this.server.connect(transport);
+    console.log("ASE Analytics MCP Server está ejecutándose");
+  }
+}
 
 // Inicializar servidor MCP
-export async function initializeASEMcpServer() {
-  await server.connect(new TabServerTransport({ 
-    allowedOrigins: [
-      "https://ase-athletics-assessment.vercel.app",
-      "http://localhost:3000"
-    ]
-  }));
-  
-  console.log("ASE Athletics MCP Server initialized");
+export async function initializeASEMCP() {
+  try {
+    const mcpServer = new ASEAnalyticsMCPServer();
+    await mcpServer.run();
+  } catch (error) {
+    console.error("Error inicializando MCP Server:", error);
+  }
 }
 ```
 
-#### 2.3 Integración en App Principal
+#### 2.3 Nueva Página "Analizar con IA"
 
-**Ubicación**: `frontend/src/App.tsx`
+**Ubicación**: `frontend/src/pages/AnalisisIA/AnalisisIA.tsx`
 
-```typescript
-import { useEffect } from 'react';
-import { initializeASEMcpServer } from './mcp/aseAthleticsMcpServer';
+```tsx
+import React, { useState, useEffect } from 'react';
+import { initializeASEMCP } from '../../mcp/aseAnalyticsMcp';
 
-function App() {
+interface JugadorAnalisis {
+  jugador: {
+    nombre: string;
+    posicion: string;
+    edad: number;
+    equipo: string;
+    nacionalidad: string;
+  };
+  estadisticas: any;
+  atributos: any;
+  contrato: any;
+  fisico: any;
+}
+
+const AnalisisIA: React.FC = () => {
+  const [mcpActivo, setMcpActivo] = useState(false);
+  const [analisisActual, setAnalisisActual] = useState<JugadorAnalisis | null>(null);
+  const [loading, setLoading] = useState(false);
+
   useEffect(() => {
-    // Inicializar MCP solo en producción o cuando se detecte la extensión
-    if (window.chrome?.runtime) {
-      initializeASEMcpServer().catch(console.error);
-    }
+    // Inicializar MCP cuando se monta el componente
+    const inicializarMCP = async () => {
+      try {
+        await initializeASEMCP();
+        setMcpActivo(true);
+        console.log("✅ MCP Server inicializado");
+      } catch (error) {
+        console.error("❌ Error inicializando MCP:", error);
+      }
+    };
+
+    inicializarMCP();
+
+    // Escuchar eventos de análisis completado
+    const handleAnalysisComplete = (event: CustomEvent) => {
+      setAnalisisActual(event.detail);
+      setLoading(false);
+    };
+
+    window.addEventListener('mcpAnalysisComplete', handleAnalysisComplete as EventListener);
+
+    return () => {
+      window.removeEventListener('mcpAnalysisComplete', handleAnalysisComplete as EventListener);
+    };
   }, []);
 
   return (
-    // Tu aplicación existente sin cambios
-    <Router>
-      <Routes>
-        {/* Todas tus rutas actuales */}
-      </Routes>
-    </Router>
-  );
-}
-```
+    <div className="container mx-auto px-4 py-8">
+      <div className="max-w-4xl mx-auto">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-4">
+            🤖 Analizar Jugador con IA
+          </h1>
+          <p className="text-lg text-gray-600">
+            Usa inteligencia artificial para obtener análisis profundos de cualquier jugador
+          </p>
+        </div>
 
-**Por qué en useEffect**: Necesitas esperar que el DOM esté listo antes de inicializar MCP. La detección de Chrome extension evita errores en desarrollo.
+        {/* Estado del MCP */}
+        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className={`w-3 h-3 rounded-full ${mcpActivo ? 'bg-green-500' : 'bg-red-500'}`}></div>
+              <span className="font-medium">
+                {mcpActivo ? '✅ Servidor MCP activo' : '❌ Servidor MCP inactivo'}
+              </span>
+            </div>
+            
+            {mcpActivo && (
+              <div className="text-sm text-gray-500">
+                💡 Extensión Chrome detectada y conectada
+              </div>
+            )}
+          </div>
+        </div>
 
-### Fase 3: Mejoras UX Opcionales (1 semana)
+        {/* Instrucciones */}
+        <div className="bg-blue-50 border-l-4 border-blue-400 p-6 mb-6">
+          <h3 className="text-lg font-semibold text-blue-900 mb-3">
+            📋 Cómo usar el análisis con IA:
+          </h3>
+          <ol className="list-decimal list-inside space-y-2 text-blue-800">
+            <li>Asegúrate de tener instalada la extensión Chrome MCP-B</li>
+            <li>Abre el chat de la extensión</li>
+            <li>Escribe: <code className="bg-blue-100 px-2 py-1 rounded">"Analiza a Lionel Messi"</code></li>
+            <li>La IA ejecutará automáticamente la herramienta y mostrará resultados aquí</li>
+          </ol>
+        </div>
 
-#### 3.1 Indicadores Visuales de Actividad AI
+        {/* Área de resultados */}
+        {loading && (
+          <div className="bg-white rounded-lg shadow-md p-8 text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+            <p className="text-gray-600">🤖 IA analizando jugador...</p>
+          </div>
+        )}
 
-**Ubicación**: `frontend/src/components/common/McpActivityIndicator.tsx`
+        {analisisActual && !loading && (
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">
+              📊 Análisis de {analisisActual.jugador.nombre}
+            </h2>
+            
+            {/* Información básica */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <h3 className="font-semibold text-gray-900 mb-3">ℹ️ Información Básica</h3>
+                <div className="space-y-2 text-sm">
+                  <p><span className="font-medium">Posición:</span> {analisisActual.jugador.posicion}</p>
+                  <p><span className="font-medium">Edad:</span> {analisisActual.jugador.edad} años</p>
+                  <p><span className="font-medium">Equipo:</span> {analisisActual.jugador.equipo}</p>
+                  <p><span className="font-medium">Nacionalidad:</span> {analisisActual.jugador.nacionalidad}</p>
+                </div>
+              </div>
 
-```typescript
-// Componente que muestra cuando AI está trabajando
-export const McpActivityIndicator = () => {
-  return (
-    <div className="fixed top-4 right-4 bg-blue-500 text-white px-4 py-2 rounded-lg shadow-lg">
-      🤖 AI analizando datos...
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <h3 className="font-semibold text-gray-900 mb-3">📈 Estadísticas</h3>
+                <div className="space-y-2 text-sm">
+                  <p><span className="font-medium">Goles:</span> {analisisActual.estadisticas.goles}</p>
+                  <p><span className="font-medium">Asistencias:</span> {analisisActual.estadisticas.asistencias}</p>
+                  <p><span className="font-medium">Apariciones:</span> {analisisActual.estadisticas.apariciones}</p>
+                  <p><span className="font-medium">Minutos:</span> {analisisActual.estadisticas.minutos_jugados}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Atributos */}
+            {Object.keys(analisisActual.atributos).length > 0 && (
+              <div className="bg-gray-50 p-4 rounded-lg mb-6">
+                <h3 className="font-semibold text-gray-900 mb-3">⚡ Atributos</h3>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  {Object.entries(analisisActual.atributos).map(([attr, value]) => (
+                    <div key={attr} className="text-sm">
+                      <div className="flex justify-between mb-1">
+                        <span className="capitalize">{attr}:</span>
+                        <span className="font-medium">{value}/100</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div 
+                          className="bg-blue-500 h-2 rounded-full" 
+                          style={{ width: `${value}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Valor de mercado */}
+            {analisisActual.contrato.valor_mercado && (
+              <div className="bg-green-50 p-4 rounded-lg">
+                <h3 className="font-semibold text-green-900 mb-2">💰 Valor de Mercado</h3>
+                <p className="text-2xl font-bold text-green-600">
+                  €{analisisActual.contrato.valor_mercado.toLocaleString()}
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Placeholder inicial */}
+        {!analisisActual && !loading && mcpActivo && (
+          <div className="bg-gray-50 rounded-lg p-8 text-center">
+            <div className="text-6xl mb-4">🤖</div>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">
+              Listo para analizar
+            </h3>
+            <p className="text-gray-600">
+              Usa la extensión Chrome para pedirle a la IA que analice cualquier jugador
+            </p>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
+
+export default AnalisisIA;
 ```
 
-#### 3.2 Notificaciones de Resultados
+#### 2.4 Agregar Nueva Ruta
 
-**Ubicación**: Integrar en componentes existentes
+**En `frontend/src/App.tsx`** (agregar la nueva ruta):
 
-```typescript
-// En PlayersTable.tsx, PlayerComparison.tsx, etc.
-const [mcpActivity, setMcpActivity] = useState(false);
+```tsx
+import AnalisisIA from './pages/AnalisisIA/AnalisisIA';
 
-// Mostrar cuando MCP está activo
-{mcpActivity && <McpActivityIndicator />}
+// Agregar en las rutas existentes
+<Route path="/analisis-ia" element={<AnalisisIA />} />
 ```
 
----
+**En tu componente de navegación** (agregar nuevo item del menú):
 
-## 🔧 Flujo de Trabajo Técnico
-
-### Flujo Usuario → AI → Aplicación
-
-```mermaid
-sequenceDiagram
-    participant U as Usuario
-    participant E as Extensión Chrome
-    participant F as Frontend React
-    participant B as Backend Express
-    participant DB as PostgreSQL
-    
-    U->>E: "Compara Messi con Ronaldo"
-    E->>E: AI interpreta solicitud
-    E->>F: Ejecuta compare_players()
-    F->>B: POST /api/mcp/players/compare
-    B->>DB: Query jugadores + stats
-    DB->>B: Datos de jugadores
-    B->>F: Respuesta JSON estructurada
-    F->>E: Resultados MCP
-    E->>U: Respuesta natural + datos
+```tsx
+<NavLink to="/analisis-ia" className="nav-link">
+  🤖 Analizar con IA
+</NavLink>
 ```
 
-### Flujo de Desarrollo
+### Fase 3: Testing (15 min)
 
-1. **Usuario instala extensión** Chrome MCP-B (una sola vez)
-2. **Usuario visita** tu sitio en producción
-3. **Extensión detecta** automáticamente herramientas disponibles
-4. **Usuario chatea** con AI usando lenguaje natural
-5. **AI ejecuta** herramientas de tu sitio automáticamente
-6. **Resultados aparecen** tanto en chat como en tu interfaz web
-
----
-
-## 💰 Consideraciones de Costo y APIs
-
-### ¿Necesitas API de LLM propia? **NO**
-
-**Por qué no**:
-- La extensión Chrome MCP-B maneja la comunicación con modelos de AI
-- Los usuarios conectan sus propias cuentas de Claude/ChatGPT/etc.
-- Tu aplicación solo provee las herramientas, no el modelo de lenguaje
-
-**Ventajas**:
-- ✅ **Costo $0** en APIs de AI para ti
-- ✅ **Usuarios usan sus propias cuotas** de Claude/GPT
-- ✅ **Mayor privacidad** - datos no pasan por servicios externos adicionales
-- ✅ **Mejor rendimiento** - menos hops en la comunicación
-
-### Costos Adicionales
-
-- **Desarrollo**: ~3-4 semanas desarrollador fullstack
-- **Testing**: ~1 semana QA
-- **Infraestructura**: $0 adicional (misma stack actual)
-
----
-
-## 🎨 Impacto en Interfaz Visual
-
-### Lo que NO cambia (90% de tu app)
-
-Tu aplicación mantiene exactamente:
-- ✅ Todas las páginas actuales
-- ✅ Dashboard con gráficos
-- ✅ Tablas de jugadores
-- ✅ Formularios de reportes
-- ✅ Sistema de autenticación
-- ✅ Responsive design
-
-### Lo que SÍ se añade (10% nuevo)
-
-#### Indicadores de Actividad AI (opcional)
-```typescript
-// En cualquier página donde AI esté trabajando
-<div className="ai-working-indicator">
-  🤖 AI generando análisis...
-</div>
-```
-
-#### Notificaciones de Acciones (opcional)
-```typescript
-// Cuando AI ejecuta una acción
-<Toast>
-  ✅ AI ha comparado 3 jugadores. Ver resultados en tabla.
-</Toast>
-```
-
-#### Integración Sutil en UI Existente
-```typescript
-// En PlayerComparison.tsx - añadir un botón helper
-<button 
-  className="text-sm text-blue-600"
-  onClick={() => showMcpHint()}
->
-  💡 Prueba: pregúntale a AI "compara estos jugadores"
-</button>
-```
-
----
-
-## 📈 Roadmap de Implementación
-
-### Sprint 1: Backend MCP-Ready (Semana 1)
-- [ ] Crear endpoints `/api/mcp/*`
-- [ ] Implementar schemas Zod
-- [ ] Testing endpoints con Postman
-- [ ] Deploy a staging
-
-### Sprint 2: Frontend MCP Integration (Semana 2-3)
-- [ ] Instalar dependencias MCP
-- [ ] Crear servidor MCP en frontend
-- [ ] Registrar herramientas principales
-- [ ] Testing local con extensión
-- [ ] Deploy a staging
-
-### Sprint 3: UX Enhancements (Semana 4)
-- [ ] Indicadores visuales
-- [ ] Notificaciones de actividad
-- [ ] Documentación de uso
-- [ ] Testing completo E2E
-- [ ] Deploy a producción
-
-### Sprint 4: Optimización y Métricas (Semana 5)
-- [ ] Monitoreo de uso MCP
-- [ ] Optimización de respuestas
-- [ ] Documentación técnica
-- [ ] Training para stakeholders
-
----
-
-## 🧪 Testing y Validación
-
-### Testing Manual con Extensión
-
-1. **Instalar extensión** MCP-B en Chrome
-2. **Visitar** tu staging environment
-3. **Verificar detección** de herramientas en extensión
-4. **Probar comandos**:
-   - "Analiza los mejores delanteros"
-   - "Compara Benzema con Lewandowski"
-   - "Genera un reporte para Pedri"
-
-### Casos de Uso para Testing
+#### 3.1 Verificar Backend
 
 ```bash
-# Comandos de prueba para QA team
-"Muéstrame los 5 mejores defensas centrales"
-"Compara estadísticas entre Messi y Ronaldo"
-"¿Cuál es el promedio de edad en el Barcelona?"
-"Genera un reporte de scouting para Haaland"
-"¿Qué jugadores tienen mejor ratio gol/partido?"
+# Terminal 1: Backend
+cd backend
+npm run dev
+
+# Probar endpoint con curl
+curl -X POST http://localhost:5000/api/mcp/analizar-jugador \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer TU_TOKEN_JWT" \
+  -d '{"nombre_jugador": "Messi"}'
+```
+
+#### 3.2 Verificar Frontend
+
+```bash
+# Terminal 2: Frontend  
+cd frontend
+npm start
+
+# Ir a http://localhost:3000/analisis-ia
+```
+
+#### 3.3 Testing con Extensión Chrome
+
+1. **Instalar extensión** MCP-B en Chrome
+2. **Visitar** `http://localhost:3000/analisis-ia`
+3. **Abrir extensión** y verificar que detecta herramientas
+4. **Probar comando**: "Analiza a Lionel Messi"
+5. **Verificar** que los resultados aparecen en la página web
+
+---
+
+## 🎯 Casos de Uso para Testing
+
+```
+"Analiza a Lionel Messi"
+"Quiero ver las estadísticas de Cristiano Ronaldo"
+"Analiza el rendimiento de Kylian Mbappé"
+"Dame información completa sobre Neymar"
 ```
 
 ---
 
-## 📊 Métricas de Éxito
+## 📊 Ventajas de este MVP
 
-### KPIs Técnicos
-- **Tiempo de respuesta MCP**: < 2 segundos
-- **Disponibilidad herramientas**: 99.9%
-- **Errores MCP**: < 1% de solicitudes
+### ✅ Lo que SÍ logras
 
-### KPIs de Producto
-- **Adopción extensión**: % usuarios que instalan MCP-B
-- **Engagement**: Comandos AI vs clicks tradicionales
-- **Retención**: Usuarios que usan AI regularmente
-- **Satisfacción**: NPS específico para feature AI
+- **Diferenciación competitiva**: Primera plataforma de fútbol con IA integrada
+- **Experiencia única**: Chat natural para análisis de jugadores
+- **Cero costo API**: Los usuarios usan sus propias cuentas de IA
+- **Implementación rápida**: Solo 1.5 horas de desarrollo
 
-### Métricas de Negocio
-- **Time-to-insight**: Reducción tiempo análisis
-- **User activation**: % usuarios que prueban AI
-- **Feature stickiness**: Usuarios activos usando AI
+### ✅ Lo que mantienes
+
+- **Toda tu app actual** funciona igual
+- **Endpoints existentes** sin cambios
+- **Sistema de autenticación** se aprovecha
+- **Base de datos** sin modificaciones
 
 ---
 
-## 🚀 Ventajas Competitivas
+## 🚀 Roadmap Futuro (Post-MVP)
 
-### Diferenciación en el Mercado
-- **Primera plataforma** de análisis deportivo con AI conversacional integrada
-- **Experiencia única** de usuario con chat natural
-- **Productividad aumentada** para scouts y analistas
+Una vez que funcione este MVP, puedes expandir fácilmente:
 
-### Casos de Uso Únicos
-- **Scouting asistido por AI**: "Encuentra jugadores similares a Pedri"
-- **Análisis predictivo**: "¿Qué jugadores tienen potencial de crecimiento?"
-- **Benchmarking automático**: "Compara nuestro plantel con la competencia"
-
----
-
-## 🔒 Consideraciones de Seguridad
-
-### Autenticación MCP
-- Las herramientas MCP **respetan** tu sistema de autenticación actual
-- **Cookies de sesión** se mantienen en las llamadas API
-- **No exposición** de datos sensibles en herramientas públicas
-
-### Permisos y Validación
-```typescript
-// Validar permisos en cada herramienta MCP
-server.tool("sensitive_data", "...", {}, async (args, context) => {
-  // Verificar JWT token desde cookie
-  const token = extractTokenFromRequest(context);
-  if (!isValidToken(token)) {
-    throw new Error("Unauthorized");
-  }
-  
-  // Proceder con lógica normal...
-});
-```
+1. **Más herramientas MCP**:
+    
+    - `comparar_jugadores`
+    - `buscar_por_posicion`
+    - `generar_reporte_scouting`
+2. **Análisis más avanzados**:
+    
+    - Gráficos dinámicos generados por IA
+    - Recomendaciones de fichajes
+    - Predicciones de rendimiento
+3. **Mejoras UX**:
+    
+    - Historial de análisis
+    - Guardar jugadores favoritos
+    - Exportar reportes PDF
 
 ---
 
-## 📋 Next Steps Inmediatos
+## ⚠️ Consideraciones Importantes
 
-### Para el Equipo de Desarrollo
-1. **Review técnico** de este documento con el equipo
-2. **Spike de investigación** (2 días) para validar viabilidad
-3. **Estimación refinada** de cada fase
-4. **Setup de ambiente** de desarrollo con extensión
+### Seguridad
 
-### Para Product Management
-1. **Definir métricas** de éxito específicas
-2. **Crear user stories** detalladas para cada herramienta MCP
-3. **Planificar comunicación** a usuarios sobre nueva funcionalidad
-4. **Estrategia de rollout** (beta users, gradual, etc.)
+- ✅ **Autenticación JWT** se mantiene en todas las llamadas MCP
+- ✅ **Validación de entrada** con Zod
+- ✅ **No exposición** de datos sensibles
 
-### Para QA/Testing
-1. **Instalar extensión** MCP-B en entornos de testing
-2. **Definir test cases** específicos para cada herramienta
-3. **Setup de métricas** de performance y reliability
-4. **Documentar flujos** de testing MCP
+### Performance
 
----
+- ✅ **Un solo endpoint** optimizado
+- ✅ **Reutilización** de servicios existentes
+- ✅ **Respuestas ligeras** para MCP
 
-## 🎯 Conclusión
+### Compatibilidad
 
-La integración de MCP-B en ASE Athletics representa una **oportunidad única** de diferenciación competitiva, ofreciendo a los usuarios una experiencia revolucionaria de análisis deportivo asistido por AI, manteniendo toda la robustez y funcionalidad de la plataforma actual.
-
-**Inversión**: 4-5 semanas desarrollo
-**ROI**: Diferenciación competitiva + experiencia de usuario premium
-**Riesgo**: Bajo (no afecta funcionalidad existente)
+- ✅ **Chrome extension** como único requisito
+- ✅ **Fallback graceful** si no hay extensión
+- ✅ **No afecta** usuarios que no usen IA
 
 ---
 
-*Documento preparado para ASE Athletics - Product Management*
-*Versión 1.0 - Enero 2025*
+## 📋 Checklist de Implementación
+
+### Backend (30 min)
+
+- [ ] Crear `/backend/src/routes/mcp.ts`
+- [ ] Agregar `app.use('/api/mcp', mcpRoutes)` en server.ts
+- [ ] Probar endpoint con Postman/curl
+
+### Frontend (45 min)
+
+- [ ] Instalar dependencias: `npm install @modelcontextprotocol/sdk zod`
+- [ ] Crear `/frontend/src/mcp/aseAnalyticsMcp.ts`
+- [ ] Crear `/frontend/src/pages/AnalisisIA/AnalisisIA.tsx`
+- [ ] Agregar ruta en App.tsx
+- [ ] Agregar ítem en menú de navegación
+
+### Testing (15 min)
+
+- [ ] Verificar backend con curl
+- [ ] Verificar frontend carga correctamente
+- [ ] Instalar extensión Chrome MCP-B
+- [ ] Probar comando "Analiza a Messi"
+- [ ] Verificar resultados en página web
+
+---
+
+## 🎉 Resultado Esperado
+
+Al completar este MVP tendrás:
+
+1. **Una nueva página** "Analizar con IA" en tu aplicación
+2. **Integración MCP-B** funcionando con una herramienta
+3. **Análisis por voz natural**: "Analiza a Messi" → Resultados en la web
+4. **Diferenciación competitiva** única en el mercado
+5. **Base sólida** para expandir más herramientas de IA
+
+**Tiempo total estimado**: 1.5 horas **Complejidad**: Baja (aprovechar infraestructura existente) **Impacto**: Alto (feature innovadora y diferenciadora)
