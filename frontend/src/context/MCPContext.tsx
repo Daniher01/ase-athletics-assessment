@@ -61,18 +61,38 @@ export const MCPProvider: React.FC<MCPProviderProps> = ({ children }) => {
 
   // Verificar estado MCP periódicamente
   useEffect(() => {
-    const intervalo = setInterval(() => {
+    const intervalo = setInterval(async () => {
       const estadoActual = isMCPActive();
+      console.log("🔍 Verificando estado MCP:", { actual: estadoActual, previo: mcpActivo });
+      
       if (estadoActual !== mcpActivo) {
         setMcpActivo(estadoActual);
-        if (!estadoActual) {
-          setMcpError("Conexión MCP perdida - se intentará reconectar");
+        if (!estadoActual && mcpActivo) {
+          console.warn("⚠️ Conexión MCP perdida, intentando reconectar...");
+          setMcpError("Conexión MCP perdida - intentando reconectar...");
+          
+          // Intentar reconectar automáticamente
+          setTimeout(async () => {
+            try {
+              const reconectado = await conectarMCP();
+              if (reconectado) {
+                console.log("✅ Reconexión MCP exitosa");
+                setMcpError(null);
+              } else {
+                console.error("❌ Falló la reconexión MCP");
+                setMcpError("No se pudo reconectar automáticamente");
+              }
+            } catch (error) {
+              console.error("❌ Error en reconexión automática:", error);
+              setMcpError("Error en reconexión automática");
+            }
+          }, 2000);
         }
       }
-    }, 5000); // Verificar cada 5 segundos
+    }, 3000); // Verificar cada 3 segundos (más frecuente)
 
     return () => clearInterval(intervalo);
-  }, [mcpActivo]);
+  }, [mcpActivo, conectarMCP]);
 
   return (
     <MCPContext.Provider value={{

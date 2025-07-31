@@ -84,6 +84,7 @@ Perfecto para scouts, directores deportivos y analistas que necesitan evaluacion
       if (name === "analizar_jugador") {
         try {
           console.log("🔄 Ejecutando análisis de jugador con args:", args);
+          console.log("🟢 Estado MCP antes del análisis:", isMCPActive());
           
           // Validar argumentos
           const validatedArgs = AnalizarJugadorSchema.parse(args);
@@ -91,18 +92,22 @@ Perfecto para scouts, directores deportivos y analistas que necesitan evaluacion
           
           // Disparar evento de loading
           this.updateUIState({ loading: true, error: null });
+          console.log("🟢 Estado MCP después de updateUIState:", isMCPActive());
           
           // Llamar a la API usando el servicio
           const data = await playerService.analizarJugador(validatedArgs.nombre_jugador);
           console.log("✅ Datos recibidos:", data);
+          console.log("🟢 Estado MCP después de API call:", isMCPActive());
 
           // Navegar a la página de detalle del jugador
           this.navigateToPlayerDetail(data.data);
+          console.log("🟢 Estado MCP después de navegación:", isMCPActive());
 
           // 🎯 RESPUESTA CON PROMPT PROFESIONAL INTEGRADO
           const analisisTexto = this.formatearAnalisisConPrompt(data.data);
+          console.log("🟢 Estado MCP después de formatear:", isMCPActive());
 
-          return {
+          const response = {
             content: [
               {
                 type: "text",
@@ -111,8 +116,14 @@ Perfecto para scouts, directores deportivos y analistas que necesitan evaluacion
             ]
           };
 
+          console.log("🟢 Estado MCP antes de return:", isMCPActive());
+          console.log("✅ Retornando respuesta exitosa");
+          
+          return response;
+
         } catch (error: any) {
           console.error("❌ Error en análisis:", error);
+          console.log("🟢 Estado MCP en catch:", isMCPActive());
           
           // Actualizar UI con error
           this.updateUIState({ loading: false, error: error.message });
@@ -222,6 +233,8 @@ Por favor, crea un análisis profundo y profesional que ayude a tomar decisiones
 
   async connect() {
     try {
+      console.log("🚀 Iniciando conexión MCP...");
+      
       // Crear transporte para extensión Chrome
       this.transport = new TabServerTransport({
         allowedOrigins: [
@@ -230,11 +243,28 @@ Por favor, crea un análisis profundo y profesional que ayude a tomar decisiones
         ]
       });
 
+      console.log("🔌 Transporte creado, conectando servidor...");
+
       // Conectar servidor MCP
       await this.server.connect(this.transport);
       
       console.log("🔗 ASE Analytics MCP Server conectado exitosamente");
       console.log("🌐 Origen permitido:", window.location.origin);
+      
+      // Agregar listeners para detectar desconexiones
+      if (this.transport) {
+        this.transport.onclose = () => {
+          console.warn("⚠️ Transporte MCP cerrado");
+          mcpServerInstance = null;
+          this.updateUIState({ loading: false, error: "Conexión MCP perdida" });
+        };
+
+        this.transport.onerror = (error) => {
+          console.error("❌ Error en transporte MCP:", error);
+          mcpServerInstance = null;
+          this.updateUIState({ loading: false, error: `Error de transporte: ${error}` });
+        };
+      }
       
       // Notificar conexión exitosa
       this.updateUIState({ loading: false, error: null });

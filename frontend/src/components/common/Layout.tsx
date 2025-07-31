@@ -11,7 +11,8 @@ import {
   FileText, 
   Settings,
   LogOut,
-  Bot
+  Bot,
+  ChevronRight
 } from 'lucide-react'
 
 interface LayoutProps {
@@ -56,13 +57,29 @@ export default function Layout({ children }: LayoutProps) {
                 <span className="ml-3 text-white text-xl font-semibold">Athletics</span>
               )}
             </div>
-            <button
-              onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-              className="text-secondary-300 hover:text-white p-2 rounded-md transition-colors"
-            >
-              <Menu className="h-5 w-5" />
-            </button>
+            {!isSidebarCollapsed && (
+              <button
+                onClick={() => setIsSidebarCollapsed(true)}
+                className="text-secondary-300 hover:text-white p-2 rounded-md transition-colors"
+                title="Contraer menú"
+              >
+                <Menu className="h-5 w-5" />
+              </button>
+            )}
           </div>
+
+          {/* Botón expandir cuando está colapsado */}
+          {isSidebarCollapsed && (
+            <div className="px-2 pb-4">
+              <button
+                onClick={() => setIsSidebarCollapsed(false)}
+                className="w-full flex justify-center items-center py-3 text-secondary-300 hover:text-white hover:bg-secondary-700 rounded-md transition-colors"
+                title="Expandir menú"
+              >
+                <ChevronRight className="h-5 w-5" />
+              </button>
+            </div>
+          )}
 
           {/* Estado MCP Global */}
           <div className="px-4 py-2">
